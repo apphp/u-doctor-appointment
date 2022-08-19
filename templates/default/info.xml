@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<install version="1.0" type="template">
+    <name>Default Template</name>
+    <creationDate>08/05/2017</creationDate>
+    <lastChangedDate>01/01/2018</lastChangedDate>
+    <author>ApPHP</author>
+    <authorEmail></authorEmail>
+    <authorUrl></authorUrl>
+    <copyright>ApPHP</copyright>
+    <license>LGPL</license>
+    <version>1.0.1</version>
+    <description>uDoctorAppointment Default Template</description>
+    <layout>2 Columns Responsive Layout</layout>
+    <direction>Left-to-Right/Right-to-Left</direction>
+    <icon>images/template_icon.png</icon>
+    <menus>
+        <menu>Top</menu>
+        <menu>Right</menu>
+        <menu>Bottom</menu>
+    </menus>    
+    <files>
+        <css>
+            <filename></filename>
+        </css>
+        <images>
+            <filename>template_icon.png</filename>
+        </images>    
+        <js>
+            <filename></filename>
+        </js>
+        <revolution>
+            <filename></filename>
+        </revolution>
+        <filename>bottom.php</filename>
+        <filename>default.php</filename>
+        <filename>footer.php</filename>
+        <filename>header.php</filename>
+        <filename>sidebar.php</filename>
+        <filename>info.xml</filename>
+    </files>
+</install>

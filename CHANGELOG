@@ -1,0 +1,14 @@
+Version 2.1.1 - Jul 15, 2018
+----------------------------
+- New: multi-clinics support
+- New: social networks login for patients and doctors
+- New: possibility to create appointments for admin and doctors
+- Enh: ApPHP Framework updated to v1.1.5
+- Enh: Directy CMF updated to v2.8.6
+- Enh: translation for some texts
+- Enh: added possibility for doctors to add internal and external notes
+- Bug: some security issues fixed
+
+Version 2.1.0 - 17 Feb, 2018
+----------------------------
+Initial release 

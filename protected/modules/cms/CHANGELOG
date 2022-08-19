@@ -1,0 +1,37 @@
+Version 0.0.5 - 
+----------------------------
+- Bug: fixed error on detecting classes with long names
+
+
+Version 0.0.4 - [21.07.2015]
+----------------------------
+- Enh: minor changes in styling on add/eit pages
+- Enh: secure fix for wysiwyg editor
+- Bug: fixed wrong _activeMenu for SEO links
+- Bug: fixed error on updating homepage
+- Bug: fixed creating wrong _activeMenu for multi-language sites (2)
+
+
+Version 0.0.3 - [10.07.2014]
+----------------------------
+- New: added check for privileges
+- New: changes XML structure
+- New: added new property "Page Link Format"
+- Enh: menus class moved to the basic application
+- Enh: minor changes in uninstall.mysql.sql
+- Enh: improved handler of drawing shortcodes
+- Bug: fixed drawing of wrong <TITLE> value for pages
+- Bug: fixed wrong link od javascript and css files for shortcodes
+
+Version 0.0.2 - [03.05.2014]
+----------------------------
+- New: added ability to add/edit/view/delete pages
+- New: added flag for home page
+- New: CmsMenu component to build menus dynamically
+- New: privileges check in relevant actions
+- New: added ability to delete menus
+- Enh: all messages in its own messages file
+
+Version 0.0.1 - [13.03.2014]
+----------------------------
+Initial release

@@ -1,0 +1,45 @@
+http://trentrichardson.com/examples/timepicker/jQuery Timepicker Addon
+
+Author: [Trent Richardson] http://trentrichardson.com
+Demo - http://trentrichardson.com/examples/timepicker/
+
+Usage:
+-----
+
+<!-- Register datetimepicker files -->
+<?php A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css'); ?>
+<?php A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.min.css'); ?>
+
+<?php // A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2); ?>
+<?php A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.min.js', 2); ?>
+<?php A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2); ?>
+
+<!-- HTML example -->
+<input type="text" name="input_example_1" id="input_example_1" value="08/20/2014" />
+<input type="text" name="input_example_2" id="input_example_2" value="08/20/2014 01:22 pm" />
+<input type="text" name="input_example_3" id="input_example_3" value="" />
+
+<?php
+
+A::app()->getClientScript()->registerScript(
+	'timePickerExample',
+	'jQuery(document).ready(function(){
+		//$.timepicker.setDefaults($.timepicker.regional["es"]);
+		$("#input_example_1").datetimepicker({
+			showTimepicker: false,
+			showTime: false,
+			//isRTL: true
+		});			  
+		$("#input_example_2").datetimepicker({
+			timeInput: true,
+			timeFormat: "hh:mm tt"
+		});			  
+		$("#input_example_3").timepicker({
+			hourMin: 8,
+			hourMax: 16
+		});			  
+	});',
+	1
+);
+
+?>

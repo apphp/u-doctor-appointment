@@ -1,0 +1,5 @@
+<h3><?= A::t('appointments', 'Rating'); ?></h3>
+<p class="one_fourth aligncenter"><span class="rating-header"><?= A::t('appointments', 'Price'); ?>: </span><br><strong class="rating"><?= CHtml::encode($overallRatingPrice); ?></strong>/5</p>
+<p class="one_fourth aligncenter"><span class="rating-header"><?= A::t('appointments', 'Wait Time'); ?>: </span><br><strong class="rating"><?= CHtml::encode($overallRatingWaitTime); ?></strong>/5</p>
+<p class="one_fourth aligncenter"><span class="rating-header"><?= A::t('appointments', 'Bedside Manner'); ?>: </span><br><strong class="rating"><?= CHtml::encode($overallRatingBedsideManner); ?></strong>/5</p>
+<p class="one_fourth aligncenter"><span class="rating-header"><?= A::t('appointments', 'Overall Rating'); ?>: </span><br><strong class="rating"><?= CHtml::encode($overallRate); ?></strong>/5</p>

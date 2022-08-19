@@ -1,0 +1,14 @@
+Version 0.0.3 - 
+----------------------------
+- New: added possibility to upload and use images for testimonial authors
+
+Version 0.0.2 - [05.08.2014]
+----------------------------
+- New: added new settings property "shortcode": {modules:testimonials}
+- New: added new settings property "page size"
+- Enh: minor changes in uninstall.mysql.sql
+- Bug: drawing wrong template in viewAllAction()
+
+Version 0.0.1 - [19.04.2014]
+----------------------------
+Initial release

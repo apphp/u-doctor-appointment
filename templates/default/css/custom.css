@@ -1,0 +1,680 @@
+/*
+ * GLOBAL
+ * MESSAGES
+ * LOGIN
+ * REGISTRATION
+ * APPOINTMENTS
+ * TABLE
+ * SEARCH
+ * BADGES
+ * LANGUAGES
+ * DEBUG MODE
+ * RESPONSIVE
+ *
+ */
+
+/*-------------------------------------------------------------------
+ * GLOBAL
+ *-----------------------------------------------------------------*/
+.left {text-align:left;}
+.center {text-align:center;}
+.right {text-align:right;}
+
+.pull-left {float:left;}
+.pull-right {float:right;}
+
+.cursor-pointer {cursor:pointer;}
+
+.padding-left-0 {padding-left: 0px !important;}
+.padding-0 {padding: 0;}
+
+.margin-top-5 {margin-top: 5px;}
+.margin-top-10 {margin-top: 10px;}
+.margin-top-15 {margin-top: 15px;}
+.margin-top-20 {margin-top: 20px;}
+
+.margin-bottom-1 {margin-bottom: 1px;}
+.margin-bottom-5 {margin-bottom: 5px;}
+.margin-bottom-10 {margin-bottom: 10px;}
+.margin-bottom-15 {margin-bottom: 15px;}
+.margin-bottom-20 {margin-bottom: 20px;}
+
+.margin-left-0 {margin-left: 0;}
+.margin-left-5 {margin-left: 5px;}
+.margin-left-10 {margin-left: 10px;}
+.margin-left-15 {margin-left: 15px;}
+.margin-left-20 {margin-left: 20px;}
+
+.margin-right-5 {margin-right: 5px;}
+.margin-right-10 {margin-right: 10px;}
+.margin-right-15 {margin-right: 15px;}
+.margin-right-20 {margin-right: 20px;}
+
+.contact_widget_phone > span,
+.contact_widget_email > span {width: 1%;}
+
+#box_color_1 {background-color: #56cce1;}
+#box_color_2 {background-color: #2cbfd9;}
+#box_color_3 {background-color: #2ca6d9;}
+#box_color_4 {background-color: #1b90da;}
+
+.content_icon.icon-glyph-2:before{color:#2ca6d9;}
+.content_icon.icon-glyph-3:before{color:#2cbfd9;}
+.content_icon.icon-glyph-4:before{color:#2ca6d9;}
+.content_icon.icon-glyph-5:before{color:#2cbfd9;}
+
+.img-ajax-loading { position:absolute;left:50%;margin-top:100px; }
+
+#text-2 .textwidget h1,
+#text-2 .textwidget h4 {
+    text-align:center;
+}
+#text-2 .textwidget h1 {color:#1b90da;}
+#text-2 .textwidget h4 {color:#898989;}
+
+.post.type-post.one_fourth .cmsms_post_type_img > img {
+    width:130px;
+    height:130px;
+}
+
+.type-testimonial img.type-testimonial {
+    width:60px;
+    height:60px;
+}
+
+.textwidget #pb_35 {padding-bottom:35px;}
+
+a.back-to {
+    position: fixed;
+    top: 0;
+    left: 0;
+    font-size: 11px;
+    background-color: #eee;
+    padding: 5px 10px;
+    z-index: 100;
+    color: #000;
+    text-decoration: none;
+    border-radius: 0 0 5px 0;
+}
+
+.ui-menu .ui-menu-item {
+    display:inline-block;
+}
+
+/*-------------------------------------------------------------------
+ * MESSAGES
+ *-----------------------------------------------------------------*/
+.alert {
+    padding: 25px 20px 25px 20px;
+    vertical-align: middle;
+    text-align: left;
+    margin-bottom:20px;
+}
+
+.alert strong {
+    color: inherit;
+}
+
+.alert:before {
+    padding-right: 20px;
+    height: 30px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.alert-success:before    { content:url(../images/img/success.png); }
+.alert-error:before      { content:url(../images/img/error.png); }
+.alert-warning:before    { content:url(../images/img/warning.png); }
+.alert-info:before       { content:url(../images/img/notice.png); }
+.alert-validation:before { content:url(../images/img/warning.png); }
+
+.alert-success          { background-color:#f6faff;border:1px solid #bcd8fe; }
+.alert-error            { background-color:#fff3ec;border:1px solid #f5be99; }
+.alert-warning          { background-color:#fff9e9;border:1px solid #f1d68f; }
+.alert-info             { background-color:#f6faff;border:1px solid #bcd8fe; }
+.alert-validation       { background-color:#fff3ec;border:1px solid #f5be99; }
+.alert button.close     { display:none; }
+
+/*-------------------------------------------------------------------
+ * LOGIN
+ *-----------------------------------------------------------------*/
+.login-block {
+    width: 1000px;
+    margin: auto;
+    height: 1px;
+}
+
+.login-block .login-link {
+    float: right;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+    background: #209fbc;
+    font-weight: bold;
+    color: #fff;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.doctors-dashboard.login-link,
+.doctors-login.login-link {
+    background: #20bc9f !important;
+}
+
+.login-block .login-link:hover {
+    background: #23b1d1;
+}
+
+.avatar {
+    width:120px;
+}
+
+.footer-login-link {margin-left: 5px;margin-right: 5px;}
+
+.cmsms-form-builder label {
+    margin-right: 2%;
+    min-width: 25%;
+}
+
+.doctor-form, .patient-form, #my-account {
+    width: 90%;
+    margin: auto;
+}
+
+.doctor-form input[type="text"], .doctor-form input[type="email"], .doctor-form input[type="tel"], .doctor-form textarea, .doctor-form input[type="password"], .doctor-form select,
+.patient-form input[type="text"], .patient-form input[type="email"], .patient-form input[type="tel"], .patient-form textarea, .patient-form input[type="password"], .patient-form select {
+    width: 100%;
+}
+
+.login .alert {box-sizing: border-box;}
+
+.patient-form input, .patient-form textarea, .patient-form select,
+.doctor-form input, .doctor-form textarea, .doctor-form select {
+    margin-bottom: 20px;
+}
+
+.patient-form input[type=checkbox], .doctor-form input[type=checkbox]{
+    margin-bottom: 0px;
+}
+
+.patient-form .ui-datepicker-trigger,
+.doctor-form .ui-datepicker-trigger {
+    margin-left: 7px;
+}
+
+.buttons-wrapper {
+    margin-top:5px;
+}
+.buttons-wrapper input, .buttons-wrapper button, .patient-form .button {
+    float: left;
+    margin-right: 5px;
+    line-height: normal;
+}
+
+#my-account .row label.left-label {
+    width: 38%;
+    font-weight: bold;
+}
+
+#my-account .row label.right-label {
+    width: 58%;
+    vertical-align: top;
+}
+
+#frmDoctorEdit fieldset { margin-bottom: 30px; }
+#frmDoctorEdit textarea { min-height: auto; height: 100px; }
+#frmDoctorEdit_birth_date, #frmPatientEdit_birth_date {margin-left:14px;}
+
+/*--------------------------------------------------------------------
+ * REGISTRATION
+ *-------------------------------------------------------------------*/
+.doctor-form #notifications, .patient-form #notifications{
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+.doctor-form #i_agree, .patient-form #i_agree {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.doctor-form .captcha label, .patient-form .captcha label {
+    width: 100%;
+}
+
+#frmPatientRegistration .form_info,
+#frmDoctorRegistration .form_info {padding:3px 0 0 0 !important;}
+#frmPatientRegistration fieldset,
+#frmDoctorRegistration fieldset { margin-bottom: 30px; }
+
+fieldset legend {
+    font: 300 22px/28px 'Roboto',Arial,Helvetica,'Nimbus Sans L',sans-serif;
+    padding: 20px 0 10px 0;
+}
+fieldset legend:first-child {
+    padding-top: 0px;
+}
+
+
+#modal-window .modal-box .modal-title h3:after {display:none;}
+#modal-window .modal-box .modal-text {max-height:400px;}
+
+.error {margin-bottom:0px;text-align:left;color:red;}
+
+/*--------------------------------------------------------------------
+ * APPOINTMENTS
+ *-------------------------------------------------------------------*/
+.weekday, .weekday h6 {color:#01046f;}
+.weekday.overdue, .weekday.overdue h6 {color:#7a7a7a;}
+.weekday.today_day, .weekday.today_day h6{color:#086f01;font-weight:bold;}
+.weekday .time.reserved {
+    color: #2AE754;
+}
+.weekday .time.not-active {
+    color: #aaa;
+    font-weight:normal;
+}
+.weekday .time a {font-weight:bold;}
+.book_appointment .time { border:1px solid #ddd; background-color: #fdfdfd; margin: 5px 0; }
+.book_appointment .time:hover { border:1px solid #999; }
+.book_appointment .time.not-active,
+.book_appointment .time.reserved { border:1px solid #eee; background-color: #fff; }
+
+.frmAppointments #frmAppointments_visit_reason,
+.frmAppointments #frmAppointments_for_is_whom { width: 60%; }
+
+
+/*-------------------------------------------------------------------
+ * TABLE
+ *-----------------------------------------------------------------*/
+.table {
+    margin-left:0;
+    width: 100%;
+}
+
+.table tr th a, .table tr th {
+    color: #fff;
+    font: 14px/18px Arial,Geneva,Helvetica,sans-serif;
+    font-weight: bold;
+}
+
+.table tr th a:hover {
+    color: #eee;
+}
+
+.table td, .table tr th {
+    padding: 15px 10px;
+}
+
+.table tr th.actions {
+    width:50px;
+}
+
+table thead th.left{ text-align:left; float:none; }
+table thead th.right{ text-align:right; float:none; }
+table thead th.center{ text-align:center; float:none; }
+
+table tfoot td.left{ text-align:left; float:none; }
+table tfoot td.right{ text-align:right; float:none; }
+table tfoot td.center{ text-align:center; float:none; }
+
+table tbody tr td.left { text-align:left; }
+table tbody tr td.left label{ margin-top:0px }
+table tbody tr td.right { text-align:right; }
+table tbody tr td.right label { margin-top:0px }
+table tbody tr td.center { text-align:center; }
+table tbody tr td.center select { padding:3px; border:1px solid #d7d7d7; margin:0; }
+table tbody tr td.center select:hover { border:1px solid #98bcdf; }
+
+table tbody tr td a img { display:inline-block; }
+
+
+/*-------------------------------------------------------------------
+ * SEARCH
+ *-----------------------------------------------------------------*/
+.wrap_header_search .search_line input[type="search"] {
+    height:54px;
+    padding:0 0 0 15px;
+}
+
+@media only screen and (max-width: 1024px) {
+    #header .search_line input[type="submit"] {
+        background-color: #dedede;
+        width:20%;
+    }    
+    .wrap_header_search .search_line input[type="search"] {
+        width:75%;
+    }
+    #header .header_html > span[class*="contact"]{
+        padding-left: 20px;
+        margin-left: 0px;
+    }
+}
+
+/*-------------------------------------------------------------------
+ * BADGES
+ *-----------------------------------------------------------------*/
+span.badge-green,
+span.badge-red,
+span.badge-gray { width:20px; display:inline-block; padding:2px 9px; -webkit-border-radius:9px; -moz-border-radius:9px; border-radius:9px; font-size:11px; font-weight:normal; line-height:14px; color:#ffffff; vertical-align:baseline; white-space:nowrap; text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25); text-align:center; }
+span.badge-green { background-color:#468847; }
+span.badge-red { background-color:#b94a48; }
+span.badge-gray { background-color:#9a9a9a; }
+span.badge-lightgray { background-color:#cfcfcf; color:#3f3f3f; }
+span.badge-zerogray { background-color:#cfcfcf; color:#888; text-shadow:none; }
+
+span.label-green,
+span.label-red,
+span.label-yellow,
+span.label-gray,
+span.label-lightgray { width:auto; display:inline-block; padding:2px 9px; -webkit-border-radius:9px; -moz-border-radius:9px; border-radius:9px; font-size:11px; font-weight:normal; line-height:14px; color:#ffffff;    vertical-align:baseline; white-space:nowrap; text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25); }
+span.label-green { background-color:#468847; }
+span.label-red { background-color:#b94a48; }
+span.label-yellow { background-color:#9a9a47; } 
+span.label-gray { background-color:#9a9a9a; }
+span.label-lightgray { background-color:#cfcfcf; color:#3f3f3f; }
+span.label-zerogray { background-color:#cfcfcf; color:#888; text-shadow:none; }
+
+span.badge-square,
+span.label-square { -webkit-border-radius:3px; -moz-border-radius:3px; border-radius:3px; }
+
+.book_appointment.first_column, .sixth_seven.first_column { clear:both; }
+.book_appointment { width:10.28%; }
+.sixth_seven { width:81.72%; }
+
+.sixth_seven { float:left;margin:0 2% 20px; }
+
+.book_appointment{
+    float:left;
+    margin: 0 1.5% 20px;
+}
+
+.book_appointment .header{
+    min-height: 75px;
+}
+#week_day_names_abbreviated, #date_abbreviated{
+    display: none;
+}
+
+#week_day_names_wide, #date_wide{
+    display: block;
+}
+
+
+/* Mobile */
+@media only screen
+and (max-width : 480px)
+and (max-height : 880px)
+and (orientation : portrait)
+{
+    #week_day_names_abbreviated, #date_abbreviated{
+        display: block;
+    }
+
+    #week_day_names_wide, #date_wide{
+        display: none;
+    }
+
+    .book_appointment { width:21%;}
+
+    .book_appointment{
+        margin: 0 1% 20px!important;
+    }
+}
+
+@media only screen
+and (max-width : 880px)
+and (max-height : 480px)
+and (orientation : landscape)
+{
+    #week_day_names_abbreviated{
+        display: block;
+    }
+
+    #week_day_names_wide{
+        display: none;
+    }
+
+    .book_appointment { width:21%;}
+
+    .book_appointment{
+        margin: 0 1% 20px!important;
+    }
+}
+
+
+/*-------------------------------------------------------------------
+ * TOOLTIPS
+ *-----------------------------------------------------------------*/
+.tooltip-icon 		{ background:url('../images/question-mark.png') left top no-repeat; display:inline-block; width:16px; height:16px; cursor:pointer; float:right; margin-right:7px; }
+.tooltip-link       {}
+
+
+/*-------------------------------------------------------------------
+ * LANGUAGES
+ *-----------------------------------------------------------------*/
+img.icon            { height:22px; }
+img.icon-small      { height:48px; }
+img.icon-middle     { height:90px; }
+img.icon-big        { height:120px; }
+img.icon-xbig       { width:240px; }
+#language-selector  { float:right !important; margin-left: 15px}
+#language-selector  span { float: right; margin: 0px; }
+#language-selector  a { float: right; margin: 0px; }
+#language-selector  img { float: right; margin: 4px 0 0 4px; }
+
+/*-------------------------------------------------------------------
+ * HOME PAGE
+ *-----------------------------------------------------------------*/
+.button_view_all    { margin-left: 10px; }
+.ui-widget-content  { max-width: 450px; }
+.img-profile-home   { max-height:216.417px; } 
+
+
+/*-------------------------------------------------------------------
+ * NEWS
+ *-----------------------------------------------------------------*/
+#subscription-side-form input[type="submit"] { margin-top: 10px;}
+
+/*-------------------------------------------------------------------
+ * DEBUG MODE
+ *-----------------------------------------------------------------*/
+#debug-panel fieldset legend ul li { list-style-image:none; }
+
+/*-------------------------------------------------------------------
+ * PAGINATION
+ *-----------------------------------------------------------------*/
+.pagination-wrapper { padding: 10px 0;}
+
+/*-------------------------------------------------------------------
+ * RESPONSIVE
+ *-----------------------------------------------------------------*/
+@media only screen and (min-width: 1440px){
+    .login-block {
+        width: 1220px;
+    }
+}
+@media only screen and (max-width: 1151px){
+    .login-block {
+        width: 94%;
+    }
+}
+
+@media only screen and (max-width: 540px){
+    .patient-form,
+    .doctor-form {
+        width: 100%;
+    }
+    .cmsms-form-builder .alert {
+        width: 100%;
+    }
+}
+
+/*-------------------------------------------------------------------
+ * BLOCK SOCIAL LOGIN
+ *-----------------------------------------------------------------*/
+.widget .social-signup {
+    background: #F9F9F9;
+    padding-bottom: 15px;
+    position: relative;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.social-signup {
+    margin-top: 45px;
+    margin-bottom:15px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
+.social-signup .or-break {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    display: block;
+    border-radius: 100%;
+    line-height: 1.7em;
+    font-weight: 400;
+    font-size: 130%;
+}
+
+.widget .social-signup .or-break {
+    color: #777;
+    border: 1px solid #eee;
+    background: #fff;
+    left: 50%;
+    top: -35px;
+    margin-left: -15px;
+    margin-bottom: -15px;
+}
+
+.social-signup .or-break {
+    color: #777;
+    border: 1px solid #eee;
+    background: #fff;
+    left: 50%;
+    top: -18px;
+    margin-left: -15px;
+    margin-bottom: -15px;
+}
+
+.btn-social i {
+    padding-right: 10px;
+    margin-right: 20px;
+    border-right: 1px solid rgba(0,0,0,.1);
+}
+
+a.btn-social {
+    padding:8px;
+    margin-bottom: 7px;
+    margin-top: 3%;
+    margin-left: 3%;
+    width: 85%;
+    color: #fff;
+}
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.btn-social {
+    color: #fff;
+    text-align: left;
+    width:80%;
+    margin: 5px 0;
+}
+
+.btn-social:hover {
+    opacity: .9;
+}
+
+.btn-google {
+    background: #df4a32;
+}
+
+.btn-facebook {
+    background: #3B5998;
+}
+
+.btn-twitter {
+    background: #00ACED;
+}
+
+@media (min-width: 768px) {
+    .widget .btn-social i {
+        padding-right: 10px;
+        margin-right: 20px;
+        border-right: 1px solid rgba(0,0,0,.1);
+    }
+}
+
+@media (min-width: 769px){
+    .social-signup {
+        margin-left: 0px;
+        margin-right: auto;
+    }
+    a.btn-social {
+        max-width: 290px;
+        float:left;
+        margin: 5px 10px 10px 20px;
+        clear: both;
+    }
+}
+
+@media (min-width:496px) and (max-width: 769px) {
+    .widget .btn-social {
+        width: auto;
+        margin-left: 5px;
+    }
+    .widget .btn-social span.text {
+        display: none;
+    }
+}
+
+@media (max-width: 497px) {
+    .widget .btn-social i {
+        padding-right: 10px;
+        margin-right: 20px;
+        border-right: 1px solid rgba(0,0,0,.1);
+    }
+}
+
+/* -- login page -- */
+#page-login .social-login-block {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 20px;
+}
+
+#page-login .social-login-block .thumb-wrap {
+    float: left;
+    width: 35px;
+}
+
+#page-login .social-login-block a {
+    margin-left:0;
+}
+
+form input.medium {
+    width:100px !important;
+}

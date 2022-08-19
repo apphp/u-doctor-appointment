@@ -1,0 +1,28 @@
+ Requirements
+ ---------------------------------------------------------------------------
+ - MVC Framework v1.0.0 or later 
+ - ApPHP Directy CMF v2.7.0 or later 
+
+ Modules Installation/Update:
+ ---------------------------------------------------------------------------
+ - https://www.apphp.com/php-directy-cmf/index.php?page=module-installation-and-update
+ 
+ Usage:
+ ---------------------------------------------------------------------------
+ In HTML template:
+ 
+	<?php
+		if($this->isHomePage){
+			echo BannersComponent::drawSlider(array(
+				'width' 		=> '1170',
+				'height' 		=> '400',
+				'navigation' 	=> 'true',
+				'delay'			=> 5000
+			));
+		}						
+	?>					
+ 
+ In CMS pages:
+ 
+	{module:banners}
+
