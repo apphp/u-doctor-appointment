@@ -5,7 +5,7 @@
  * @project ApPHP Directy CMF
  * @author ApPHP <info@apphp.com>
  * @link https://www.apphp.com/php-directy-cmf/
- * @copyright Copyright (c) 2013 - 2017 ApPHP Directy CMF
+ * @copyright Copyright (c) 2013 - 2019 uDoctorAppointment
  * @license https://www.apphp.com/php-directy-cmf/
  */	  
 

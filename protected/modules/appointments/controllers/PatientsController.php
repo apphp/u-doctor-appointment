@@ -38,6 +38,7 @@ use \Modules\Appointments\Models\Degrees;
 use \Modules\Appointments\Models\Appointments;
 use \Modules\Appointments\Models\Doctors;
 use \Modules\Appointments\Models\VisitReasons;
+use \Modules\Appointments\Models\Specialties;
 
 // Framework
 use \A,
@@ -216,9 +217,9 @@ class PatientsController extends CController
             A::app()->getRequest()->setPost('salt', $this->_view->salt);
         }
 
-        if(!empty($alert)){
-            $this->_view->actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
-        }
+        //if(!empty($alert)){
+        //    $this->_view->actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+        //}
 
         $this->_view->render('patients/edit');
     }
@@ -322,10 +323,10 @@ class PatientsController extends CController
             // --------------------------------------------------
             if(!CAuth::isLoggedIn()){
                 if($this->_view->allowRememberMe){
-                    parse_str(A::app()->getCookie()->get('patientAuth'));
-                    if(!empty($usr) && !empty($hash)){
-                        $username = CHash::decrypt($usr, CConfig::get('password.hashKey'));
-                        $password = $hash;
+					parse_str(A::app()->getCookie()->get('patientAuth'), $output);
+					if(!empty($output['usr']) && !empty($output['hash'])){
+						$username = CHash::decrypt($output['usr'], CConfig::get('password.hashKey'));
+						$password = $output['hash'];
 
                         // Check if access is blocked to this username
                         $usernameBanned = Website::checkBan('username', $username);
@@ -525,7 +526,7 @@ class PatientsController extends CController
                     $fields['last_name'] = array('title'=>A::t('appointments', 'Last Name'), 'validation'=>array('required'=>true, 'type'=>'text', 'maxLength'=>32));
                     $fields['gender'] = array('title'=>A::t('appointments', 'Gender'), 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys($this->_view->genders)));
                     //$fields['birth_date'] = array('title'=>A::t('appointments', 'Birth Date'), 'validation'=>array('required'=>false, 'type'=>'date', 'maxLength'=>10, 'minValue'=>'1900-00-00', 'maxValue'=>date('Y-m-d')));
-                    //$fields['phone'] = array('title'=>A::t('appointments', 'Phone'), 'validation'=>array('required'=>false, 'type'=>'phoneString', 'maxLength'=>32));
+                    $fields['phone'] = array('title'=>A::t('appointments', 'Phone'), 'validation'=>array('required'=>false, 'type'=>'phoneString', 'maxLength'=>32));
                     //$fields['fax'] = array('title'=>A::t('appointments', 'Fax'), 'validation'=>array('required'=>false, 'type'=>'phoneString', 'maxLength'=>32));
                     //$fields['address'] = array('title'=>A::t('appointments', 'Address'), 'validation'=>array('required'=>true, 'type'=>'text', 'maxLength'=>64));
                     //$fields['address_2'] = array('title'=>A::t('appointments', 'Address (line 2)'), 'validation'=>array('required'=>false, 'type'=>'text', 'maxLength'=>64));
@@ -547,11 +548,11 @@ class PatientsController extends CController
                     if($result['error']){
                         $arr[] = '"status": "0"';
                         $arr[] = '"error": "'.$result['errorMessage'].'"';
-                    }elseif($this->_view->verificationCaptcha && $captcha === ''){
+                    }elseif($this->_view->verificationCaptcha && $captcha === '' && !in_array(CAuth::getLoggedRole(), array('owner', 'mainadmin', 'admin', 'doctor'))){
                         $arr[] = '"status": "0"';
                         $arr[] = '"error_field": "captcha_validation"';
                         $arr[] = '"error": "'.A::t('appointments', 'The field captcha cannot be empty!').'"';
-                    }elseif($this->_view->verificationCaptcha && $captcha != A::app()->getSession()->get('captchaResult')){
+                    }elseif($this->_view->verificationCaptcha && $captcha != A::app()->getSession()->get('captchaResult') && !in_array(CAuth::getLoggedRole(), array('owner', 'mainadmin', 'admin', 'doctor'))){
                         $arr[] = '"status": "0"';
                         $arr[] = '"error_field": "captcha_validation"';
                         $arr[] = '"error": "'.A::t('appointments', 'Sorry, the code you have entered is invalid! Please try again.').'"';
@@ -580,7 +581,7 @@ class PatientsController extends CController
                             $patient->patient_last_name         = $cRequest->getPost('last_name');
                             $patient->gender                    = $cRequest->getPost('gender');
                             //$patient->birth_date              = $cRequest->getPost('birth_date');
-                            //$patient->phone                   = $cRequest->getPost('phone');
+                            $patient->phone                   = $cRequest->getPost('phone');
                             //$patient->fax                     = $cRequest->getPost('fax');
                             //$patient->address                 = $cRequest->getPost('address');
                             //$patient->address_2               = $cRequest->getPost('address_2');
@@ -606,6 +607,7 @@ class PatientsController extends CController
                                     $account->is_active = 1;
                                 }
                                 if($account->save()){
+                                    $arr[] = '"patientId": "'.$patient->id.'"';
                                     $accountCreated = true;
                                 }
                             }
@@ -1210,6 +1212,85 @@ class PatientsController extends CController
         A::app()->getSession()->set('changeDoctorId', $appointment->doctor_id);
 
         $this->redirect('appointments/'.$doctor->id);
+    }
+
+    /**
+     * Manage action handler
+     * @param int $patientId
+     * @return void
+     */
+    public function medicalCardAction($patientId = 0)
+    {
+        if (CAuth::isLoggedInAs('doctor')) {
+            // block access to this controller for not-logged doctors
+            CAuth::handleLogin('doctors/login', 'doctor');
+            // set frontend mode
+            Website::setFrontend();
+        } else {
+            // set backend mode
+            Website::setBackend();
+            Website::prepareBackendAction('manage', 'patient', 'modules/index');
+        }
+
+        $patient = $this->_checkPatientAccess($patientId);
+        $doctorIds = array();
+        $specialtyIds = array();
+        $filterSpecialty = array();
+        $filterDoctors = array();
+
+        $appointmentsTable = CConfig::get('db.prefix') . Appointments::model()->getTableName();
+        $allAppointments = Appointments::model()->findAll($appointmentsTable.'.patient_id = '.$patient->id);
+        if (!empty($allAppointments) && is_array($allAppointments)) {
+            foreach ($allAppointments as $allAppointment) {
+                if (!in_array($allAppointment['doctor_id'], $doctorIds)) {
+                    $doctorIds[] = $allAppointment['doctor_id'];
+                }
+
+                if (!in_array($allAppointment['doctor_specialty_id'], $specialtyIds)) {
+                    $specialtyIds[] = $allAppointment['doctor_specialty_id'];
+                }
+            }
+        }
+
+        if (!empty($doctorIds) && is_array($doctorIds)) {
+            $doctorsTable = CConfig::get('db.prefix') . Doctors::model()->getTableName();
+            $doctors = Doctors::model()->findAll($doctorsTable.'.id IN('.implode(',', $doctorIds).')');
+            if (!empty($doctors) && is_array($doctors)) {
+                foreach ($doctors as $doctor) {
+                    $filterDoctors[$doctor['id']] = $doctor['full_name'];
+                }
+            }
+        }
+
+        if (!empty($specialtyIds) && is_array($specialtyIds)) {
+            $specialtyTable = CConfig::get('db.prefix') . Specialties::model()->getTableName();
+            $specialty = Specialties::model()->findAll($specialtyTable.'.id IN('.implode(',', $specialtyIds).')');
+            if (!empty($specialty) && is_array($specialty)) {
+                foreach ($specialty as $spec) {
+                    $filterSpecialty[$spec['id']] = $spec['name'];
+                }
+            }
+        }
+
+        $alert = A::app()->getSession()->getFlash('alert');
+        $alertType = A::app()->getSession()->getFlash('alertType');
+
+        if(!empty($alert)){
+            $this->_view->actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+        }
+
+        $this->_view->patientId = $patient->id;
+        $this->_view->filterDoctors = $filterDoctors;
+        $this->_view->filterSpecialty = $filterSpecialty;
+        $this->_view->patientName = $patient->getFullName();
+        $this->_view->patient = $patient;
+        $this->_view->appointmentTimeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
+
+        if (CAuth::isLoggedInAs('doctor')) {
+            $this->_view->render('doctors/patientMedicalCard');
+        } elseif (CAuth::isLoggedInAsAdmin()) {
+            $this->_view->render('patients/medicalCard');
+        }
     }
 
     /**

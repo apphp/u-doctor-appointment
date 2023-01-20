@@ -260,9 +260,6 @@ class DoctorsComponent extends \CComponent{
 
         if(in_array($loggedRole, array('admin', 'owner'))){
             $adminLogin = true;
-            Website::setBackend();
-        }else{
-            Website::setFrontend();
         }
 
         //Calculate the date of the schedule
@@ -296,7 +293,7 @@ class DoctorsComponent extends \CComponent{
 
 
         $patientId = CAuth::getLoggedRoleId();
-        if(!empty($patientId)){
+        if(!empty($patientId) && $loggedRole == 'patient'){
             $tableAppointmentsName = CConfig::get('db.prefix').Appointments::model()->getTableName();
             // Ban a patient from ordering appointments
             $maxAppointmentPerPatient = ModulesSettings::model()->param('appointments', 'max_allowed_appointment_per_patient');
@@ -309,9 +306,9 @@ class DoctorsComponent extends \CComponent{
         //If exists schedule, create HTML
         if($existsSchedules){
             $output .= CHtml::openTag('div', array('class' => 'one_first margin-top-20'));
-            $output .= CHtml::openTag('a', array('id' => 'prev_page', 'class' => ($prevPage <= 0 ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $prevPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'title'=>A::t('appointments', 'Prev Page')));
+            $output .= CHtml::openTag('a', array('id' => 'prev_page', 'class' => ($prevPage <= 0 ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $prevPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'data-device-type' => 'site', 'title'=>A::t('appointments', 'Prev Page')));
             $output .= CHtml::closeTag('a');
-            $output .= CHtml::openTag('a', array('id' => 'next_page', 'class' => ($nextPage > $maxPage ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $nextPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'title'=>A::t('appointments', 'Next Page')));
+            $output .= CHtml::openTag('a', array('id' => 'next_page', 'class' => ($nextPage > $maxPage ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $nextPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'data-device-type' => 'site', 'title'=>A::t('appointments', 'Next Page')));
             $output .= CHtml::closeTag('a');
             if(!empty($arrDoctorSchedules)){
                 //If schedules exist display it on the screen
@@ -384,7 +381,7 @@ class DoctorsComponent extends \CComponent{
 				if(!empty($nearestSchedule)){
 					$msg = A::t('appointments', 'Sorry, from {date_from} to {date_to} there is no schedule, the nearest schedule is {link_page_schedule}',
 						array(
-							'{link_page_schedule}' => CHtml::tag('a', array('id' => 'page_in_nearest_schedule', 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $page + $nearestSchedule['countPage'], 'data-doctor-id' => $doctorId, 'data-max-page' => $maxPage), CLocale::date($dateFormat, $nearestSchedule['date'])),
+							'{link_page_schedule}' => CHtml::tag('a', array('id' => 'page_in_nearest_schedule', 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $page + $nearestSchedule['countPage'], 'data-doctor-id' => $doctorId, 'data-device-type' => 'site', 'data-max-page' => $maxPage), CLocale::date($dateFormat, $nearestSchedule['date'])),
 							'{date_from}' => CLocale::date($dateFormat, $dateFrom),
 							'{date_to}' => CLocale::date($dateFormat, $dateTo),
 						)
@@ -422,6 +419,171 @@ class DoctorsComponent extends \CComponent{
 
             $output .= CHtml::openTag('div', array('class' => 'one_first margin-top-20'));
 			$output .= $actionMessage;
+            $output .= CHtml::closeTag('div');
+        }
+
+        return $output;
+
+    }
+
+    /**
+     * Draws Doctor Schedules
+     * @param int $doctorId
+     * @param int $clinicId
+     * @param int $page
+     * @return string
+     */
+    public static function drawMobileDoctorSchedules($doctorId = 0, $clinicId = 0, $page = 1)
+    {
+        $output                         = '';
+        $arrDoctorSchedules             = array();
+        $doctorSpecialtyIds             = array();
+        $showMoreButton                 = false;
+        $bannedAppointment              = false;
+        $bannedAppointmentToSpecialist  = false;
+
+        $prevPage           = $page - 1;
+        $nextPage           = $page + 1;
+        $sizeSchedule       = 4;
+        $mobileDetect       = A::app()->getMobileDetect();
+
+        //Calculate the date of the schedule
+        $nextWeekDateFrom   = (($page-1)*$sizeSchedule);
+        $nextWeekDateTo     = ($page*$sizeSchedule)-1;
+        $unixDateFrom  		= '+'.$nextWeekDateFrom.' days';
+        $unixDateTo    		= '+'.$nextWeekDateTo.' days';
+        $dateFrom           = CLocale::date('Y-m-d', strtotime($unixDateFrom), true);
+        $doctor 			= Doctors::model()->findByPk($doctorId);
+        if(!$doctor){
+            return false;
+        }
+        $maxPage = DoctorScheduleTimeBlocks::model()->getMaxPageSchedules($doctorId, $clinicId);
+
+        $unixMembershipExpires = strtotime($doctor->membership_expires);
+        if(strtotime($unixDateTo) >= $unixMembershipExpires){
+            $dateTo  = CLocale::date('Y-m-d', $unixMembershipExpires, true);
+            $maxPage += 1;
+        }else{
+            $dateTo  = CLocale::date('Y-m-d', strtotime($unixDateTo), true);
+        }
+        $dateFormat = Bootstrap::init()->getSettings('date_format');
+        $timeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
+
+        //Check if there is a schedule for the doctor
+        $existsSchedules    = DoctorScheduleTimeBlocks::model()->existsSchedulesForDoctor($doctorId, $clinicId);
+        if($existsSchedules){
+            //If exists, create an array with a schedule
+            $arrDoctorSchedules = DoctorScheduleTimeBlocks::model()->getSchedulesForDate($doctorId, $dateFrom, $dateTo, $clinicId);
+        }
+
+        //If exists schedule, create HTML
+        if($existsSchedules){
+            $output .= CHtml::openTag('div', array('class' => 'container margin-bottom-20'));
+            $output .= CHtml::openTag('a', array('id' => 'prev_page', 'class' => ($prevPage <= 0 ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $prevPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'data-device-type' => 'mobile', 'title'=>A::t('appointments', 'Prev Page')));
+            $output .= CHtml::closeTag('a');
+            $output .= CHtml::openTag('a', array('id' => 'next_page', 'class' => ($nextPage > $maxPage ? 'no_active_pagination_appointment' : ''), 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $nextPage, 'data-doctor-id' => $doctorId, 'data-clinic-id' => $clinicId, 'data-max-page' => $maxPage, 'data-device-type' => 'mobile', 'title'=>A::t('appointments', 'Next Page')));
+            $output .= CHtml::closeTag('a');
+            if(!empty($arrDoctorSchedules)){
+                //If schedules exist display it on the screen
+                foreach($arrDoctorSchedules as $date => $arrTime){
+                    $unixDateCurrentDay = strtotime($date);
+                    $unixTodayDate = strtotime(CLocale::date('Y-m-d'));
+                    //create date for schedule
+                    $currentDay = date('d', $unixDateCurrentDay);
+                    $currentYear = date('Y', $unixDateCurrentDay);
+                    $currentMonthWide = A::t('i18n', 'monthNames.wide.'.date('n', $unixDateCurrentDay));
+                    $currentMonthAbbreviated = A::t('i18n', 'monthNames.abbreviated.'.date('n', $unixDateCurrentDay));
+                    $currentDateWide = $currentDay.' '.$currentMonthWide.' '.$currentYear;
+                    $currentDateAbbreviated = $currentDay.' '.$currentMonthAbbreviated.' '.$currentYear;
+
+                    $weekDay = (date("N", $unixDateCurrentDay) + 1 > 7) ? 1 : date("N", $unixDateCurrentDay) + 1;
+
+                    $countArrTime = 0;
+                    $hiddenSlots = false;
+
+                    $output .= CHtml::openTag('div', array('class' => 'book_appointment weekday aligncenter'.($unixDateCurrentDay < $unixTodayDate ? ' overdue' : ($unixDateCurrentDay == $unixTodayDate ? ' today_day' : ''))));
+                    $output .= CHtml::openTag('div', array('class' => 'header'));
+                    $output .= CHtml::tag('div', array('id'=>'week_day_names_wide', 'class' => 'aligncenter'), A::t('i18n', 'weekDayNames.wide.'.$weekDay));
+                    $output .= CHtml::tag('div', array('id'=>'week_day_names_abbreviated', 'class' => 'aligncenter'), A::t('i18n', 'weekDayNames.abbreviated.'.$weekDay));
+                    $output .= CHtml::tag('h6', array('id'=>'date_wide', 'class' => 'aligncenter'), $currentDateWide);
+                    $output .= CHtml::tag('h6', array('id'=>'date_abbreviated','class' => 'aligncenter'), $currentDateAbbreviated);
+                    $output .= CHtml::closeTag('div');
+                    $output .= CHtml::openTag('div', array('class' => 'content_book_appointments'));
+                    if(!empty($arrTime)){
+                        foreach($arrTime as $time){
+                            $countArrTime++;
+                            $dateTime = strtotime($date.' '.$time['time']);
+                            $formatingTime = CLocale::date($timeFormat, '1970-01-01 '.$time['time']);
+                            if($countArrTime == 11){
+                                $output .= CHtml::openTag('div', array('class' => 'hidden_slots', 'style' => 'display: none'));
+                                $hiddenSlots = true;
+                                $showMoreButton = true;
+                            }
+                            if($time['status'] == 1){
+                                $output .= CHtml::tag('div', array('class' => 'time aligncenter reserved', 'title' => A::t('appointments', 'Appointment Reserved')), $formatingTime);
+                            }elseif($time['status'] == 2){
+                                $output .= CHtml::tag('div', array('class' => 'time aligncenter not-active', 'title' => $time['message']), $formatingTime);
+                            }elseif(!empty($time['time']) && $time['status'] == 0){
+                                $appointmentDetailsLink = 'mobile/bookAppointment/doctorId/'.$doctorId.'/dateTime/'.$dateTime;
+                                $output .= CHtml::openTag('div', array('class' => 'time aligncenter', 'title' => A::t('appointments', 'Click on the time to start the reservation process appointment')), $formatingTime);
+                                $output .= CHtml::tag('a', array('href' => $appointmentDetailsLink), $formatingTime);
+                                $output .= CHtml::closeTag('div');
+                            }else{
+                                $output .= CHtml::tag('div', array('class' => 'time aligncenter'));
+                            }
+                        }
+                        if($hiddenSlots){
+                            $output .= CHtml::closeTag('div');/* hidden_slots */
+                        }
+                    }
+                    $output .= CHtml::closeTag('div');
+                    $output .= CHtml::closeTag('div'); /* book_appointment */
+                }
+            }else{
+                //Otherwise, look for the nearest schedule and make a link to it
+                $nearestSchedule = DoctorScheduleTimeBlocks::model()->getNearestSchedule($doctorId, $dateFrom, $dateTo);
+                $output .= CHtml::openTag('div', array('class' => 'container aligncenter margin-bottom-20'));
+                if(!empty($nearestSchedule)){
+                    $msg = A::t('appointments', 'Sorry, from {date_from} to {date_to} there is no schedule, the nearest schedule is {link_page_schedule}',
+                        array(
+                            '{link_page_schedule}' => CHtml::tag('a', array('id' => 'page_in_nearest_schedule', 'href' => 'javascript:void(0);', 'onclick' => 'slidePageBookAppointments(this);', 'data-page' => $page + $nearestSchedule['countPage'], 'data-doctor-id' => $doctorId, 'data-device-type' => 'mobile', 'data-max-page' => $maxPage), CLocale::date($dateFormat, $nearestSchedule['date'])),
+                            '{date_from}' => CLocale::date($dateFormat, $dateFrom),
+                            '{date_to}' => CLocale::date($dateFormat, $dateTo),
+                        )
+                    );
+                    $alertType = 'info';
+                    $actionMessage = CWidget::create('CMessage', array($alertType, $msg, array('button'=>true)));
+
+                    $output .= CHtml::openTag('div', array('class' => 'one_first margin-bottom-20'));
+                    $output .= $actionMessage;
+                    $output .= CHtml::closeTag('div');
+
+                }else{
+                    $alertType = 'info';
+                    $alert = A::t('appointments', 'This doctor currently has no active schedules');
+                    $actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+
+                    $output .= CHtml::openTag('div', array('class' => 'container margin-bottom-20'));
+                    $output .= $actionMessage;
+                    $output .= CHtml::closeTag('div');
+                }
+                $output .= CHtml::closeTag('div');
+            }
+            $output .= CHtml::closeTag('div'); /* container */
+            if($showMoreButton){
+                $output .= CHtml::openTag('div', array('class' => 'container')); /* container */
+                $output .= CHtml::openTag('div', array('class' => 'more_links aligncenter'));
+                $output .= CHtml::tag('a', array('class' => 'button_small', 'href' => 'javascript:void(0);', 'onclick' => "appShowElement('.hidden_slots');appHideElement('.more_links');"), A::t('appointments', 'Show More'));
+                $output .= CHtml::closeTag('div');
+                $output .= CHtml::closeTag('div'); /* container */
+            }
+        }else{
+            $alertType = 'info';
+            $alert = A::t('appointments', 'Sorry, this doctor does not have schedules yet.');
+            $actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+
+            $output .= CHtml::openTag('div', array('class' => 'container margin-bottom-20'));
+            $output .= $actionMessage;
             $output .= CHtml::closeTag('div');
         }
 

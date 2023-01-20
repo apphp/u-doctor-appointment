@@ -2,9 +2,9 @@
 <install version="1.0" type="module">
     <name>Doctor Appointments</name>
     <description>Clinic management, doctor and therapist online medical appointment scheduling system</description>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <creationDate>03/06/2016</creationDate>
-    <lastChangedDate>30/10/2018</lastChangedDate>
+    <lastChangedDate>23/05/2019</lastChangedDate>
     <author>ApPHP</author>
     <authorEmail>info@apphp.com</authorEmail>
     <authorUrl>https://www.apphp.com</authorUrl>
@@ -101,12 +101,6 @@
             <en>
                 <filename>appointments.php</filename>
             </en>
-            <fr>
-                <filename>appointments.php</filename>
-            </fr>
-            <ar>
-                <filename>appointments.php</filename>
-            </ar>
         </messages>
         <models>
             <filename>Appointments.php</filename>
@@ -265,6 +259,21 @@
                 <filename>manage.php</filename>
                 <filename>membershipplan.php</filename>
             </memberships>
+            <mobile>
+                <filename>about.php</filename>
+                <filename>appointments.php</filename>
+                <filename>bookappointment.php</filename>
+                <filename>clinics.php</filename>
+                <filename>clinicview.php</filename>
+                <filename>contact.php</filename>
+                <filename>doctors.php</filename>
+                <filename>doctorview.php</filename>
+                <filename>homepage.php</filename>
+                <filename>news.php</filename>
+                <filename>newsview.php</filename>
+                <filename>services.php</filename>
+                <filename>serviceview.php</filename>
+            </mobile>
             <orders>
                 <doctors>
                     <filename>checkout.php</filename>

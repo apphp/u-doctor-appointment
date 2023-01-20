@@ -7,7 +7,7 @@
  * CLoader::library('ipgw/PaymentProvider.php');
  * $onlineOrder = PaymentProvider::init('online_order');
  * echo $onlineOrder->drawPaymentForm(array(
- *      'merchant_id'   => 'sales@email.me',
+ *      'merchant_id'   => 'sales@example.com',
  *      'item_name'     => 'Item Name',
  *      'item_number'   => 'Item Number',
  *      'amount'        => 9.90,
@@ -21,7 +21,7 @@
  *      'country'       => 'us',
  *      'first_name'    => 'John',
  *      'last_name'     => 'Smith',
- *      'email'         => 'j.smith@email.me',
+ *      'email'         => 'j.smith@example.com',
  *      'phone'         => '12345678',
  *
  *      'mode'          => 1,       // 1- Real mode, 0 - Test mode

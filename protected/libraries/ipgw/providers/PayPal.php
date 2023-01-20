@@ -8,7 +8,7 @@
  * CLoader::library('ipgw/PaymentProvider.php');
  * $payPal = PaymentProvider::init('paypal');
  * echo $payPal->drawPaymentForm(array(
- *		'merchant_id' 	=> 'sales@email.me',
+ *		'merchant_id' 	=> 'sales@example.com',
  *		'form_type'		=> ''		// 'multiple' or ''
  *		'item_name' 	=> 'Item Name',
  *		'item_number' 	=> 'Item Number',
@@ -16,7 +16,7 @@
  *		'custom'		=> '', 		// order ID
  *		'lc'			=> '', 		// country's language  
  *		'cn'			=> '', 		// If this variable is omitted, the default label above the note field is "Add special instructions to merchant."
- *		'rm'			=> '', 		// Return method. 0 – all shopping cart payments use the GET method, 1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
+ *		'rm'			=> '', 		// Return method. 0 ï¿½ all shopping cart payments use the GET method, 1 ï¿½ the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 ï¿½ the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
  *							   		// The rm variable takes effect only if the return variable is set.
  *		'currency_code'	=> 'USD', 	// The currency of the payment. The default is USD.
  *		'no_shipping'	=> '', 		// Do not prompt buyers for a shipping address.
@@ -28,7 +28,7 @@
  *		'country'		=> 'us',
  *		'first_name'	=> 'John',
  *		'last_name'		=> 'Smith',
- *		'email'			=> 'j.smith@email.me',
+ *		'email'			=> 'j.smith@example.com',
  *		'phone'			=> '12345678',
  *
  *		'mode'			=> 1,		// 1- Real mode, 0 - Test mode

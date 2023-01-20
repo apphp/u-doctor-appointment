@@ -52,7 +52,7 @@ DROP TABLE IF EXISTS `<DB_PREFIX>accounts`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>accounts` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `role` varchar(20) CHARACTER SET latin1 NOT NULL DEFAULT '' COMMENT 'defined for each module separately',
-  `username` varchar(25) CHARACTER SET latin1 NOT NULL,
+  `username` varchar(32) CHARACTER SET latin1 NOT NULL,
   `password` varchar(64) CHARACTER SET latin1 NOT NULL,
   `email` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `language_code` varchar(2) CHARACTER SET latin1 NOT NULL DEFAULT 'en',
@@ -187,7 +187,7 @@ INSERT INTO `<DB_PREFIX>payment_providers` (`id`, `code`, `name`, `description`,
 (1, 'online_order', 'Online Order', 'Online Order', '''Online Order'' is designed to allow the customer to make an order on the site without any advance payment. It may be used like POA - "Pay on Arrival" order for hotel bookings, car rental etc. The administrator receives a notification about placing the order and can complete the order by himself.', '', '', '', '', 'global', 1, 0, 1, 1),
 (2, 'online_credit_card', 'Online Credit Card', 'Online Credit Card', '''Online Credit Card'' is designed to allow the customer to make an order on the site with payment by credit card. The administrator receives a credit card info and can complete the order by himself (in case he''s allowed to do Offline Credit Card Processing).', '', '', '', '', 'global', 1, 1, 0, 1),
 (3, 'wire_transfer', 'Wire Transfer', 'Wire Payment', '''Wire Transfer'' is designed to allow the customer to perform a purchase on the site without any advance payment. The administrator receives a notification about placing this reservation and can complete it after the customer will pay a required sum to the provided bank account. After the customer send a payment with wire transfer and it successfully received, the status of purchase may be changes to ''paid''.', '', '', '', '', 'global', 1, 2, 0, 1),
-(4, 'paypal', 'PayPal', 'PayPal online payments system', 'To make PayPal processing system works on your site you have to perform the following steps:<br><br>Create an account on PayPal: https://www.paypal.com<br>After account is created, log into and select from the top menu: My Account -> Profile<br>On Profile Summary page select from the Selling Preferences column: Instant Payment Notification (IPN) Preferences.<br>Turn ''On'' IPN by selecting Receive IPN messages (Enabled) and write into Notification URL: {site}/payments/paypal, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/payments/paypal or<br>http://your_domain.com/site_directory/payments/paypal<br>Then go to My Account -> Profile -> Website Payment Preferences, turn Auto Return ''On'' and write into Return URL: {site}/payments/paypal, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/payments/paypal<br>', 'merchant_id', 'sales@test.com', '', '', 'global', 1, 3, 0, 1);
+(4, 'paypal', 'PayPal', 'PayPal online payments system', 'To make PayPal processing system works on your site you have to perform the following steps:<br><br>Create an account on PayPal: https://www.paypal.com<br>After account is created, log into and select from the top menu: My Account -> Profile<br>On Profile Summary page select from the Selling Preferences column: Instant Payment Notification (IPN) Preferences.<br>Turn ''On'' IPN by selecting Receive IPN messages (Enabled) and write into Notification URL: {site}/payments/paypal, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/payments/paypal or<br>http://your_domain.com/site_directory/payments/paypal<br>Then go to My Account -> Profile -> Website Payment Preferences, turn Auto Return ''On'' and write into Return URL: {site}/payments/paypal, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/payments/paypal<br>', 'merchant_id', 'sales@example.com', '', '', 'global', 1, 3, 0, 1);
 
 DROP TABLE IF EXISTS `<DB_PREFIX>social_networks`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>social_networks` (
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>social_networks` (
 
 INSERT INTO `<DB_PREFIX>social_networks` (`id`, `code`, `icon`, `name`, `link`, `sort_order`, `is_active`) VALUES
 (1, 'facebook', 'facebook.png', 'Facebook', 'http://facebook.com/', 1, 1),
-(2, 'googleplus', 'googleplus.png', 'Google+', 'https://plus.google.com/', 2, 1),
+-- (2, 'googleplus', 'googleplus.png', 'Google+', 'https://plus.google.com/', 2, 1),
 (3, 'twitter', 'twitter.png', 'Twitter', 'http://twitter.com/', 3, 1),
 (4, 'youtube', 'youtube.png', 'YouTube', 'http://youtube.com/', 4, 1),
 (5, 'skype', 'skype.png', 'Skype', 'http://web.skype.com/', 5, 0),
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>social_networks_login` (
 
 INSERT INTO `<DB_PREFIX>social_networks_login` (`id`, `name`, `type`, `application_id`, `application_secret`, `sort_order`, `is_active`) VALUES
 (1, 'Facebook', 'facebook', '', '', 1, 0),
-(2, 'Google+', 'google', '', '', 2, 0),
+--(2, 'Google+', 'google', '', '', 2, 0),
 (3, 'Twitter', 'twitter', '', '', 3, 0);
 
 
@@ -370,3 +370,7 @@ ALTER TABLE  `<DB_PREFIX>module_settings` ADD  `trigger_condition` VARCHAR(255) 
 ALTER TABLE  `<DB_PREFIX>search_categories` ADD  `sort_order` tinyint(1) unsigned NOT NULL DEFAULT '0';
 INSERT INTO  `<DB_PREFIX>email_templates` (`id`, `code`, `module_code`, `is_system`) VALUES (NULL, 'bo_admin_password_forgotten', '', 1);
 INSERT INTO	 `<DB_PREFIX>email_template_translations` (`id`, `template_code`, `language_code`, `template_name`, `template_subject`, `template_content`) SELECT NULL, 'bo_admin_password_forgotten', code, 'Restore forgotten password', 'Forgotten Password', 'Hello!\r\n\r\nYou or someone else asked to restore your login info on our site:\r\n<a href={SITE_URL}backend/login>{WEB_SITE}</a>\r\n\r\nYour new login:\r\n---------------\r\nUsername: {USERNAME}\r\nPassword: {PASSWORD}\r\n\r\n-\r\nSincerely,\r\nAdministration' FROM `<DB_PREFIX>languages`;
+
+-- 3.1
+ALTER TABLE  `<DB_PREFIX>settings` CHANGE `cron_run_period` `cron_run_period` enum('minute','hour','day') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'hour';
+ALTER TABLE  `<DB_PREFIX>settings` ADD `mapping_http_key` varchar(125) COLLATE utf8_unicode_ci NOT NULL;

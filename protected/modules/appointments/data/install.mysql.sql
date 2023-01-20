@@ -1,6 +1,6 @@
 
 INSERT INTO `<DB_PREFIX>modules` (`id`, `code`, `class_code`, `name`, `description`, `version`, `icon`, `show_on_dashboard`, `show_in_menu`, `is_installed`, `is_system`, `is_active`, `installed_at`, `updated_at`, `has_test_data`, `sort_order`) VALUES
-(NULL, 'appointments', 'Appointments', 'Doctor Appointments', 'Clinic management, doctor and therapist online medical appointment scheduling system', '0.0.2', 'icon.png', 1, 1, 1, 1, 1, '<CURRENT_DATETIME>', NULL, 1, (SELECT COUNT(m.id) + 1 FROM `<DB_PREFIX>modules` m WHERE m.is_system = 1));
+(NULL, 'appointments', 'Appointments', 'Doctor Appointments', 'Clinic management, doctor and therapist online medical appointment scheduling system', '0.0.3', 'icon.png', 1, 1, 1, 1, 1, '<CURRENT_DATETIME>', NULL, 1, (SELECT COUNT(m.id) + 1 FROM `<DB_PREFIX>modules` m WHERE m.is_system = 1));
 
 
 INSERT INTO `<DB_PREFIX>module_settings` (`id`, `module_code`, `property_group`, `property_key`, `property_value`, `name`, `description`, `property_type`, `property_source`, `property_length`, `append_text`, `trigger_condition`, `is_required`) VALUES
@@ -23,6 +23,7 @@ INSERT INTO `<DB_PREFIX>module_settings` (`id`, `module_code`, `property_group`,
 (NULL, 'appointments', 'Doctor Settings', 'doctors_verification_allow', '1', 'Verification captcha', 'Specifies whether to allow verification captcha on doctor registration page', 'bool', '', '', '', '', 0),
 (NULL, 'appointments', 'Doctor Settings', 'doctors_allow_search_by_name', '1', 'Allow Search By Name', 'Specifies whether to allow patients to search by doctors by name', 'bool', '', '', '', '', 0),
 (NULL, 'appointments', 'Doctor Settings', 'doctors_allow_search_by_location', '1', 'Allow Search By Location', 'Specifies whether to allow patients to search by doctors by location', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Doctor Settings', 'search_location_type', 'dropdownbox', 'Search Location Type', 'Specifies which type of search by location to use.', 'enum', 'autocomplete,dropdownbox', '', '', '', 0),
 (NULL, 'appointments', 'Doctor Settings', 'show_rating', '1', 'Show/Hide Rating And Reviews', 'Specifies to show the rating and reviews of the doctor', 'bool', '', '', '', '', 0),
 (NULL, 'appointments', 'Doctor Settings', 'show_rating_form', '1', 'Show/Hide Rating Form', 'Specifies to whether to show the rating form', 'bool', '', '', '', '', 0),
 (NULL, 'appointments', 'Doctor Settings', 'review_moderation', '1', 'Review Moderation', 'Specifies moderating the review after publication', 'bool', '', '', '', '', 0),
@@ -47,13 +48,13 @@ INSERT INTO `<DB_PREFIX>module_settings` (`id`, `module_code`, `property_group`,
 (NULL, 'appointments', 'Patient Restore Password', 'modulelink', 'patients/restorePassword', 'Restore Password Link', 'This link leads to the page where patient may restore forgotten password', 'label', '', '', '', '', 0),
 (NULL, 'appointments', 'Appointment Settings', 'approval_required', 'automatic', 'Appointment Approval Required', 'Defines whether an approval (which type of) is required for appointments', 'enum', 'automatic,by_admin_or_doctor', '', '', '', 0),
 (NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_reserved', '1', 'Doctor Email on New Appointment', 'Specifies whether to send an email to doctor when new appointment was created', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_verified', '1', 'Doctor Verify Appointment Email', 'Specifies whether to send an email to doctor when new appointment was created', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_canceled', '1', 'Doctor Cancel Appointment Email', 'Specifies whether to send email to doctor, if appointment was verified by patient', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_changed', '1', 'Doctor Cnange Appointment Email', 'Specifies whether to send email to doctor, if appointment was canceled by patient', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_reserved', '1', 'Patient New Appointment Email', 'Specifies whether to send email to doctor, if appointment was changed by patient', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_verified', '1', 'Patient Verified Appointment Email', 'Specifies whether to send an email to patient when new appointment was created', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_canceled', '1', 'Patient Cancel Appointment Email', 'Specifies whether to send email to patient, if appointment was verified by doctor', 'bool', '', '', '', '', 0),
-(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_changed', '1', 'Patient Change Appointment Email', 'Specifies whether to send email to patient, if appointment was canceled by doctor', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_verified', '1', 'Doctor Verify Appointment Email', 'Specifies whether to send email to doctor, if appointment was verified by patient', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_canceled', '1', 'Doctor Cancel Appointment Email', 'Specifies whether to send email to doctor, if appointment was canceled by patient', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_doctor_appointment_changed', '1', 'Doctor Change Appointment Email', 'Specifies whether to send email to doctor, if appointment was changed by patient', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_reserved', '1', 'Patient New Appointment Email', 'Specifies whether to send an email to patient when new appointment was created', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_verified', '1', 'Patient Verified Appointment Email', 'Specifies whether to send email to patient, if appointment was verified by doctor', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_canceled', '1', 'Patient Cancel Appointment Email', 'Specifies whether to send email to patient, if appointment was canceled by doctor', 'bool', '', '', '', '', 0),
+(NULL, 'appointments', 'Appointment Settings', 'send_email_patient_appointment_changed', '1', 'Patient Change Appointment Email', 'Specifies whether to send email to patient, if appointment was changed by doctor', 'bool', '', '', '', '', 0),
 (NULL, 'appointments', 'Appointment Settings', 'time_format_appointment_time', 'H:i', 'Appointment Time Format', 'Specifies which time format to show in appointments', 'enum', 'H:i,h:i a,h:i A,g:i a,g:i A', '', '', '', 0),
 (NULL, 'appointments', 'Reminder Settings', 'reminder_expired_membership', '10', 'Membership Renewal Reminder', 'Specifies a period of days for email reminder of membership plan renewal', 'range', '0-50', '', '', '', 0),
 (NULL, 'appointments', 'Reminder Settings', 'reminder_type', 'email', 'Reminder Type', 'Specifies a type of the Reminder', 'enum', 'email', '', '', '', 0),
@@ -233,10 +234,14 @@ INSERT INTO `<DB_PREFIX>email_template_translations` (`id`, `template_code`, `la
 -- Administrator --
 INSERT INTO `<DB_PREFIX>email_template_translations` (`id`, `template_code`, `language_code`, `template_name`, `template_subject`, `template_content`) SELECT NULL, 'success_order_for_admin', code, 'Success Order (admin copy)', 'The order has been placed in system!', 'User <b>{FIRST_NAME} {LAST_NAME} ({USERNAME})</b>!\r\n\r\nThe order <b>{ORDER_NUMBER}</b> has been placed in system.\r\nStatus: {STATUS}\r\n\r\nDate Created: {DATE_CREATED}\r\nPayment Date: {DATE_PAYMENT}\r\nPayment Type: {PAYMENT_TYPE}\r\nCurrency: {CURRENCY}\r\nPrice: {PRICE}\r\n\r\n' FROM `<DB_PREFIX>languages`;
 
-UPDATE `<DB_PREFIX>site_info` SET `header`='Doctor Appointments', `slogan`='Welcome to Doctor Appointments!', `footer`='&copy; 2018 Powered by <a class="footer_link" target="_blank" rel="noopener noreferrer" href="https://www.apphp.com">ApPHP</a>', `meta_title`='Doctor Appointments', `meta_description`='Doctor Appointments', `meta_keywords`='doctor appointments, medical appointments, medical framework, medical content management framework, medical cms, medical appointments cms', `site_address`='Medicure Ltd.<br>51, North Ave<br>New York, NY';
+UPDATE `<DB_PREFIX>site_info` SET `header`='uDoctorAppointments', `slogan`='Welcome to uDoctorAppointments!', `footer`='&copy; 2018 Powered by <a class="footer_link" target="_blank" rel="noopener noreferrer" href="https://www.apphp.com">ApPHP</a>', `meta_title`='Doctor Appointments', `meta_description`='Doctor Appointments', `meta_keywords`='doctor appointments, medical appointments, medical framework, medical content management framework, medical cms, medical appointments cms', `site_address`='Medicure Ltd.<br>51, North Ave<br>New York, NY';
+
+-- set demo Google Maps API Key
+UPDATE `<DB_PREFIX>settings` SET `mapping_api_key` = 'AIzaSyDwKSSy7Oq4wCkeTMcSnPuMKMVckS-5fU8';
+UPDATE `<DB_PREFIX>settings` SET `mapping_http_key` = 'AIzaSyDwKSSy7Oq4wCkeTMcSnPuMKMVckS-5fU8';
 
 
---create here module tables
+-- create here module tables
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_appointments`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_appointments` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
@@ -262,6 +267,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_appointments` (
   `visit_reason_id` int(10) unsigned NOT NULL DEFAULT '0',
   `other_reasons` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 - reserved, 1 - verifyed, 2 - canceled',
+  `status_arrival` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 - no, 1 - yes',
   `status_review` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 - not exist review, 1 - exist review',
   `status_changed` datetime NULL DEFAULT NULL,
   `created_by` enum('owner','admin','doctor','patient') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'patient',
@@ -272,8 +278,9 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_appointments` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
-INSERT INTO `<DB_PREFIX>appt_appointments` (`id`, `appointment_number`, `appointment_description`, `doctor_id`, `doctor_specialty_id`, `doctor_address_id`, `patient_id`, `date_created`, `appointment_date`, `appointment_time`, `visit_duration`, `visit_price`, `doctor_internal_notes`, `doctor_external_notes`, `patient_internal_notes`, `patient_external_notes`, `for_whom`, `first_visit`, `insurance_id`, `visit_reason_id`, `status`, `status_changed`, `status_review`, `created_by`, `p_arrival_reminder_sent`) VALUES
-(1, '12345-TEST', 'Appointment with a doctor', 1, 1, 1, 1, '2018-06-05 11:15:30', '2018-06-05', '12:00:00', 30, '98.00', '', '', '', '', 0, 1, 5, 0, 1, NULL, 0, 'patient', 0);
+INSERT INTO `<DB_PREFIX>appt_appointments` (`id`, `appointment_number`, `appointment_description`, `doctor_id`, `doctor_specialty_id`, `doctor_address_id`, `patient_id`, `date_created`, `appointment_date`, `appointment_time`, `visit_duration`, `visit_price`, `doctor_internal_notes`, `doctor_external_notes`, `patient_internal_notes`, `patient_external_notes`, `for_whom`, `first_visit`, `insurance_id`, `visit_reason_id`, `status`, `status_arrival`, `status_changed`, `status_review`, `created_by`, `p_arrival_reminder_sent`) VALUES
+(1, '12345-TEST', 'Appointment with a doctor', 1, 1, 1, 1, NOW(), NOW() + INTERVAL 15 DAY, '09:30:00', 30, '98.00', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras in aliquam risus. Suspendisse ac ultrices ante. Phasellus malesuada aliquam odio, in laoreet lectus sagittis ut. Duis gravida id sapien sit amet luctus.', '', '', '', 0, 1, 5, 0, 1, 1, NULL, 0, 'patient', 0);
+
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_clinics`;
@@ -315,6 +322,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctors` (
   `doctor_first_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `doctor_middle_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `doctor_last_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `email` varchar(100) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `gender` enum('f','m') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'm',
   `birth_date` date NULL DEFAULT NULL,
   `title_id` tinyint(1) unsigned NOT NULL DEFAULT 0,
@@ -351,20 +359,24 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctors` (
   `last_membership_reminder_date` date NULL DEFAULT NULL,
   `last_reminded_date` date NULL DEFAULT NULL,
   `membership_expires` date NULL DEFAULT NULL,
+  `show_social_networks` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `social_network_facebook` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `social_network_twitter` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `social_network_youtube` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `social_network_instagram` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `membership_plan_id` (`membership_plan_id`),
   KEY `medical_degree_id` (`medical_degree_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3;
 
-
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `password_changed_at`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES (NULL, 'doctor', 'doctor1', '1921a0fb5aad4577086262cb6fcb4fc1461e4a4cf2f12499593154c0e4f3a9b8', 'aSt/VJyNz1rTQHIMWrSseRHUAbv6cqRj', '', 'doctor1@exampe.com', 'en', 'doctor1.jpg', NULL, '000.000.000.000', NULL, '000.000.000.000', NULL, 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`) VALUES (1, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Jon', '', 'Carter', 'm', '1978-01-09', 1, '', '', '', '', '', '', '', '', 'US', '', 1, '', '', 'Medical School - New York Medical College, Saint Vincent''s Hospital, Internship in Internal Medicine', 6, '', '', 'American Board of Internal Medicine', 'Undergraduate Research Award: UTY-Chapel, 2003, Bachelor of Science in Biology with Honors: UTY-Chapel, 2003', 'ar;de;en', '1199SEIZ,AtnaZ,Blue Cross Shield', '75', '15',  3, 3, 2, 3, 3, 1, 1, NULL, NULL, NOW() + INTERVAL 1 YEAR);
+INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`, `show_social_networks`, `social_network_facebook`, `social_network_twitter`, `social_network_youtube`, `social_network_instagram`) VALUES (1, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Jon', '', 'Carter', 'm', '1978-01-09', 1, '', '', '', '', '462 1st Avenue, New York, NY 10016', '', 'New York', '04056', 'US', '', 1, '', '', 'Medical School - New York Medical College, Saint Vincent''s Hospital, Internship in Internal Medicine', 6, '', '', 'American Board of Internal Medicine', 'Undergraduate Research Award: UTY-Chapel, 2003, Bachelor of Science in Biology with Honors: UTY-Chapel, 2003', 'ar;de;en', '1199SEIZ,AtnaZ,Blue Cross Shield', '75', '15',  3, 3, 2, 3, 3, 1, 1, NULL, NULL, NOW() + INTERVAL 1 YEAR, 1, '', '', '', '');
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `password_changed_at`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES (NULL, 'doctor', 'doctor2', '943d0a294b302095cec71c55a6a06167c850fa9728c1c8bbf5945e804be3027e', 'PaYf7dFoHIlHq8k/zOGlD+Pehbjv+U+P', '', 'doctor2@exampe.com', 'en', 'doctor2.jpg', NULL, '000.000.000.000', NULL, '000.000.000.000', NULL, 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`) VALUES (2, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Rosy', '', 'Gracey', 'f', '1965-01-07', 4, '050-123-4444', '050-455-2222', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical School - University of Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009, 2010.', 'en', '', '98', '20', 4, 5, 3, 5, 5, 1, 1, NULL, NULL, NOW() + INTERVAL 6 MONTH);
+INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`, `show_social_networks`, `social_network_facebook`, `social_network_twitter`, `social_network_youtube`, `social_network_instagram`) VALUES (2, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Rosy', '', 'Gracey', 'f', '1965-01-07', 4, '050-123-4444', '050-455-2222', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical School - University of Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009, 2010.', 'en', '', '98', '20', 4, 5, 3, 5, 5, 1, 1, NULL, NULL, NOW() + INTERVAL 6 MONTH, 1, '', '', '', '');
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `password_changed_at`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES (NULL, 'doctor', 'doctor3', '', '', '', 'doctor3@exampe.com', 'en', 'doctor3.jpg', NULL, '000.000.000.000', NULL, '000.000.000.000', NULL, 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`) VALUES (3, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'John', '', 'Smith', 'm', '1965-01-07', 1, '050-123-5555', '050-455-3333', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical School - University of Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009.', 'ar;de', '', '98', '20', 2, 2, 1, 2, 2, 1, 1, NULL, NULL, NOW() + INTERVAL 2 YEAR);
+INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`, `show_social_networks`, `social_network_facebook`, `social_network_twitter`, `social_network_youtube`, `social_network_instagram`) VALUES (3, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'John', '', 'Smith', 'm', '1965-01-07', 1, '050-123-5555', '050-455-3333', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical School - University of Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009.', 'ar;de', '', '98', '20', 2, 2, 1, 2, 2, 1, 1, NULL, NULL, NOW() + INTERVAL 2 YEAR, 1, '', '', '', '');
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `password_changed_at`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES (NULL, 'doctor', 'doctor4', '', '', '', 'doctor4@exampe.com', 'en', 'doctor4.jpg', NULL, '000.000.000.000', NULL, '000.000.000.000', NULL, 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`) VALUES (4, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Robet', '', 'Dova', 'm', '1968-03-02', 1, '050-123-6666', '050-455-4444', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical Institute - Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009.', 'de;en', '', '98', '20', 1, 0, 1, 1, 1, 1, 0, NULL, NULL, NOW() + INTERVAL 1 YEAR);
+INSERT INTO `<DB_PREFIX>appt_doctors` (`id`, `account_id`, `doctor_first_name`, `doctor_middle_name`, `doctor_last_name`, `gender`, `birth_date`, `title_id`, `work_phone`, `work_mobile_phone`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `medical_degree_id`, `license_number`, `additional_degree`, `education`, `experience_years`, `residency_training`, `hospital_affiliations`, `board_certifications`, `awards_and_publications`, `languages_spoken`, `insurances_accepted`, `default_visit_price`, `default_visit_duration`, `membership_plan_id`, `membership_images_count`, `membership_schedules_count`, `membership_specialties_count`, `membership_clinics_count`, `membership_show_in_search`, `membership_enable_reviews`, `last_membership_reminder_date`, `last_reminded_date`, `membership_expires`, `show_social_networks`, `social_network_facebook`, `social_network_twitter`, `social_network_youtube`, `social_network_instagram`) VALUES (4, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Robet', '', 'Dova', 'm', '1968-03-02', 1, '050-123-6666', '050-455-4444', '', '', '', '', '', '', 'US', '', 3, '', '', 'Medical Institute - Pennsylvania, School of Medicine,Goverment Medical Centerrn', 4, '', 'Goverment Medical Center - Petrie Division, New York University Elaine A. and Kenneth G., Langone Medical Center', 'American Board of Internal Medicine', 'Dr. Smith was named in Castle Connolly’s "Top Doctors-New York Metro Area" 2006, 2007, 2008 2009.', 'de;en', '', '98', '20', 1, 0, 1, 1, 1, 1, 0, NULL, NULL, NOW() + INTERVAL 1 YEAR, 1, '', '', '', '');
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_doctor_images`;
@@ -421,11 +433,13 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctor_schedules` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6;
 
 INSERT INTO `<DB_PREFIX>appt_doctor_schedules` (`id`, `name`, `doctor_id`, `date_from`, `date_to`, `is_active`) VALUES
-(1, '2018 - Summer', 1, '2018-06-01', '2018-08-31', 1),
-(2, '2018 - Autumn', 1, '2018-09-01', '2018-11-30', 1),
-(3, '2018 - Spring', 1, '2018-03-01', '2018-05-31', 1),
-(4, '2018 Half-Year #1', 2, '2018-01-01', '2018-05-31', 1),
-(5, '2018 Half-Year #2', 2, '2018-06-01', '2018-12-31', 1);
+(1, 'Summer', 1, concat(YEAR(NOW()),'-06-01'), concat(YEAR(NOW()), '-08-31'), 1),
+(2, 'Autumn', 1, concat(YEAR(NOW()),'-09-01'), concat(YEAR(NOW()),'-11-30'), 1),
+(3, 'Spring', 1, concat(YEAR(NOW()),'-03-01'), concat(YEAR(NOW()),'-05-31'), 1),
+(4, 'Half-Year #1', 2, concat(YEAR(NOW()),'-01-01'), concat(YEAR(NOW()),'-06-30'), 1),
+(5, 'Half-Year #2', 2, concat(YEAR(NOW()),'-07-01'), concat(YEAR(NOW()),'-12-31'), 1),
+(6, 'Half-Year #1', 3, concat(YEAR(NOW()),'-01-01'), concat(YEAR(NOW()),'-06-30'), 1),
+(7, 'Half-Year #2', 3, concat(YEAR(NOW()),'-07-01'), concat(YEAR(NOW()),'-12-31'), 1);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_doctor_schedule_timeblocks`;
@@ -434,6 +448,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctor_schedule_timeblocks` (
   `doctor_id` int(10) unsigned NOT NULL DEFAULT '0',
   `schedule_id` int(11) NOT NULL DEFAULT '0',
   `address_id` int(11) NOT NULL DEFAULT '0',
+  `time_slot_type_id` int(11) NOT NULL DEFAULT '0',
   `week_day` enum('1','2','3','4','5','6','7') CHARACTER SET latin1 NOT NULL DEFAULT '1',
   `time_from` time NOT NULL DEFAULT '00:00:00',
   `time_to` time NOT NULL DEFAULT '00:00:00',
@@ -442,34 +457,53 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctor_schedule_timeblocks` (
   KEY `schedule_id` (`schedule_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=42 ;
 
-INSERT INTO `<DB_PREFIX>appt_doctor_schedule_timeblocks` (`id`, `doctor_id`, `schedule_id`, `address_id`, `week_day`, `time_from`, `time_to`, `time_slots`) VALUES
-(1, 1, 1, 1, '2', '08:00:00', '14:00:00', '15'),
-(2, 1, 1, 1, '2', '15:00:00', '20:00:00', '20'),
-(3, 1, 1, 1, '3', '08:30:00', '15:00:00', '15'),
-(4, 1, 1, 1, '5', '08:00:00', '14:00:00', '15'),
-(5, 1, 1, 1, '4', '10:00:00', '12:00:00', '20'),
-(6, 1, 1, 1, '6', '16:00:00', '21:00:00', '15'),
-(7, 1, 2, 1, '2', '09:00:00', '15:00:00', '15'),
-(8, 1, 2, 1, '3', '09:30:00', '17:00:00', '20'),
-(9, 1, 2, 1, '5', '08:00:00', '13:00:00', '30'),
-(10, 1, 2, 1, '6', '09:00:00', '15:00:00', '15'),
-(11, 1, 3, 1, '2', '07:30:00', '14:00:00', '15'),
-(12, 1, 3, 1, '2', '15:00:00', '18:00:00', '20'),
-(13, 1, 3, 1, '3', '08:00:00', '14:00:00', '15'),
-(14, 1, 3, 1, '4', '15:00:00', '20:00:00', '15'),
-(15, 1, 3, 1, '5', '08:00:00', '14:00:00', '15'),
-(16, 1, 3, 1, '6', '08:00:00', '15:00:00', '15'),
-(17, 2, 4, 1, '2', '09:00:00', '14:00:00', '15'),
-(18, 2, 4, 1, '2', '16:00:00', '20:00:00', '20'),
-(19, 2, 4, 1, '3', '10:00:00', '17:00:00', '15'),
-(20, 2, 4, 1, '4', '09:00:00', '15:00:00', '15'),
-(21, 2, 4, 1, '5', '10:00:00', '17:00:00', '15'),
-(22, 2, 4, 1, '6', '08:00:00', '12:00:00', '15'),
-(23, 2, 5, 1, '2', '08:00:00', '16:00:00', '15'),
-(24, 2, 5, 1, '4', '09:00:00', '14:00:00', '15'),
-(25, 2, 5, 1, '4', '16:00:00', '19:00:00', '15'),
-(26, 2, 5, 1, '5', '12:00:00', '20:00:00', '15'),
-(27, 2, 5, 1, '6', '09:00:00', '17:00:00', '15');
+INSERT INTO `<DB_PREFIX>appt_doctor_schedule_timeblocks` (`id`, `doctor_id`, `schedule_id`, `address_id`, `time_slot_type_id`, `week_day`, `time_from`, `time_to`, `time_slots`) VALUES
+(1, 1, 1, 1, 1, '2', '08:00:00', '14:00:00', '30'),
+(2, 1, 1, 1, 2, '2', '14:00:00', '15:00:00', '60'),
+(3, 1, 1, 1, 1, '2', '15:00:00', '17:00:00', '30'),
+(4, 1, 1, 1, 1, '3', '08:30:00', '15:00:00', '30'),
+(5, 1, 1, 1, 1, '5', '08:00:00', '14:00:00', '30'),
+(6, 1, 1, 1, 1, '4', '10:00:00', '12:00:00', '30'),
+(7, 1, 1, 1, 1, '6', '16:00:00', '21:00:00', '30'),
+(8, 1, 2, 1, 1, '2', '09:00:00', '15:00:00', '30'),
+(9, 1, 2, 1, 1, '3', '09:30:00', '17:00:00', '30'),
+(10, 1, 2, 1, 1, '5', '08:00:00', '13:00:00', '30'),
+(11, 1, 2, 1, 1, '6', '09:00:00', '15:00:00', '30'),
+(12, 1, 3, 1, 1, '2', '07:30:00', '14:00:00', '30'),
+(14, 1, 3, 1, 1, '2', '15:00:00', '18:00:00', '30'),
+(15, 1, 3, 1, 1, '3', '08:00:00', '14:00:00', '30'),
+(16, 1, 3, 1, 2, '3', '14:00:00', '15:00:00', '60'),
+(17, 1, 3, 1, 1, '4', '15:00:00', '17:00:00', '30'),
+(18, 1, 3, 1, 1, '5', '08:00:00', '14:00:00', '30'),
+(19, 1, 3, 1, 1, '6', '08:00:00', '15:00:00', '30'),
+(20, 2, 4, 1, 1, '2', '09:00:00', '14:00:00', '20'),
+(21, 2, 4, 1, 1, '2', '16:00:00', '17:00:00', '20'),
+(22, 2, 4, 1, 1, '3', '10:00:00', '17:00:00', '20'),
+(23, 2, 4, 1, 1, '4', '09:00:00', '15:00:00', '20'),
+(24, 2, 4, 1, 1, '5', '10:00:00', '17:00:00', '20'),
+(25, 2, 4, 1, 1, '6', '08:00:00', '12:00:00', '20'),
+(26, 2, 5, 1, 1, '2', '08:00:00', '16:00:00', '20'),
+(27, 2, 5, 1, 1, '4', '09:00:00', '14:00:00', '20'),
+(28, 2, 5, 1, 1, '4', '16:00:00', '19:00:00', '20'),
+(29, 2, 5, 1, 1, '5', '12:00:00', '17:00:00', '20'),
+(30, 3, 6, 1, 1, '1', '08:00:00', '14:00:00', '60'),
+(31, 3, 6, 1, 2, '1', '14:00:00', '15:00:00', '60'),
+(32, 3, 6, 1, 1, '1', '15:00:00', '17:00:00', '60'),
+(33, 3, 6, 1, 1, '3', '08:00:00', '14:00:00', '60'),
+(34, 3, 6, 1, 2, '3', '14:00:00', '15:00:00', '60'),
+(35, 3, 6, 1, 1, '3', '15:00:00', '17:00:00', '60'),
+(36, 3, 6, 1, 1, '5', '08:00:00', '14:00:00', '60'),
+(37, 3, 6, 1, 2, '5', '14:00:00', '15:00:00', '60'),
+(38, 3, 6, 1, 1, '7', '15:00:00', '17:00:00', '60'),
+(39, 3, 7, 1, 1, '2', '08:00:00', '14:00:00', '60'),
+(40, 3, 7, 1, 2, '2', '14:00:00', '15:00:00', '60'),
+(41, 3, 7, 1, 1, '2', '15:00:00', '17:00:00', '60'),
+(42, 3, 7, 1, 1, '4', '08:00:00', '14:00:00', '60'),
+(43, 3, 7, 1, 2, '4', '14:00:00', '15:00:00', '60'),
+(44, 3, 7, 1, 1, '4', '15:00:00', '17:00:00', '60'),
+(45, 3, 7, 1, 1, '6', '08:00:00', '14:00:00', '60'),
+(46, 3, 7, 1, 2, '6', '14:00:00', '15:00:00', '60'),
+(47, 3, 7, 1, 1, '6', '15:00:00', '1700:00', '60');
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_doctor_timeoffs`;
@@ -485,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctor_timeoffs` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `<DB_PREFIX>appt_doctor_timeoffs` (`id`, `doctor_id`, `date_from`, `time_from`, `date_to`, `time_to`, `description`) VALUES
-(1, 1, '2018-05-01', '00:50:00', '2018-06-23', '09:00:00', 'Vacations');
+(1, 1, concat(YEAR(NOW()),'-01-01'), '08:00:00', concat(YEAR(NOW()),'-12-31'), '09:00:00', 'Vacations');
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_doctor_reviews`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_doctor_reviews` (
@@ -536,6 +570,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_patients` (
   `account_id` int(10) unsigned NOT NULL DEFAULT 0,
   `patient_first_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `patient_last_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `email` varchar(100) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `gender` enum('f','m') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'm',
   `birth_date` date NULL DEFAULT NULL,
   `phone` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
@@ -546,17 +581,27 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_patients` (
   `zip_code` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `country_code` varchar(2) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `state` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `weight` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `height` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `blood_type` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `allergies` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `high_blood_presure` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `low_blood_presure` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `cardiac_rythm` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `smoking` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `tried_drugs` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3;
 
+
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES
 (NULL, 'patient', 'patient1', '1921a0fb5aad4577086262cb6fcb4fc1461e4a4cf2f12499593154c0e4f3a9b8', 'aSt/VJyNz1rTQHIMWrSseRHUAbv6cqRj', '', 'patient1@exampe.com', 'en', '', NULL, '', NULL, '000.000.000.000', 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_patients` (`id`, `account_id`, `patient_first_name`, `patient_last_name`, `gender`, `birth_date`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`) VALUES
-(1, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Donald', 'Johnson', 'm', '1981-12-17', '125-121-55', '', 'Green street 41', '', 'New York', '876-54321', 'US', 'FL');
+INSERT INTO `<DB_PREFIX>appt_patients` (`id`, `account_id`, `patient_first_name`, `patient_last_name`, `gender`, `birth_date`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `weight`,`height`,`blood_type`,`allergies`,`high_blood_presure`,`low_blood_presure`,`cardiac_rythm`,`smoking`,`tried_drugs`) VALUES
+(1, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Donald', 'Johnson', 'm', '1981-12-17', '125-121-55', '', 'Green street 41', '', 'New York', '876-54321', 'US', 'FL', '80 kg', '190 cm', 'II', '', '', '', '', 0, 0);
 INSERT INTO `<DB_PREFIX>accounts` (`id`, `role`, `username`, `password`, `salt`, `token_expires_at`, `email`, `language_code`, `avatar`, `created_at`, `created_ip`, `last_visited_at`, `last_visited_ip`, `notifications`, `notifications_changed_at`, `is_active`, `is_removed`, `comments`, `registration_code`) VALUES
 (NULL, 'patient', 'patient2', '943d0a294b302095cec71c55a6a06167c850fa9728c1c8bbf5945e804be3027e', 'PaYf7dFoHIlHq8k/zOGlD+Pehbjv+U+P', '', 'patient2@exampe.com', 'en', '', NULL, '', NULL, '000.000.000.000', 0, NULL, 1, 0, '', '');
-INSERT INTO `<DB_PREFIX>appt_patients` (`id`, `account_id`, `patient_first_name`, `patient_last_name`, `gender`, `birth_date`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`) VALUES
-(2, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Ronald', 'Orgunson', 'm', '1989-01-11', '114-232-11', '', 'Green street 41', '', 'New York', '12345-678', 'US', 'FL');
+INSERT INTO `<DB_PREFIX>appt_patients` (`id`, `account_id`, `patient_first_name`, `patient_last_name`, `gender`, `birth_date`, `phone`, `fax`, `address`, `address_2`, `city`, `zip_code`, `country_code`, `state`, `weight`,`height`,`blood_type`,`allergies`,`high_blood_presure`,`low_blood_presure`,`cardiac_rythm`,`smoking`,`tried_drugs`) VALUES
+(2, (SELECT MAX(id) FROM `<DB_PREFIX>accounts`), 'Ronald', 'Orgunson', 'm', '1989-01-11', '114-232-11', '', 'Green street 41', '', 'New York', '12345-678', 'US', 'FL', '110 kg', '170 cm', 'IV', '', '', '', '', 0, 0);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_specialties`;
@@ -829,6 +874,33 @@ INSERT INTO `<DB_PREFIX>appt_degree_translations` (`id`, `degree_id`, `language_
 INSERT INTO `<DB_PREFIX>appt_degree_translations` (`id`, `degree_id`, `language_code`, `name`, `description`) SELECT NULL, 19, code, 'Nurse practitioner', '' FROM <DB_PREFIX>languages;
 INSERT INTO `<DB_PREFIX>appt_degree_translations` (`id`, `degree_id`, `language_code`, `name`, `description`) SELECT NULL, 20, code, 'Certified nurse midwife', '' FROM <DB_PREFIX>languages;
 
+DROP TABLE IF EXISTS `<DB_PREFIX>appt_time_slots_type`;
+CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_time_slots_type` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `text_color` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `background_color` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `sort_order` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_bookable` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12;
+
+INSERT INTO `<DB_PREFIX>appt_time_slots_type` (`id`, `text_color`, `background_color`, `sort_order`, `is_active`, `is_bookable`) VALUES
+(1, '#ffffff', '#3a87ad', 0, 1, 1),
+(2, '#ffffff', '#ff0000', 1, 1, 0);
+
+
+DROP TABLE IF EXISTS `<DB_PREFIX>appt_time_slots_type_translations`;
+CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_time_slots_type_translations` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `time_slot_type_id` int(10) NOT NULL DEFAULT '0',
+  `language_code` varchar(2) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `<DB_PREFIX>appt_time_slots_type_translations` (`id`, `time_slot_type_id`, `language_code`, `name`) SELECT NULL, 1, code, 'Treatment' FROM <DB_PREFIX>languages;
+INSERT INTO `<DB_PREFIX>appt_time_slots_type_translations` (`id`, `time_slot_type_id`, `language_code`, `name`) SELECT NULL, 2, code, 'Administrative Hours' FROM <DB_PREFIX>languages;
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_membership_plans`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_membership_plans` (
@@ -928,13 +1000,13 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>appt_working_hours` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 INSERT INTO `<DB_PREFIX>appt_working_hours` (`id`, `clinic_id`, `week_day`, `start_time`, `end_time`, `is_day_off`) VALUES
-(1, 1, 1, '09:30', '15:00', 0),
+(1, 1, 1, '09:30', '15:30', 0),
 (2, 1, 2, '08:00', '17:00', 0),
 (3, 1, 3, '08:00', '17:00', 0),
 (4, 1, 4, '08:00', '17:00', 0),
 (5, 1, 5, '08:00', '17:00', 0),
 (6, 1, 6, '08:00', '17:00', 0),
-(7, 1, 7, '09:30', '17:30', 0);
+(7, 1, 7, '09:30', '15:30', 0);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>appt_services`;

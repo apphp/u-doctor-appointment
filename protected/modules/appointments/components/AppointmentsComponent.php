@@ -14,7 +14,7 @@
 * drawShortcode
 * shareLink
 * getConfirmLink
-*
+* getConditionFindDoctors
 *
 * STATIC
 * -------------------------------------------
@@ -25,18 +25,19 @@
 namespace Modules\Appointments\Components;
 
 // Models
-use Modules\Appointments\Models\Clinics;
-use \Modules\Appointments\Models\Degrees;
-use \Modules\Appointments\Models\DoctorSchedules;
-use \Modules\Appointments\Models\DoctorScheduleTimeBlocks;
-use \Modules\Appointments\Models\DoctorSpecialties;
-use \Modules\Appointments\Models\Doctors;
-use \Modules\Appointments\Models\Patients;
-use \Modules\Appointments\Models\Specialties;
-use \Modules\Appointments\Models\Titles;
+use \Modules\Appointments\Models\Clinics,
+    \Modules\Appointments\Models\Degrees,
+    \Modules\Appointments\Models\DoctorSchedules,
+    \Modules\Appointments\Models\DoctorScheduleTimeBlocks,
+    \Modules\Appointments\Models\DoctorSpecialties,
+    \Modules\Appointments\Models\Doctors,
+    \Modules\Appointments\Models\Patients,
+    \Modules\Appointments\Models\Specialties,
+    \Modules\Appointments\Models\Appointments;
 
 // Global
 use \A,
+    \Accounts,
     \Admins,
     \Bootstrap,
     \CArray,
@@ -50,8 +51,10 @@ use \A,
     \CString,
     \CDebug,
     \CFile,
+	\LocalTime,
 	\ModulesSettings,
 	\Website;
+use Modules\Appointments\Models\TimeSlotsType;
 
 
 class AppointmentsComponent extends \CComponent{
@@ -118,6 +121,7 @@ class AppointmentsComponent extends \CComponent{
                 array('title'=>'visitreasons','url'=>'masterData/visitReasonsManage','text'=>A::t('appointments', 'Visit Reasons')),
                 array('title'=>'titles','url'=>'masterData/titlesManage','text'=>A::t('appointments', 'Titles')),
                 array('title'=>'degrees','url'=>'masterData/degreesManage','text'=>A::t('appointments', 'Degrees')),
+                array('title'=>'timeslotstype','url'=>'masterData/timeSlotsTypeManage','text'=>A::t('appointments', 'Time Slots Type')),
             ),
             'orders' => array(
                 array('title'=>'doctors','url'=>'orders/doctorsManage','text'=>A::t('appointments', 'Doctors')),
@@ -227,223 +231,225 @@ class AppointmentsComponent extends \CComponent{
         $autocompleteMinLength = 3;
         $autocompleteSearchByLocationMinLength = 2;
         $doctorSpecialtiesCount = array();
+        $doctorClinics = array();
         $doctorsAllowSearchByName 		= ModulesSettings::model()->param('appointments', 'doctors_allow_search_by_name');
         $doctorsAllowSearchByLocation 	= ModulesSettings::model()->param('appointments', 'doctors_allow_search_by_location');
+        $searchLocationType 	        = ModulesSettings::model()->param('appointments', 'search_location_type');
+
+        if ($searchLocationType == 'dropdownbox') {
+            $clinics = Clinics::model()->findAll('is_active = 1');
+            if (!empty($clinics) && is_array($clinics)) {
+                $doctorClinics[''] = '- ' . A::t('appointments', 'select') . ' -';
+                foreach ($clinics as $clinic) {
+                    $doctorClinics[$clinic['id']] = $clinic['clinic_name'] . (!empty($clinic['address']) ? ' (' . $clinic['address'] . ')' : '');
+                }
+            }
+        }
 
         //calculate the number of active specialties
         $doctorSpecialties = DoctorSpecialties::model()->findAll();
-        if(!empty($doctorSpecialties) && is_array($doctorSpecialties)){
-            foreach($doctorSpecialties as $doctorSpecialtyCnt){
+        if (!empty($doctorSpecialties) && is_array($doctorSpecialties)) {
+            foreach ($doctorSpecialties as $doctorSpecialtyCnt) {
                 $doctor = Doctors::model()->findByPk($doctorSpecialtyCnt['doctor_id']);
-                if($doctor){
-					$unixCurrentDay = strtotime(date('Y-m-d'));
-					$unixMembershipExpires = strtotime($doctor->membership_expires);
-					//Check profile on Active and Removed. Check membership on show in search and expires
-					if($doctor->is_active == true && $doctor->is_removed == false && $doctor->membership_show_in_search == true && $unixMembershipExpires >= $unixCurrentDay){
-                        if(in_array($doctorSpecialtyCnt['specialty_id'], array_keys($doctorSpecialtiesCount))){
+                if ($doctor) {
+                    $unixCurrentDay = strtotime(date('Y-m-d'));
+                    $unixMembershipExpires = strtotime($doctor->membership_expires);
+                    //Check profile on Active and Removed. Check membership on show in search and expires
+                    if ($doctor->is_active == true && $doctor->is_removed == false && $doctor->membership_show_in_search == true && $unixMembershipExpires >= $unixCurrentDay) {
+                        if (in_array($doctorSpecialtyCnt['specialty_id'], array_keys($doctorSpecialtiesCount))) {
                             $doctorSpecialtiesCount[$doctorSpecialtyCnt['specialty_id']]++;
-                        }else{
+                        } else {
                             $doctorSpecialtiesCount[$doctorSpecialtyCnt['specialty_id']] = 1;
                         }
                     }
                 }
             }
-            $specialtyTable = CConfig::get('db.prefix').Specialties::model()->getTableName();
+            $specialtyTable = CConfig::get('db.prefix') . Specialties::model()->getTableName();
             $specialtyIds = array_keys($doctorSpecialtiesCount);
-            $arrSpecialties = Specialties::model()->findAll($specialtyTable.'.id IN ('.implode(', ',$specialtyIds).') AND is_active = 1');
-            if(!empty($arrSpecialties) && is_array($arrSpecialties)){
-                if($params == 'backend'){
-                    if(Admins::hasPrivilege('modules', 'edit') && Admins::hasPrivilege('appointment', 'add')){
-                        $output .= '<a href="appointments/findDoctors" class="add-new">'.A::t('appointments', 'All Specialties').'</a>';
+            $arrSpecialties = Specialties::model()->findAll($specialtyTable . '.id IN (' . implode(', ', $specialtyIds) . ') AND is_active = 1');
+            if (!empty($arrSpecialties) && is_array($arrSpecialties)) {
+                if ($params == 'backend') {
+                    if (Admins::hasPrivilege('modules', 'edit') && Admins::hasPrivilege('appointment', 'add')) {
+                        $output .= '<a href="appointments/findDoctors" class="add-new">' . A::t('appointments', 'All Specialties') . '</a>';
                     }
 
                     $output .= CHtml::openForm('appointments/findDoctors', 'get', array());
 
-                    if($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id'=>'appointments_form_doctor_id'));
-                    if($multiClinics && $doctorsAllowSearchByLocation) $output .= CHtml::hiddenField('locationId', $locationId, array('id'=>'appointments_form_location_id'));
+                    if ($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id' => 'appointments_form_doctor_id'));
+                    if ($multiClinics && $doctorsAllowSearchByLocation && $searchLocationType == 'autocomplete') $output .= CHtml::hiddenField('locationId', $locationId, array('id' => 'appointments_form_location_id'));
 
-                    $selectSpecialties = array(''=>'-- '.A::t('appointments', 'select').' --');
-                    foreach($arrSpecialties as $oneSpecialty){
-                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'].' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
+                    $selectSpecialties = array('' => '-- ' . A::t('appointments', 'select') . ' --');
+                    foreach ($arrSpecialties as $oneSpecialty) {
+                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'];//.' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
                     }
 
-                    $output .= CHtml::openTag('div', array('class'=> 'mb20'));
+                    if ($multiClinics && $doctorsAllowSearchByLocation) {
+                        $output .= CHtml::openTag('div', array('class' => 'mb20'));
+                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
+                        if ($searchLocationType == 'autocomplete') {
+                            $output .= CHtml::textField('location', $location, array('id' => 'appointments_form_location', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        } else {
+                            $output .= CHtml::dropDownList('locationId', $locationId, $doctorClinics, array('id' => 'appointments_form_location_id'));
+                        }
+                        $output .= CHtml::closeTag('div');
+                    }
+                    $output .= CHtml::openTag('div', array('class' => 'mb20'));
                     $output .= CHtml::tag('h6', array(), A::t('appointments', 'Find a Doctor by Specialty'));
-                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id'=>'appointments_form_specialty'));
+                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id' => 'appointments_form_specialty'));
                     $output .= CHtml::closeTag('div');
 
-                    if($doctorsAllowSearchByName){
-                        $output .= CHtml::openTag('div', array('class'=> 'mb20'));
+                    if ($doctorsAllowSearchByName) {
+                        $output .= CHtml::openTag('div', array('class' => 'mb20'));
                         $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Name'));
-                        $output .= CHtml::textField('doctorName', $doctorName, array('id'=>'appointments_form_doctor_name', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
-                        $output .= CHtml::closeTag('div');
-                    }
-                    if($multiClinics && $doctorsAllowSearchByLocation){
-                        $output .= CHtml::openTag('div', array('class'=> 'mb20'));
-                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
-                        $output .= CHtml::textField('location', $location, array('id'=>'appointments_form_location', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        $output .= CHtml::textField('doctorName', $doctorName, array('id' => 'appointments_form_doctor_name', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
                         $output .= CHtml::closeTag('div');
                     }
 
-                    $output .= CHtml::openTag('div', array('class'=> 'mb20'));
+                    $output .= CHtml::openTag('div', array('class' => 'mb20'));
                     $output .= CHtml::submitButton(A::t('appointments', 'Find Doctors'), array());
                     $output .= CHtml::closeTag('div');
 
                     $output .= CHtml::closeForm();
                     $output .= CHtml::closeTag('div');
                     $output .= CHtml::closeTag('div');
-                }elseif($params == 'integration'){
-                    $output .= CHtml::openTag('div', array('class'=>''));
-                    $output .= CHtml::tag('h3', array('class'=>'title'), A::t('appointments', 'Appointments'));
-                    $output .= CHtml::openTag('div', array('class'=>''));
-                    $output .= CHtml::openForm('appointments/findDoctors', 'get', array('id'=>'integration-form', 'target'=>'_top'));
+                } elseif ($params == 'integration') {
+                    $output .= CHtml::openTag('div', array('class' => ''));
+                    $output .= CHtml::tag('h3', array('class' => 'title'), A::t('appointments', 'Appointments'));
+                    $output .= CHtml::openTag('div', array('class' => ''));
+                    $output .= CHtml::openForm('appointments/findDoctors', 'get', array('id' => 'integration-form', 'target' => '_top'));
 
-                    if($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id'=>'appointments_form_doctor_id'));
-                    if($multiClinics && $doctorsAllowSearchByLocation) $output .= CHtml::hiddenField('locationId', $locationId, array('id'=>'appointments_form_location_id'));
+                    if ($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id' => 'appointments_form_doctor_id'));
+                    if ($multiClinics && $doctorsAllowSearchByLocation && $searchLocationType == 'autocomplete') $output .= CHtml::hiddenField('locationId', $locationId, array('id' => 'appointments_form_location_id'));
 
-                    $selectSpecialties = array(''=>'-- '.A::t('appointments', 'select').' --');
-                    foreach($arrSpecialties as $oneSpecialty){
-                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'].' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
+                    $selectSpecialties = array('' => '-- ' . A::t('appointments', 'select') . ' --');
+                    foreach ($arrSpecialties as $oneSpecialty) {
+                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'];//.' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
                     }
 
                     $classForm = 'margin-bottom-20';
                     $classFormButton = 'margin-bottom-20';
 
-                    $output .= CHtml::openTag('div', array('class'=> $classForm));
+                    if ($multiClinics && $doctorsAllowSearchByLocation) {
+                        $output .= CHtml::openTag('div', array('class' => $classForm));
+                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
+                        if ($searchLocationType == 'autocomplete') {
+                            $output .= CHtml::textField('location', $location, array('id' => 'appointments_form_location', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        } else {
+                            $output .= CHtml::dropDownList('locationId', $locationId, $doctorClinics, array('id' => 'appointments_form_location_id'));
+                        }
+                        $output .= CHtml::closeTag('div');
+                    }
+                    $output .= CHtml::openTag('div', array('class' => $classForm));
                     $output .= CHtml::tag('h6', array(), A::t('appointments', 'Find a Doctor by Specialty'));
-                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id'=>'appointments_form_specialty'));
+                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id' => 'appointments_form_specialty'));
                     $output .= CHtml::closeTag('div');
 
-                    if($doctorsAllowSearchByName){
-                        $output .= CHtml::openTag('div', array('class'=> $classForm));
+                    if ($doctorsAllowSearchByName) {
+                        $output .= CHtml::openTag('div', array('class' => $classForm));
                         $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Name'));
-                        $output .= CHtml::textField('doctorName', $doctorName, array('id'=>'appointments_form_doctor_name', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
-                        $output .= CHtml::closeTag('div');
-                    }
-                    if($multiClinics && $doctorsAllowSearchByLocation){
-                        $output .= CHtml::openTag('div', array('class'=> $classForm));
-                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
-                        $output .= CHtml::textField('location', $location, array('id'=>'appointments_form_location', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        $output .= CHtml::textField('doctorName', $doctorName, array('id' => 'appointments_form_doctor_name', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
                         $output .= CHtml::closeTag('div');
                     }
 
-                    $output .= CHtml::openTag('div', array('class'=> $classFormButton));
+                    $output .= CHtml::openTag('div', array('class' => $classFormButton));
                     $output .= CHtml::submitButton(A::t('appointments', 'Find Doctors'), array());
                     $output .= CHtml::closeTag('div');
 
                     $output .= CHtml::closeForm();
-                }elseif($params == 'mobile'){
-                    $output .= CHtml::openTag('div', array('class'=>'form-agileits fullwidth'));
+                } elseif ($params == 'mobile') {
+                    $output .= CHtml::openTag('div', array('class' => 'form-agileits fullwidth'));
 
                     $output .= CHtml::tag('h3', array(), A::t('appointments', 'Find Doctors'));
-                    $output .= CHtml::openForm('mobile/doctors', 'get', array('id'=>'integration-form', 'target'=>'_top'));
+                    $output .= CHtml::openForm('mobile/doctors', 'get', array('id' => 'integration-form', 'target' => '_top'));
 
-                    if($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id'=>'appointments_form_doctor_id'));
-                    if($multiClinics && $doctorsAllowSearchByLocation) $output .= CHtml::hiddenField('locationId', $locationId, array('id'=>'appointments_form_location_id'));
+                    if ($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id' => 'appointments_form_doctor_id'));
+                    if ($multiClinics && $doctorsAllowSearchByLocation && $searchLocationType == 'autocomplete') $output .= CHtml::hiddenField('locationId', $locationId, array('id' => 'appointments_form_location_id'));
 
-                    $selectSpecialties = array(''=>A::t('appointments', 'Find a Doctor by Specialty'));
-                    foreach($arrSpecialties as $oneSpecialty){
-                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'].' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
+                    $selectSpecialties = array('' => A::t('appointments', 'Find a Doctor by Specialty'));
+                    foreach ($arrSpecialties as $oneSpecialty) {
+                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'];//.' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
                     }
 
-                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id'=>'appointments_form_specialty', 'class'=>'form-control name'));
-
-
-                    if($doctorsAllowSearchByName){
-                        $output .= CHtml::textField('doctorName', $doctorName, array('id'=>'appointments_form_doctor_name', 'class'=>'name', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : A::t('appointments', 'Search by Name'))));
+                    if ($multiClinics && $doctorsAllowSearchByLocation) {
+                        if ($searchLocationType == 'autocomplete') {
+                            $output .= CHtml::textField('location', $location, array('id' => 'appointments_form_location', 'class' => 'name', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : A::t('appointments', 'Search by Location'))));
+                        } else {
+                            $doctorClinics[''] = A::t('appointments', 'Find a Doctor by Location');
+                            $output .= CHtml::dropDownList('locationId', $locationId, $doctorClinics, array('id' => 'appointments_form_location_id', 'class' => 'form-control name'));
+                        }
                     }
-                    if($multiClinics && $doctorsAllowSearchByLocation){
-                        $output .= CHtml::textField('location', $location, array('id'=>'appointments_form_location', 'class'=>'name', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : A::t('appointments', 'Search by Location'))));
+                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id' => 'appointments_form_specialty', 'class' => 'form-control name'));
+
+                    if ($doctorsAllowSearchByName) {
+                        $output .= CHtml::textField('doctorName', $doctorName, array('id' => 'appointments_form_doctor_name', 'class' => 'name', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : A::t('appointments', 'Search by Name'))));
                     }
 
-                    $output .= CHtml::submitButton(A::t('appointments', 'Find Doctors'), array());
-
+                    $output .= CHtml::submitButton(A::t('appointments', 'Find Doctors'), array('id' => 'find_doctors'));
                     $output .= CHtml::closeForm();
-
                     $output .= CHtml::closeTag('div'); /* form-agileits */
-                    /*
-                    +<div class="form-agileits">
-                     +   <h3>Make an appointment</h3>
-                        <form action="#" method="post">
-                            <input class="name" type="text" name="Patient Name" placeholder="Patient Name" required="">
-                            <input type="text" name="Number" placeholder="Number" required="">
-                            <input class="name" type="email" name="Email" placeholder="Email" required="">
-                            <input id="datepicker1" name="Text" type="text" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'mm/dd/yyyy';}" placeholder="mm/dd/yyyy" required="" class="hasDatepicker">
-                            <select class="form-control name" placeholder="department">
-                                <option>Department</option>
-                                <option>Cardiology</option>
-                                <option>Ophthalmology</option>
-                                <option>Neurology</option>
-                                <option>Psychology</option>
-                                <option>Dermatology</option>
-                            </select>
-                            <select class="form-control">
-                                <option>Gender</option>
-                                <option>Male</option>
-                                <option>Female</option>
-                            </select>
-                            <input type="submit" value="Make an appointment">
-                        </form>
-                    </div>
-                    */
-                }else{
-                    $output .= CHtml::openTag('div', array('class'=>'side-panel-block'));
-                    $output .= CHtml::tag('h3', array('class'=>'title'), A::t('appointments', 'Appointments'));
-                    $output .= CHtml::openTag('div', array('class'=>'block-body'));
+                } else {
+                    $output .= CHtml::openTag('div', array('class' => 'side-panel-block'));
+                    $output .= CHtml::tag('h3', array('class' => 'title'), A::t('appointments', 'Appointments'));
+                    $output .= CHtml::openTag('div', array('class' => 'block-body'));
                     $output .= CHtml::openForm('appointments/findDoctors', 'get', array());
 
-                    if($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id'=>'appointments_form_doctor_id'));
-                    if($multiClinics && $doctorsAllowSearchByLocation) $output .= CHtml::hiddenField('locationId', $locationId, array('id'=>'appointments_form_location_id'));
+                    if ($doctorsAllowSearchByName) $output .= CHtml::hiddenField('doctorId', $doctorId, array('id' => 'appointments_form_doctor_id'));
+                    if ($multiClinics && $doctorsAllowSearchByLocation && $searchLocationType == 'autocomplete') $output .= CHtml::hiddenField('locationId', $locationId, array('id' => 'appointments_form_location_id'));
 
-                    $selectSpecialties = array(''=>'-- '.A::t('appointments', 'select').' --');
-                    foreach($arrSpecialties as $oneSpecialty){
-                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'].' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
+                    $selectSpecialties = array('' => '-- ' . A::t('appointments', 'select') . ' --');
+                    foreach ($arrSpecialties as $oneSpecialty) {
+                        $selectSpecialties[$oneSpecialty['id']] = $oneSpecialty['name'];//.' ('.$doctorSpecialtiesCount[$oneSpecialty['id']].')';
                     }
 
-                    if($params == 'gorisontal') $output .= CHtml::openTag('div', array('class'=>'cmsms_cc'));
-                    if($params == 'gorisontal'){
-                        $output .= CHtml::openTag('div', array('class'=>'five_sixth'));
+                    if ($params == 'gorisontal') $output .= CHtml::openTag('div', array('class' => 'cmsms_cc'));
+                    if ($params == 'gorisontal') {
+                        $output .= CHtml::openTag('div', array('class' => 'five_sixth'));
                     }
 
-                    if($params == 'gorisontal'){
-                        if($multiClinics && $doctorsAllowSearchByName && $doctorsAllowSearchByLocation){
+                    if ($params == 'gorisontal') {
+                        if ($multiClinics && $doctorsAllowSearchByName && $doctorsAllowSearchByLocation) {
                             $classForm = 'one_third';
-                        }elseif($doctorsAllowSearchByName || $doctorsAllowSearchByLocation){
+                        } elseif ($doctorsAllowSearchByName || $doctorsAllowSearchByLocation) {
                             $classForm = 'one_half';
-                        }elseif($doctorsAllowSearchByName && $doctorsAllowSearchByLocation) {
+                        } elseif ($doctorsAllowSearchByName && $doctorsAllowSearchByLocation) {
                             $classForm = 'five_sixth';
                         }
                         $classFormButton = 'one_sixth find-button';
-                    }else{
+                    } else {
                         $classForm = 'margin-bottom-20';
                         $classFormButton = 'margin-bottom-20';
                     }
-                    $output .= CHtml::openTag('div', array('class'=> $classForm));
+
+                    if ($multiClinics && $doctorsAllowSearchByLocation) {
+                        $output .= CHtml::openTag('div', array('class' => $classForm));
+                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
+                        if ($searchLocationType == 'autocomplete') {
+                            $output .= CHtml::textField('location', $location, array('id' => 'appointments_form_location', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        } else {
+                            $output .= CHtml::dropDownList('locationId', $locationId, $doctorClinics, array('id' => 'appointments_form_location_id'));
+                        }
+                        $output .= CHtml::closeTag('div'); /* $classForm */
+                    }
+                    $output .= CHtml::openTag('div', array('class' => $classForm));
                     $output .= CHtml::tag('h6', array(), A::t('appointments', 'Find a Doctor by Specialty'));
-                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id'=>'appointments_form_specialty'));
+                    $output .= CHtml::dropDownList('specialtyId', $specialtyId, $selectSpecialties, array('id' => 'appointments_form_specialty'));
                     $output .= CHtml::closeTag('div'); /* $classForm */
 
-                    if($doctorsAllowSearchByName){
-                        $output .= CHtml::openTag('div', array('class'=> $classForm));
+                    if ($doctorsAllowSearchByName) {
+                        $output .= CHtml::openTag('div', array('class' => $classForm));
                         $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Name'));
-                        $output .= CHtml::textField('doctorName', $doctorName, array('id'=>'appointments_form_doctor_name', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
-                        $output .= CHtml::closeTag('div'); /* $classForm */
-                    }
-                    if($multiClinics && $doctorsAllowSearchByLocation){
-                        $output .= CHtml::openTag('div', array('class'=> $classForm));
-                        $output .= CHtml::tag('h6', array(), A::t('appointments', 'Search by Location'));
-                        $output .= CHtml::textField('location', $location, array('id'=>'appointments_form_location', 'placeholder'=>(APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. New York') : '')));
+                        $output .= CHtml::textField('doctorName', $doctorName, array('id' => 'appointments_form_doctor_name', 'placeholder' => (APPHP_MODE == 'demo' ? A::te('appointments', 'e.g. John Smith') : '')));
                         $output .= CHtml::closeTag('div'); /* $classForm */
                     }
 
-                    if($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* five_sixth */
+                    if ($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* five_sixth */
 
-                    $output .= CHtml::openTag('div', array('class'=> $classFormButton));
+                    $output .= CHtml::openTag('div', array('class' => $classFormButton));
                     $output .= CHtml::submitButton(A::t('appointments', 'Find Doctors'), array());
                     $output .= CHtml::closeTag('div'); /* $classFormButton */
 
-                    if($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* block-body */
-                    if($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* cmsms_cc */
+                    if ($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* block-body */
+                    if ($params == 'gorisontal') $output .= CHtml::closeTag('div'); /* cmsms_cc */
 
                     $output .= CHtml::closeForm();
                 }
@@ -457,19 +463,19 @@ class AppointmentsComponent extends \CComponent{
                                 global: false,
                                 type: "POST",
                                 data: ({
-                                    '.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
+                                    ' . $cRequest->getCsrfTokenKey() . ': "' . $cRequest->getCsrfTokenValue() . '",
                                     act: "send",
                                     search : jQuery("#appointments_form_doctor_name").val(),
                                 }),
                                 dataType: "json",
                                 async: true,
                                 error: function(html){
-                                    '.((APPHP_MODE == 'debug') ? 'console.error("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
+                                    ' . ((APPHP_MODE == 'debug') ? 'console.error("AJAX: cannot connect to the server or server response error! Please try again later.");' : '') . '
                                 },
                                 success: function(data){
                                     if(data.length == 0){
                                         jQuery("#appointments_form_doctor_id").val("");
-                                        response({label: "'.A::te('core', 'No matches found').'"});
+                                        response({label: "' . A::te('core', 'No matches found') . '"});
                                     }else{
                                         response($.map(data, function(item){
                                             if(item.label !== undefined){
@@ -483,11 +489,8 @@ class AppointmentsComponent extends \CComponent{
                                 }
                             });
                         },
-                        minLength: '.(int)$autocompleteMinLength.',
+                        minLength: ' . (int)$autocompleteMinLength . ',
                         select: function(event, ui) {
-                            jQuery("#appointments_form_location_id").val("");
-                            jQuery("#appointments_form_location").val("");
-                            jQuery("#appointments_form_specialty").val(ui.item.spec);
                             jQuery("#appointments_form_doctor_id").val(ui.item.id);
                             if(typeof(ui.item.id) == "undefined"){
                                 jQuery("#appointments_form_doctor_name").val("");
@@ -497,28 +500,30 @@ class AppointmentsComponent extends \CComponent{
                     });',
                     4
                 );
-				A::app()->getClientScript()->registerScript(
-					'autocompleteSearchByLocation',
-					'jQuery("#appointments_form_location").autocomplete({
+
+                if ($multiClinics && $doctorsAllowSearchByLocation && $searchLocationType == 'autocomplete') {
+                    A::app()->getClientScript()->registerScript(
+                        'autocompleteSearchByLocation',
+                        'jQuery("#appointments_form_location").autocomplete({
                         source: function(request, response){
                             $.ajax({
                                 url: "clinics/ajaxGetClinicNames",
                                 global: false,
                                 type: "POST",
                                 data: ({
-                                    '.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
+                                    ' . $cRequest->getCsrfTokenKey() . ': "' . $cRequest->getCsrfTokenValue() . '",
                                     act: "send",
                                     search : jQuery("#appointments_form_location").val(),
                                 }),
                                 dataType: "json",
                                 async: true,
                                 error: function(html){
-                                    '.((APPHP_MODE == 'debug') ? 'console.error("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
+                                    ' . ((APPHP_MODE == 'debug') ? 'console.error("AJAX: cannot connect to the server or server response error! Please try again later.");' : '') . '
                                 },
                                 success: function(data){
                                     if(data.length == 0){
                                         jQuery("#appointments_form_location_id").val("");
-                                        response({label: "'.A::te('core', 'No matches found').'"});
+                                        response({label: "' . A::te('core', 'No matches found') . '"});
                                     }else{
                                         response($.map(data, function(item){
                                             if(item.label !== undefined){
@@ -532,11 +537,8 @@ class AppointmentsComponent extends \CComponent{
                                 }
                             });
                         },
-                        minLength: '.(int)$autocompleteSearchByLocationMinLength.',
+                        minLength: ' . (int)$autocompleteSearchByLocationMinLength . ',
                         select: function(event, ui) {
-                            jQuery("#appointments_form_specialty").val("");
-                            jQuery("#appointments_form_doctor_id").val("");
-                            jQuery("#appointments_form_doctor_name").val("");
                             jQuery("#appointments_form_location_id").val(ui.item.id);
                             if(typeof(ui.item.id) == "undefined"){
                                 jQuery("#appointments_form_location").val("");
@@ -544,28 +546,9 @@ class AppointmentsComponent extends \CComponent{
                             }
                         }
                     });',
-					4
-				);
-
-				A::app()->getClientScript()->registerScript(
-					'clearInput',
-                    'function clearInput() {
-                        
-                    };',
-					4
-				);
-				A::app()->getClientScript()->registerScript(
-					'clearInput',
-					'$(function() {
-						$("#appointments_form_specialty").on("change", function() {
-							$("#appointments_form_doctor_name").val("");
-                            $("#appointments_form_doctor_id").val("");
-                            $("#appointments_form_location").val("");
-                            $("#appointments_form_location_id").val("");
-						})
-                    });',
-					4
-				);
+                        4
+                    );
+                }
             }
         }
 
@@ -625,39 +608,39 @@ class AppointmentsComponent extends \CComponent{
 		}
 
         if(!empty($arrDoctorIds) && !empty($doctors)){
-            for($i=0;$i<count($arrDoctorIds);$i++){
+            foreach ($arrDoctorIds as $arrDoctorId) {
                 //Search Doctor Specialties
-                $specialties = DoctorSpecialties::model()->findAll(array('condition' => 'doctor_id = '.$arrDoctorIds[$i], 'orderBy' => 'sort_order ASC'));
+                $specialties = DoctorSpecialties::model()->findAll(array('condition' => 'doctor_id = '.$arrDoctorId, 'orderBy' => 'sort_order ASC'));
                 if(!empty($specialties)){
                     foreach($specialties as $specialty){
-                        $arrDoctorSpecialties[$arrDoctorIds[$i]][] = $specialty['specialty_name'];
+                        $arrDoctorSpecialties[$arrDoctorId][] = $specialty['specialty_name'];
                     }
                 }
 
                 //Search clinics in which the doctor takes
-                $timeBlockIds = DoctorScheduleTimeBlocks::model()->findAll(array('condition' => 'doctor_id = '.$arrDoctorIds[$i], 'groupBy'=>'address_id'));
+                $timeBlockIds = DoctorScheduleTimeBlocks::model()->findAll(array('condition' => 'doctor_id = '.$arrDoctorId, 'groupBy'=>'address_id'));
                 if(!empty($timeBlockIds)){
                     foreach($timeBlockIds as $timeBlockId){
                         $clinic = Clinics::model()->findByPk($timeBlockId['address_id']);
                         if(!empty($clinic)){
-                            if(isset($arrDoctorClinicId[$arrDoctorIds[$i]]['clinic_name'])){
+                            if(isset($arrDoctorClinicId[$arrDoctorId]['clinic_name'])){
                                 continue;
                             }
-                            $arrDoctorClinicId[$arrDoctorIds[$i]][$clinic->id]['clinic_name'] = $clinic->clinic_name;
-                            $arrDoctorClinicId[$arrDoctorIds[$i]][$clinic->id]['address'] = $clinic->address;
+                            $arrDoctorClinicId[$arrDoctorId][$clinic->id]['clinic_name'] = $clinic->clinic_name;
+                            $arrDoctorClinicId[$arrDoctorId][$clinic->id]['address'] = $clinic->address;
                         }
                     }
                 }
                 //Search open hours the doctor
-                $openHoursDoctor = DoctorScheduleTimeBlocks::getOpenHoursDoctors($arrDoctorIds[$i]);
+                $openHoursDoctor = DoctorScheduleTimeBlocks::getOpenHoursDoctors($arrDoctorId);
                 if(!empty($openHoursDoctor)){
                     foreach($openHoursDoctor as $key => $openHoursDoctorTmp){
-                        $openHoursDoctors[$arrDoctorIds[$i]][$key]['week_day_name'] = $openHoursDoctorTmp['week_day_name'];
-                        $openHoursDoctors[$arrDoctorIds[$i]][$key]['time_from'] = $openHoursDoctorTmp['time_from'];
-                        $openHoursDoctors[$arrDoctorIds[$i]][$key]['time_to'] = $openHoursDoctorTmp['time_to'];
+                        $openHoursDoctors[$arrDoctorId][$key]['week_day_name'] = $openHoursDoctorTmp['week_day_name'];
+                        $openHoursDoctors[$arrDoctorId][$key]['time_from'] = $openHoursDoctorTmp['time_from'];
+                        $openHoursDoctors[$arrDoctorId][$key]['time_to'] = $openHoursDoctorTmp['time_to'];
                     }
                 }
-            }
+		    }
         }
 
         $output = '';
@@ -714,96 +697,98 @@ class AppointmentsComponent extends \CComponent{
                 $output .= '</table>';
             }
         }else{
-            foreach($doctors as $doctor){
-                $output .= '<div class="one_first">';
-                $output .= '<div class="one_third">';
-                $output .= '<div class="cmsms_our_team_wrap">';
-                $output .= '<div class="cmsms_our_team">';
-                $output .= '<div class="wrap_person">';
-                $output .= '<figure>';
-                $output .= '<img width="440" height="440" src="assets/modules/appointments/images/doctors/'.(!empty($doctor['avatar']) ? $doctor['avatar'] : $doctor['avatar_by_gender']).'" class="fullwidth" alt="female-practitioner-s-1">';
-                $output .= '</figure>';
-                $output .= '<div class="cmsms_team_rollover glow_blue">';
-                $output .= '<a href="'.Website::prepareLinkByFormat('appointments', 'profile_link_format', $doctor['id'], DoctorsComponent::getDoctorName($doctor)).'" class="cmsms_link">';
-                $output .= '<span></span>';
-                $output .= '</a>';
-                $output .= '</div>';
-                $output .= '</div>';
-                $output .= '<header class="entry-header">';
-                $output .= '<div>';
-                $output .= '<h6 class="person_title tac">';
-                $output .= '<a href="'.Website::prepareLinkByFormat('appointments', 'profile_link_format', $doctor['id'], DoctorsComponent::getDoctorName($doctor)).'">'.DoctorsComponent::getDoctorName($doctor).'</a>';
-                $output .= '</h6>';
-                $output .= '</div>';
-                $output .= '</header>';
-                $output .= '<div class="aligncenter margin-top-20">';
-                $output .= '<a class="btn-book-appointment button_small" href="patients/addMyAppointment/doctorId/'.$doctor['id'].'/seoLink/'.CString::seoString(DoctorsComponent::getDoctorName($doctor)).'">&#128197; &nbsp;'.A::t('appointments', 'Book Appointment').'</a>';
-                $output .= '</div>';
-                $output .= '</div>';
-                $output .= '</div>';
-                $output .= '</div>';
-                $output .= '<div class="two_third">';
-                $output .= '<div class="cmsms_features_item">';
-                $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Name').':</strong></span>';
-                $output .= '<span class="cmsms_features_item_desc">'.DoctorsComponent::getDoctorName($doctor).'</span>';
-                $output .= '</div>';
-                if(isset($genders[$doctor['gender']])){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Gender').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($genders[$doctor['gender']]).'</span>';
+            if (!empty($doctors)) {
+                foreach($doctors as $doctor){
+                    $output .= '<div class="one_first">';
+                    $output .= '<div class="one_third">';
+                    $output .= '<div class="cmsms_our_team_wrap">';
+                    $output .= '<div class="cmsms_our_team">';
+                    $output .= '<div class="wrap_person">';
+                    $output .= '<figure>';
+                    $output .= '<img width="440" height="440" src="assets/modules/appointments/images/doctors/'.(!empty($doctor['avatar']) ? $doctor['avatar'] : $doctor['avatar_by_gender']).'" class="fullwidth" alt="female-practitioner-s-1">';
+                    $output .= '</figure>';
+                    $output .= '<div class="cmsms_team_rollover glow_blue">';
+                    $output .= '<a href="'.Website::prepareLinkByFormat('appointments', 'profile_link_format', $doctor['id'], DoctorsComponent::getDoctorName($doctor)).'" class="cmsms_link">';
+                    $output .= '<span></span>';
+                    $output .= '</a>';
                     $output .= '</div>';
-                }
-                if(!empty($doctor['work_phone']) && $showFields){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Phone').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($doctor['work_phone']).'</span>';
                     $output .= '</div>';
-                }
-                if(!empty($doctor['work_mobile_phone']) && $showFields){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Mobile Phone').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($doctor['work_mobile_phone']).'</span>';
+                    $output .= '<header class="entry-header">';
+                    $output .= '<div>';
+                    $output .= '<h6 class="person_title tac">';
+                    $output .= '<a href="'.Website::prepareLinkByFormat('appointments', 'profile_link_format', $doctor['id'], DoctorsComponent::getDoctorName($doctor)).'">'.DoctorsComponent::getDoctorName($doctor).'</a>';
+                    $output .= '</h6>';
                     $output .= '</div>';
-                }
-                if(isset($degrees[$doctor['medical_degree_id']])){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Degree').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc"> '.CHtml::encode($degrees[$doctor['medical_degree_id']]['full']).'</span>';
+                    $output .= '</header>';
+                    $output .= '<div class="aligncenter margin-top-20">';
+                    $output .= '<a class="btn-book-appointment button_small" href="patients/addMyAppointment/doctorId/'.$doctor['id'].'/seoLink/'.CString::seoString(DoctorsComponent::getDoctorName($doctor)).'">&#128197; &nbsp;'.A::t('appointments', 'Book Appointment').'</a>';
                     $output .= '</div>';
-                }
-                if(!empty($arrDoctorSpecialties[$doctor['id']])){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Specialties').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc">  '.implode('<br/>', $arrDoctorSpecialties[$doctor['id']]).'</span>';
                     $output .= '</div>';
-                }
-                if(!empty($arrDoctorClinicId[$doctor['id']]) && $showFields){
-                    $countClinic = count($arrDoctorClinicId[$doctor['id']]);
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', $countClinic > 1 ? 'Clinics' : 'Clinic').':</strong></span>';
-                    $output .= '<span class="cmsms_features_item_desc">';
-                    foreach($arrDoctorClinicId[$doctor['id']] as $clinicId => $doctorClinic){
-                        $clinicLink = 'clinics/'.CHtml::encode($clinicId).'/'.\CString::seoString($doctorClinic['clinic_name']);
-                        $output .= '<a href="'.$clinicLink.'" class="link-find-doctor-by-specialty" data-id="1">'.CHtml::encode($doctorClinic['clinic_name']).(!empty($doctorClinic['address'])? ', '.CHtml::encode($doctorClinic['address']) : '').'</a><br>';
-                    }
-                    $output .= '</span>';
                     $output .= '</div>';
-                }
-                if(!empty($openHoursDoctors[$doctor['id']])){
-                    $output .= '<div class="cmsms_features_item">';
-                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Opening Hours').':</strong></span>';
                     $output .= '</div>';
-                    foreach($openHoursDoctors[$doctor['id']] as $openHoursDoctor){
+                    $output .= '<div class="two_third">';
+                    $output .= '<div class="cmsms_features_item">';
+                    $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Name').':</strong></span>';
+                    $output .= '<span class="cmsms_features_item_desc">'.DoctorsComponent::getDoctorName($doctor).'</span>';
+                    $output .= '</div>';
+                    if(isset($genders[$doctor['gender']])){
                         $output .= '<div class="cmsms_features_item">';
-                        $output .= '<span class="cmsms_features_item_title">'.$openHoursDoctor['week_day_name'].':</span>';
-                        $output .= '<span class="cmsms_features_item_desc">  '.$openHoursDoctor['time_from'].' - '.$openHoursDoctor['time_to'].'</span>';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Gender').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($genders[$doctor['gender']]).'</span>';
                         $output .= '</div>';
                     }
+                    if(!empty($doctor['work_phone']) && $showFields){
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Phone').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($doctor['work_phone']).'</span>';
+                        $output .= '</div>';
+                    }
+                    if(!empty($doctor['work_mobile_phone']) && $showFields){
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Mobile Phone').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc">'.CHtml::encode($doctor['work_mobile_phone']).'</span>';
+                        $output .= '</div>';
+                    }
+                    if(isset($degrees[$doctor['medical_degree_id']])){
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Degree').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc"> '.CHtml::encode($degrees[$doctor['medical_degree_id']]['full']).'</span>';
+                        $output .= '</div>';
+                    }
+                    if(!empty($arrDoctorSpecialties[$doctor['id']])){
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Specialties').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc">  '.implode('<br/>', $arrDoctorSpecialties[$doctor['id']]).'</span>';
+                        $output .= '</div>';
+                    }
+                    if(!empty($arrDoctorClinicId[$doctor['id']]) && $showFields){
+                        $countClinic = count($arrDoctorClinicId[$doctor['id']]);
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', $countClinic > 1 ? 'Clinics' : 'Clinic').':</strong></span>';
+                        $output .= '<span class="cmsms_features_item_desc">';
+                        foreach($arrDoctorClinicId[$doctor['id']] as $clinicId => $doctorClinic){
+                            $clinicLink = 'clinics/'.CHtml::encode($clinicId).'/'.\CString::seoString($doctorClinic['clinic_name']);
+                            $output .= '<a href="'.$clinicLink.'" class="link-find-doctor-by-specialty" data-id="1">'.CHtml::encode($doctorClinic['clinic_name']).(!empty($doctorClinic['address'])? ', '.CHtml::encode($doctorClinic['address']) : '').'</a><br>';
+                        }
+                        $output .= '</span>';
+                        $output .= '</div>';
+                    }
+                    if(!empty($openHoursDoctors[$doctor['id']])){
+                        $output .= '<div class="cmsms_features_item">';
+                        $output .= '<span class="cmsms_features_item_title"><strong>'.A::t('appointments', 'Opening Hours').':</strong></span>';
+                        $output .= '</div>';
+                        foreach($openHoursDoctors[$doctor['id']] as $openHoursDoctor){
+                            $output .= '<div class="cmsms_features_item">';
+                            $output .= '<span class="cmsms_features_item_title">'.$openHoursDoctor['week_day_name'].':</span>';
+                            $output .= '<span class="cmsms_features_item_desc">  '.$openHoursDoctor['time_from'].' - '.$openHoursDoctor['time_to'].'</span>';
+                            $output .= '</div>';
+                        }
+                    }
+                    $output .= '</div>';
+                    $output .= '<hr class="hr-style">';
+                    $output .= '</div>';
                 }
-                $output .= '</div>';
-                $output .= '<hr class="hr-style">';
-                $output .= '</div>';
-            }   
+            }
         }
 
         return $output;
@@ -854,11 +839,11 @@ class AppointmentsComponent extends \CComponent{
                 $output .= CHtml::closeTag('a').self::NL; /* a */
             $output .= CHtml::closeTag('div').self::NL; /* fl */
 
-            $output .= CHtml::openTag('div', array('class'=>'fl'));
-                $output .= CHtml::openTag('a', array('href'=> 'https://plus.google.com/share?url='.CHtml::encode($url), 'onclick'=> 'window.open(this.href, this.title, \'toolbar = 0, status = 0, width = 548, height = 325\'); return false', 'target'=>'_parent'));
-                    $output .= CHtml::tag('img', array('src'=>'images/social_networks/google-plus.png', 'alt' => 'Google+'));
-                $output .= CHtml::closeTag('a').self::NL; /* a */
-            $output .= CHtml::closeTag('div').self::NL; /* fl */
+            // $output .= CHtml::openTag('div', array('class'=>'fl'));
+                // $output .= CHtml::openTag('a', array('href'=> 'https://plus.google.com/share?url='.CHtml::encode($url), 'onclick'=> 'window.open(this.href, this.title, \'toolbar = 0, status = 0, width = 548, height = 325\'); return false', 'target'=>'_parent'));
+                    // $output .= CHtml::tag('img', array('src'=>'images/social_networks/google-plus.png', 'alt' => 'Google+'));
+                // $output .= CHtml::closeTag('a').self::NL; /* a */
+            // $output .= CHtml::closeTag('div').self::NL; /* fl */
 
             $output .= CHtml::openTag('div', array('class'=>'fl'));
                 $output .= CHtml::openTag('a', array('href'=> 'http://www.facebook.com/sharer.php?s=100&p[url]='.CHtml::encode($url).'&p[title]='.CHtml::encode($name), 'onclick'=> 'window.open(this.href, this.title, \'toolbar = 0, status = 0, width = 548, height = 325\'); return false', 'title'=>'Поделиться ссылкой на Фейсбук', 'target'=>'_parent'));
@@ -878,6 +863,27 @@ class AppointmentsComponent extends \CComponent{
         $output .= CHtml::closeTag('div').self::NL; /* aside */
 
         return $output;
+    }
+
+    /**
+     * Create new patient in the modal window
+     * @param $account_type string
+     * @return void
+     */
+    public static function createPatientPopup($account_type = 'admin')
+    {
+        $view = A::app()->view;
+
+        // Prepare salt
+        $view->salt = '';
+        if(A::app()->getRequest()->getPost('password') != ''){
+            $view->salt = CConfig::get('password.encryptSalt') ? CHash::salt() : '';
+        }
+
+        // Prepare gender
+        $view->genders = array('m'=>A::t('appointments', 'Male'), 'f'=>A::t('appointments', 'Female'));
+
+        return $view->renderContent('createPatientPopup', true);
     }
 
     /**
@@ -938,20 +944,20 @@ class AppointmentsComponent extends \CComponent{
      */
     public static function getDoctorIdsBySpecialty($specialtyId)
     {
-        $arrOutput = array();
+        $arrResult = array();
 
         $tableDoctorSpecialties = CConfig::get('db.prefix').DoctorSpecialties::model()->getTableName();
         $arrDoctorSpecialties = DoctorSpecialties::model()->findAll($tableDoctorSpecialties.'.specialty_id = :specialty_id', array(':specialty_id'=>$specialtyId));
 
         if(!empty($arrDoctorSpecialties) && is_array($arrDoctorSpecialties)){
             foreach($arrDoctorSpecialties as $doctorSpecialty){
-                if(!in_array($doctorSpecialty['doctor_id'], $arrOutput)){
-                    $arrOutput[] = (int)$doctorSpecialty['doctor_id'];
+                if(!in_array($doctorSpecialty['doctor_id'], $arrResult)){
+                    $arrResult[] = (int)$doctorSpecialty['doctor_id'];
                 }
             }
         }
 
-        return $arrOutput;
+        return $arrResult;
     }
 
     /**
@@ -961,19 +967,373 @@ class AppointmentsComponent extends \CComponent{
      */
     public static function getDoctorIdsByLocation($locationId)
     {
-        $arrOutput = array();
+        $doctorIds = array();
 
         $tableDoctorScheduleTimeBlocks = CConfig::get('db.prefix').DoctorScheduleTimeBlocks::model()->getTableName();
         $arrDoctorScheduleTimeBlocks = DoctorScheduleTimeBlocks::model()->findAll($tableDoctorScheduleTimeBlocks.'.address_id = :address_id', array(':address_id'=>$locationId));
 
         if(!empty($arrDoctorScheduleTimeBlocks) && is_array($arrDoctorScheduleTimeBlocks)){
             foreach($arrDoctorScheduleTimeBlocks as $doctorScheduleTimeBlocks){
-                if(!in_array($doctorScheduleTimeBlocks['doctor_id'], $arrOutput)){
-                    $arrOutput[] = (int)$doctorScheduleTimeBlocks['doctor_id'];
+                if(!in_array($doctorScheduleTimeBlocks['doctor_id'], $doctorIds)){
+                    $doctorIds[] = (int)$doctorScheduleTimeBlocks['doctor_id'];
                 }
             }
         }
 
-        return $arrOutput;
+        return $doctorIds;
     }
+
+    /**
+     * Get Condition for find doctors
+     * @return array
+     */
+    public static function getConditionFindDoctors()
+    {
+        $cRequest = A::app()->getRequest();
+        $condition = '';
+        $params = array();
+        $arrDoctorIds = array();
+        $result = array();
+
+        $tableDoctorsName = CConfig::get('db.prefix') . Doctors::model()->getTableName();
+        $tableAccountsName = CConfig::get('db.prefix') . Accounts::model()->getTableName();
+
+        $alert = A::app()->getSession()->getFlash('alert');
+        $alertType = A::app()->getSession()->getFlash('alertType');
+        if (!empty($alert)) {
+            $actionMessage = CWidget::create('CMessage', array($alertType, $alert), array('button' => true));
+        }
+
+        $doctorId = !empty($cRequest->get('doctorId')) ? (int)$cRequest->get('doctorId') : 0;
+        $locationId = !empty($cRequest->get('locationId')) ? (int)$cRequest->get('locationId') : 0;
+        $specialtyId = !empty($cRequest->get('specialtyId')) ? (int)$cRequest->get('specialtyId') : 0;
+        $doctorName = !empty($cRequest->get('doctorName')) ? (string)$cRequest->get('doctorName') : '';
+        $location = !empty($cRequest->get('location')) ? (string)$cRequest->get('location') : '';
+
+        $checkDoctor = Doctors::model()->findByPk($doctorId, $tableAccountsName . '.is_active = 1 AND ' . $tableAccountsName . '.is_removed = 0');
+        $checkLocation = Clinics::model()->findByPk($locationId, 'is_active = 1');
+        $checkSpecialty = Specialties::model()->findByPk($specialtyId, 'is_active = 1');
+
+
+        if (!empty($locationId) && $checkLocation) {
+            $arrDoctorIds = AppointmentsComponent::getDoctorIdsByLocation($locationId);
+        } elseif (!empty($location)) {
+            $paramsClinics = array();
+            $conditionClinics = '';
+
+            $location = trim(preg_replace("/  +/", " ", $location));
+            $location = explode(' ', $location);
+            if (!empty($location)) {
+                $tableClinicsTranslation = CConfig::get('db.prefix') . Clinics::model()->getTableTranslationName();
+                $countLocation = count($location);
+                if ($countLocation == 1) {
+                    $location[0] = strip_tags(CString::quote($location[0]));
+                    $paramsClinics[':location'] = '%' . $location[0] . '%';
+
+                    $conditionClinics = $tableClinicsTranslation . '.address LIKE :location OR ' . $tableClinicsTranslation . '.name LIKE :location';
+                } else {
+                    for ($i = 0; $i < $countLocation; $i++) {
+                        $location[$i] = strip_tags(CString::quote($location[$i]));
+                        $paramsClinics[':location_' . $i] = '%' . $location[$i] . '%';
+
+                        $conditionClinics .= $tableClinicsTranslation . '.address LIKE :location_' . $i . ' OR ' . $tableClinicsTranslation . '.name LIKE :location_' . $i;
+                        if ($i < $countLocation - 1) $conditionClinics .= ' AND ';
+                    }
+                }
+
+                $resultClinics = Clinics::model()->findAll(array(
+                    'condition' => $conditionClinics,
+                    'order' => 'address'
+                ),
+                    $paramsClinics
+                );
+
+                // Filter Doctors
+                if (!empty($resultClinics) && is_array($resultClinics)) {
+                    $getDoctorIdsByLocation = array();
+                    foreach ($resultClinics as $clinic) {
+                        $getDoctorIdsByLocation = AppointmentsComponent::getDoctorIdsByLocation($clinic['id']);
+                    }
+                    if (!empty($arrDoctorIds) && is_array($arrDoctorIds)) {
+                        $arrDoctorIds = array_intersect($arrDoctorIds, $getDoctorIdsByLocation);
+                    } else {
+                        $arrDoctorIds = $getDoctorIdsByLocation;
+                    }
+                } else {
+                    $condition .= "AND 1 = 0";
+                }
+
+            }
+        }
+
+
+        if (!empty($specialtyId) && $checkSpecialty) {
+            $getDoctorIdsBySpecialty = AppointmentsComponent::getDoctorIdsBySpecialty($specialtyId);
+            if (!empty($arrDoctorIds) && is_array($arrDoctorIds)) {
+                $arrDoctorIds = array_intersect($arrDoctorIds, $getDoctorIdsBySpecialty);
+            } else {
+                $arrDoctorIds = $getDoctorIdsBySpecialty;
+            }
+        }
+
+        if (!empty($doctorId)) {
+            $arrDoctorIds = array();
+            //in_array($doctorId, $arrDoctorIds)
+            if ( $checkDoctor) {
+                $arrDoctorIds[] = $doctorId;
+            }
+        } elseif (!empty($doctorName)) {
+            $fullName = explode(' ', $doctorName, 2);
+            if (!empty($fullName)) {
+                if (count($fullName) == 1) {
+                    $fullName[0] = strip_tags(CString::quote($fullName[0]));
+                    $params[':doctor_first_name'] = $fullName[0] . '%';
+                    $params[':doctor_last_name'] = $fullName[0] . '%';
+
+                    $condition .= (!empty($condition) ? " AND " : "") . "(" . $tableDoctorsName . ".doctor_first_name LIKE :doctor_first_name OR " . $tableDoctorsName . ".doctor_last_name LIKE :doctor_last_name)";
+
+                } elseif (count($fullName) == 2) {
+                    $fullName[0] = strip_tags(CString::quote($fullName[0]));
+                    $fullName[1] = strip_tags(CString::quote($fullName[1]));
+                    $params[':doctor_first_name_1'] = $fullName[1] . '%';
+                    $params[':doctor_last_name_1'] = $fullName[0] . '%';
+                    $params[':doctor_first_name_2'] = $fullName[0] . '%';
+                    $params[':doctor_last_name_2'] = $fullName[1] . '%';
+
+                    $condition .= (!empty($condition) ? " AND " : "")."(" . $tableDoctorsName . ".doctor_first_name LIKE :doctor_first_name_1 AND " . $tableDoctorsName . ".doctor_last_name LIKE :doctor_last_name_1) OR (" . $tableDoctorsName . ".doctor_first_name LIKE :doctor_first_name_2 AND " . $tableDoctorsName . ".doctor_last_name LIKE :doctor_last_name_2)";
+                }
+            }
+        }
+
+        if (!empty($arrDoctorIds) && is_array($arrDoctorIds)) {
+            $condition .= (!empty($condition) ? " AND " : "").$tableDoctorsName . ".id IN (" . implode(",", $arrDoctorIds) . ")";
+            $result['arr_doctor_ids'] = $arrDoctorIds;
+        }
+
+        if (!empty($condition)) {
+            $condition .= " AND ".$tableDoctorsName . ".membership_expires >= '" . LocalTime::currentDateTime('Y-m-d') . "'" . ' AND ' . $tableDoctorsName . '.membership_show_in_search = 1 AND ' . $tableAccountsName . '.is_active = 1 AND ' . $tableAccountsName . '.is_removed = 0';
+        }
+
+        $result['condition'] = $condition;
+        $result['params'] = $params;
+
+        return $result;
+
+    }
+
+    /**
+     * Get calendar data
+     * @param int $doctorId
+     * @return bool
+     */
+    public static function drawCalendar($doctorId = 0)
+    {
+        $calendarData    = '';
+        $title           = '';
+        $url             = '';
+        $description     = '';
+        $startDate       = '';
+        $endDate         = '';
+        $textColor       = '';
+        $backgroundColor = '';
+        $backgroundColor = '';
+        $className       = '';
+        $activeEvents    = true;
+
+        $dayInSec     = 24 * 60 * 60;
+        $currentDate  = CLocale::date('Y-m-d');
+        $currentTime  = CLocale::date('H:i:s');
+        // Get active schedule for the doctor
+        $schedules = DoctorSchedules::model()->findAll('doctor_id = :doctor_id AND is_active = 1', array(':doctor_id'=>$doctorId));
+
+
+        if (!empty($schedules) && is_array($schedules)) {
+            //Get time offs for the doctor
+            $timeOffs = DoctorScheduleTimeBlocks::model()->getTimeOffs($doctorId);
+
+            // Get All Appointments for the doctor.
+            $recordedAppointments = Appointments::model()->findAll('doctor_id = :doctor_id', array(':doctor_id'=>$doctorId));
+
+            // Get active time slots type
+            $timeSlotType = TimeSlotsType::model()->findAll('is_active = 1');
+            if (!empty($timeSlotType) && is_array($timeSlotType)) {
+                $timeSlotType = CArray::flipByField($timeSlotType, 'id');
+            }
+
+            foreach ($schedules as $schedule) {
+                //Convert date from and date to in unix format
+                $unixDateForm = strtotime($schedule['date_from']);
+                $unixDateTo   = strtotime($schedule['date_to']);
+
+                //Get time blocks for the schedule and group the result by day of the week
+                $timeBlocks = DoctorScheduleTimeBlocks::model()->findAll('doctor_id = :doctor_id AND schedule_id = :schedule_id', array(':doctor_id'=>$doctorId, ':schedule_id'=>$schedule['id']));
+                if (!empty($timeBlocks) && is_array($timeBlocks)) {
+                    $timeBlocks = DoctorScheduleTimeBlocks::model()->repairWorkingHoursInTimeBlock($timeBlocks);
+                    $timeBlocks = CArray::flipByField($timeBlocks, 'week_day', true);
+                }
+
+                //Find for time blocks for each day in the schedule
+                for($date = $unixDateForm; $date <= $unixDateTo; $date += $dayInSec){
+                    $dateTimeBlock = CLocale::date('Y-m-d', $date, true);
+                    $numberWeekDay = date('w', $date) + 1;
+                    if (!empty($timeBlocks[$numberWeekDay]) && is_array($timeBlocks[$numberWeekDay])) {
+                        foreach ($timeBlocks[$numberWeekDay] as $timeBlock) {
+                            $textColor = '#ffffff';
+                            $backgroundColor = '#d0d0d0';
+                            $unixTimeForm = strtotime($timeBlock['time_from']);
+                            $unixTimeTo   = strtotime($timeBlock['time_to']);
+                            $timeSlotsInSec   = $timeBlock['time_slots'] * 60;
+                            //Add time block in the calendar data
+                            for($time = $unixTimeForm; $time < $unixTimeTo; $time += $timeSlotsInSec){
+                                $className = '';
+                                $url = '';
+                                $activeEvents = true;
+                                $timeTimeBlock = CLocale::date('H:i:s', $time, true);
+
+                                if ($dateTimeBlock < $currentDate || ($dateTimeBlock == $currentDate && $timeTimeBlock < $currentTime)) {
+                                    $className = 'old-events';
+                                    $activeEvents = false;
+                                }
+
+                                // If there is a type of time slot, change the color
+                                if (!empty($timeSlotType[$timeBlock['time_slot_type_id']] && is_array($timeSlotType[$timeBlock['time_slot_type_id']]))) {
+                                    $textColor = !empty($timeSlotType[$timeBlock['time_slot_type_id']]['text_color']) ? $timeSlotType[$timeBlock['time_slot_type_id']]['text_color'] : $textColor;
+                                    $backgroundColor = !empty($timeSlotType[$timeBlock['time_slot_type_id']]['background_color']) ? $timeSlotType[$timeBlock['time_slot_type_id']]['background_color'] : $backgroundColor;
+                                    $title = !empty($timeSlotType[$timeBlock['time_slot_type_id']]['name']) ? $timeSlotType[$timeBlock['time_slot_type_id']]['name']: A::t('appointments', 'Unknown');
+                                }
+
+                                $description = A::t('appointments', 'Date').': '.$dateTimeBlock.
+                                    '<br/>'.A::t('appointments', 'Time').': '.$timeTimeBlock.
+                                    (!empty($timeBlock['time_slots']) ? '<br/>'.A::t('appointments', 'Visit Duration').': '.$timeBlock['time_slots'].' '.A::t('appointments', 'min.') : '');
+
+                                // If there is a time off, change the color and title
+                                if(!empty($timeOffs)){
+                                    foreach($timeOffs as $timeOff){
+                                        $unixTimeOffDateFrom = strtotime($timeOff['date_from']);
+                                        $unixTimeOffDateTo = strtotime($timeOff['date_to']);
+                                        $unixTimeOffTimeFrom = strtotime($timeOff['time_from']);
+                                        $unixTimeOffTimeTo = strtotime($timeOff['time_to']);
+                                        if($time >= $unixTimeOffTimeFrom && $time < $unixTimeOffTimeTo && $date >= $unixTimeOffDateFrom && $date <= $unixTimeOffDateTo){
+                                            $textColor = '#000000';
+                                            $backgroundColor = '#d0d0d0';
+                                            $title = !empty($timeOff['description']) ? $timeOff['description'] : A::t('appointments', 'Holidays');
+                                            $activeEvents = false;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // If there is a appointments, change the color, title and description
+                                if(!empty($recordedAppointments) && is_array($recordedAppointments)){
+                                    foreach($recordedAppointments as $appointment){
+                                        $unixAppointmentDate = strtotime($appointment['appointment_date']);
+                                        $unixAppointmentTime = strtotime($appointment['appointment_time']);
+                                        if($date == $unixAppointmentDate && $time == $unixAppointmentTime){
+                                            $textColor = '#ffffff';
+                                            $backgroundColor = '#008000';
+                                            $title = $appointment['patient_name'];
+                                            $activeEvents = false;
+                                            $description = A::t('appointments', 'Date').': '.$appointment['appointment_date'].
+                                                '<br/>'.A::t('appointments', 'Time').': '.$appointment['appointment_time'].
+                                                (!empty($appointment['visit_duration']) ? '<br/>'.A::t('appointments', 'Visit Duration').': '.$appointment['visit_duration'].' '.A::t('appointments', 'min.') : '').
+                                                (!empty($appointment['visit_price']) ? '<br/>'.A::t('appointments', 'Visit Price').': '.(CCurrency::format($appointment['visit_price'])) : '');
+
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                $startDate = CLocale::date('Y-m-d\TH:i:s', $dateTimeBlock.' '.$timeTimeBlock);
+                                $endDate = CLocale::date('Y-m-d\TH:i:s', strtotime($dateTimeBlock.' '.$timeTimeBlock. ' + '.$timeBlock['time_slots'].' min'), true);
+
+                                if ($activeEvents) {
+                                    $url = "appointments/appointmentDetails/doctorId/".$doctorId."/dateTime/".(strtotime($startDate));
+                                }
+
+                                $arrCalendarData[] = "{
+                                    id:'".$date.$time."',
+                                    url:'".$url."',
+                                    title:'".$title."',
+                                    description:'".$description."',
+                                    start:'".$startDate."',
+                                    end:'".$endDate."',
+                                    color: '".$backgroundColor."',
+                                    textColor:'".$textColor."', 
+                                    className: '".$className."'".
+                                "}";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!empty($arrCalendarData) && is_array($arrCalendarData)) {
+            $calendarData = '['.(implode(',', $arrCalendarData)).']';
+        }
+
+        A::app()->getClientScript()->registerScript('eventsCalendar', " 
+            $(document).ready(function () {
+                function func(eventId, divEvent, jsEvent) {
+                
+                    for(var u=0; u<window.events.length; u++){
+                        if(window.events[u].id==eventId){
+                           $('#eventDetailsBlock').html(window.events[u].title+\"<br>\" +window.events[u].description);
+        
+                           $('#eventDetailsBlock').css({left: (parseInt($(window).scrollLeft())+parseInt(jsEvent.clientX)+5) + \"px\",
+                                                        top: (parseInt($(window).scrollTop())+parseInt(jsEvent.clientY)+5)  + \"px\" }).show();                              
+                           return;  
+                        }
+                    }   
+                }
+                function startEvent(eventId, divEvent, jsEvent){
+                    if(window.startEventTimeout){
+                       clearTimeout(window.startEventTimeout);
+                    }
+                    window.startEventTimeout= setTimeout(func, 1000, eventId, divEvent, jsEvent);        
+                }
+                function stopEvent(){
+                    $('#eventDetailsBlock').hide();
+                    if(window.startEventTimeout){
+                       clearTimeout(window.startEventTimeout);
+                    }
+                    window.startEventTimeout=false;
+                }
+                
+                $('#calendar').fullCalendar({
+                    eventMouseover: function(event, jsEvent, view){
+                      startEvent(event.id, this, jsEvent);
+                    },
+                    eventMouseout: stopEvent,
+                    eventClick: function(info) {
+                        //info.jsEvent.preventDefault();
+                        //if (info.event.url) {
+                        //  window.open(info.event.url);
+                        //}
+                    },
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    defaultView: 'agendaWeek',
+                    defaultDate: '" . date('Y-m-d') . "',
+                    lang: '".(A::app()->getLanguage())."',
+                    editable: false,
+                    eventLimit: true,
+                    events: function(start, end, timezone, callback) {
+                        window.events = ".($calendarData).";
+                        callback(".($calendarData).")
+                    },
+                    loading: function (bool) {
+                        $('#loading').toggle(bool);
+                    }
+                });
+                $('body').append($('<div id=eventDetailsBlock></div>'));
+           });
+        ");
+
+        return !empty($calendarData) ? true : false;
+    }
+
 }

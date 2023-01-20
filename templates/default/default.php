@@ -86,23 +86,27 @@
 </section>
 <!--  Finish Page  -->
 
+<?php
+    if(Website::isDefaultPage()):
+        echo CHtml::scriptFile("templates/default/revolution/js/jquery.themepunch.revolution.min.js");;
+        echo CHtml::scriptFile("templates/default/revolution/js/jquery.themepunch.plugins.min.js");;
+    endif;
+?>
 <?= CHtml::scriptFile("templates/default/js/respond.min.js"); ?>
-<?= CHtml::scriptFile("templates/default/revolution/js/jquery.themepunch.revolution.js"); ?>
-<?= CHtml::scriptFile("templates/default/revolution/js/jquery.themepunch.revolution.min.js"); ?>
-<?= CHtml::scriptFile("templates/default/revolution/js/jquery.themepunch.plugins.min.js"); ?>
 <?= CHtml::scriptFile('templates/default/js/jquery.easing.min.js?ver=1.3.0'); ?>
 <?= CHtml::scriptFile("templates/default/js/jquery.script.js"); ?>
 <?= CHtml::scriptFile("templates/default/js/jackbox-lib.js"); ?>
 <?= CHtml::scriptFile("templates/default/js/jackbox.js"); ?>
 <?= CHtml::scriptFile('assets/vendors/jquery/jquery.modal.min.js'); ?>
 <?= CHtml::scriptFile('assets/vendors/jquery/jquery-ui.min.js', 2); ?>
-<!-- JavaScript -->
-
+<?= CHtml::scriptFile('templates/default/js/main.js', 2); ?>
 <?php
     if(Modules::model()->isInstalled('appointments')):
         echo CHtml::scriptFile('assets/vendors/toastr/toastr.min.js');
         echo CHtml::scriptFile('assets/modules/appointments/js/appointments.js');
     endif;
 ?>
+<!-- JavaScript -->
+
 </body>
 </html>

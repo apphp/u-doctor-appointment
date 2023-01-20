@@ -66,12 +66,12 @@ class LanguagesController extends CController
             A::app()->setLanguage($lang, $params);
         }
 		
-		$referrerPage = Website::getRefererPage();
+		$referrerPage = Website::getReferrerPage();
 		$defaultPage = Website::getDefaultPage();
 		$baseUrl = A::app()->getRequest()->getBaseUrl();
 		
 		// If referrer page exists and it comes from current domain redirect to referrer URL, otherwise to default page		
-		if(!empty($referrerPage) && preg_match('/'.preg_quote($baseUrl, '/').'/', $referrerPage)){
+		if(!empty($referrerPage) && preg_match('/'.preg_quote($baseUrl, '/').'/i', $referrerPage)){
 			$this->redirect($referrerPage, true);
 		}else{
 			$this->redirect($defaultPage);

@@ -155,9 +155,11 @@ class Bootstrap extends CComponent
 	 */	
 	public function setCron()
 	{
-		// Un-comment if 'non-batch' cron job type is used
-		//$cron = new Cron();
-		//$cron->run();
+		// We use 'non-batch' cron job type
+		if ($this->_settings->cron_type == 'non-batch') {
+			$cron = new Cron();
+			$cron->run();
+		}
 	}
 	
 	/**

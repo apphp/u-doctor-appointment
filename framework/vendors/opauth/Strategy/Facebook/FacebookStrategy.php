@@ -24,7 +24,7 @@ class FacebookStrategy extends OpauthStrategy{
      * eg. array('scope' => 'email');
      */
     public $defaults = array(
-        'redirect_uri' => '{complete_url_to_strategy}int_callback'
+        'redirect_uri' => '{complete_url_to_strategy}oauth2callback'
     );
 
     /**
@@ -49,7 +49,7 @@ class FacebookStrategy extends OpauthStrategy{
     /**
      * Internal callback, after Facebook's OAuth
      */
-    public function int_callback(){
+    public function oauth2callback(){
         if(array_key_exists('code', $_GET) && !empty($_GET['code'])){
             $url = 'https://graph.facebook.com/oauth/access_token';
             $params = array(

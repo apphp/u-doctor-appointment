@@ -1,47 +1,8 @@
-1. Creating Module directory. (DONE).
+ Requirements
+ ---------------------------------------------------------------------------
+ - ApPHP Directy CMF v2.3.0 or later 
 
-2. Creating CHANGELOG file. (DONE).
+ Modules Installation/Update:
+ ---------------------------------------------------------------------------
+ - https://www.apphp.com/php-directy-cmf/index.php?page=module-installation-and-update
 
-3. Creating info.xml file (DONE).
-
-4. Create directory "config/":
-    - main.php
-    - [MODULE_CODE].php
-    - copy content from example file and replace all placeholders
- 
-5. Create directory "data/": 
-    - add 3 files: install.mysql.sql, update.mysql.sql, uninstall.mysql.sql
-    - replace all placeholders
-    
-6. Create directory "images/":     
-    - add icon.png file
-    - change icon.png with related icon of the module
-    
-7. Create directory "messages/":  
-    - create [MODULE_CODE].php
-    - replace all placeholders    
-
-8. Create directory "models":
-    - create [MODEL_NAME].php
-    - replace all placeholders    
-    
-9. Create directory "controllers/":
-    - add [CONTROLLER_NAME]Controller.php
-    - replace all placeholders
- 
-10. Create directory "views/":   
-    - create sub-directory <[CONTROLLER_NAME_LOWERCASE]>
-        <[CONTROLLER_NAME_LOWERCASE]>
-            <filename>add.php</filename>
-            <filename>edit.php</filename>
-            <filename>manage.php</filename>
-        </[CONTROLLER_NAME_LOWERCASE]>
-    
-11. Add to bootstrap app config/main.php:
-    - 'modules' => array(
-        ......
-        'blog' => array('enable' => true),
-       )
-    - add also to config.main.tpl
-    
-12. Run test instalaltion.    

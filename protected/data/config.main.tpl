@@ -3,7 +3,7 @@
 return array(
     // Application data
     'name' => 'uDoctorAppointment',
-    'version' => '2.1.1',
+    'version' => '2.2.1',
     
     // Installation settings
     'installationKey' => '<INSTALLATION_KEY>',
@@ -31,7 +31,7 @@ return array(
     // Default email settings
 	'email' => array(
         'mailer' => 'smtpMailer', /* phpMail | phpMailer | smtpMailer */
-        'from' => 'info@email.me',
+        'from' => 'info@example.com',
         'fromName' => '', /* John Smith */
         'isHtml' => true,
         'smtp' => array(

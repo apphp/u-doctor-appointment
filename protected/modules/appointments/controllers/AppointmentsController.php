@@ -58,6 +58,7 @@ use \Modules,
 	\CArray,
 	\CAuth,
 	\CConfig,
+	\CCurrency,
 	\CHash,
 	\CHtml,
 	\CLocale,
@@ -113,11 +114,17 @@ class AppointmentsController extends CController
 			'2'=>'<span class="label-red label-square">'.A::t('appointments', 'Canceled').'</span>',
 		);
 
+		$this->_view->labelPatientArrivalStatus = array(
+            '0'=>'<span class="label-red label-square">'.A::t('appointments', 'No').'</span>',
+            '1'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>',
+		);
+
         $settings = Bootstrap::init()->getSettings();
 		$this->_view->dateFormat     = $settings->date_format;
 		$this->_view->timeFormat     = $settings->time_format;
 		$this->_view->dateTimeFormat = $settings->datetime_format;
         $this->_view->numberFormat   = $settings->number_format;
+        $this->_view->typeFormat     = $settings->number_format;
         $this->_view->currencySymbol = A::app()->getCurrency('symbol');
 	}
 
@@ -162,7 +169,7 @@ class AppointmentsController extends CController
         $this->_view->appointmentTimeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
         $this->_view->subTabs = AppointmentsComponent::prepareSubTab('appointments', $status);
 
-		$this->_view->render('appointments/manage');
+		$this->_view->render('appointments/backend/manage');
 	}
 
 	/**
@@ -177,7 +184,7 @@ class AppointmentsController extends CController
 		$this->_view->subTabs = AppointmentsComponent::prepareSubTab('appointments', $status);
         A::app()->getSession()->remove('changeAppointmentId');
         A::app()->getSession()->remove('changeDoctorId');
-		$this->_view->render('appointments/add');
+		$this->_view->render('appointments/backend/add');
 	}
 
 	/**
@@ -209,15 +216,29 @@ class AppointmentsController extends CController
             $forWhom = A::t('appointments', 'Me');
         }
 
+        $appendCode  = '';
+        $prependCode = '';
+        $symbol      = A::app()->getCurrency('symbol');
+        $symbolPlace = A::app()->getCurrency('symbol_place');
+
+        if($symbolPlace == 'before'){
+            $prependCode = $symbol;
+        }else{
+            $appendCode = $symbol;
+        }
+
+        $this->_view->pricePrependCode = $prependCode;
+        $this->_view->priceAppendCode  = $appendCode;
         $this->_view->forWhom = $forWhom;
         $this->_view->visitReason = $visitReason;
         $this->_view->editStatusAppointments = $this->_getStatuses($appointment->status);
+        $this->_view->editPatientArrivalStatus = array('0'=>A::t('appointments', 'Not Arrived'), '1'=>A::t('appointments', 'Arrived'));
 		$this->_view->appointment = $appointment;
         $this->_view->status = $status;
 		$this->_view->id = $id;
         $this->_view->appointmentTimeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
         $this->_view->subTabs = AppointmentsComponent::prepareSubTab('appointments', $status);
-		$this->_view->render('appointments/edit');
+		$this->_view->render('appointments/backend/edit');
 	}
 
 	/**
@@ -256,7 +277,7 @@ class AppointmentsController extends CController
             A::app()->getSession()->setFlash('alert', $alert);
             A::app()->getSession()->setFlash('alertType', $alertType);
         }
-		
+
 		$this->redirect('appointments/manage'.(!empty($status) ? '/status/'.$status : ''));
 	}
 
@@ -266,217 +287,68 @@ class AppointmentsController extends CController
 	public function findDoctorsAction()
 	{
         $loggedRole = CAuth::getLoggedRole();
-        if(in_array($loggedRole, array('admin', 'owner'))){
+        if (in_array($loggedRole, array('admin', 'owner'))) {
             Website::setBackend();
-        }else{
+        } else {
             Website::setFrontend();
         }
 
-		$cRequest              = A::app()->getRequest();
-		$showAllSpecialties    = true;
-		$condition             = array();
-		$doctors               = array();
-		$arrDoctorIds          = array();
-		$arrDoctorSpecialties  = array();
-		$arrDoctorClinicId 	   = array();
-		$openHoursDoctors 	   = array();
-		$actionMessage         = '';
+        $cRequest = A::app()->getRequest();
+        $showAllSpecialties = true;
+        $doctors = array();
+        $actionMessage = '';
+        $page = 0;
+        $pageSize = ModulesSettings::model()->param('appointments', 'doctors_per_page');
+        $limit = ($page * $pageSize) . ', ' . $pageSize;
+        $genders = $this->_getGenders();
+        $degrees = $this->_getDegrees();
+        $countAllDoctors = 0;
+        $maxPage = 0;
 
-		$countAllDoctors       = 0;
-		$maxPage       		   = 0;
-		$page 				   = 0;
-        $pageSize              = ModulesSettings::model()->param('appointments', 'doctors_per_page');
-		$limit 				   = ($page * $pageSize).', '.$pageSize;
-        $genders               = $this->_getGenders();
-        $degrees               = $this->_getDegrees();
-        $titles                = $this->_getTitle();
-        $tableAccountsName  = CConfig::get('db.prefix').Accounts::model()->getTableName();
-        $tableDoctorsName  = CConfig::get('db.prefix').Doctors::model()->getTableName();
+        $getConditionFindDoctors = AppointmentsComponent::getConditionFindDoctors();
+        $condition = !empty($getConditionFindDoctors['condition']) ? $getConditionFindDoctors['condition'] : '';
+        $params = !empty($getConditionFindDoctors['params']) ? $getConditionFindDoctors['params'] : array();
+        $arrDoctorIds = !empty($getConditionFindDoctors['arr_doctor_ids']) ? $getConditionFindDoctors['arr_doctor_ids'] : array();
 
-		$alert = A::app()->getSession()->getFlash('alert');
-		$alertType = A::app()->getSession()->getFlash('alertType');
-		if(!empty($alert)){
-			$actionMessage = CWidget::create('CMessage', array($alertType, $alert), array('button'=>true));
-		}
+        if (!empty($condition)) {
+            $doctors = Doctors::model()->findAll(array(
+                'condition' => $condition,
+                'limit'=>$limit
+            ),
+                $params
+            );
 
-        $doctorId     = (int)$cRequest->getQuery('doctorId');
-        $locationId   = (int)$cRequest->getQuery('locationId');
-		$specialtyId  = (int)$cRequest->getQuery('specialtyId');
-		$doctorName   = (string)$cRequest->getQuery('doctorName');
-		$location 	  = (string)$cRequest->getQuery('location');
+            $countAllDoctors  = Doctors::model()->count(array('condition'=> $condition));
+        }
 
-		$checkDoctor    = $this->_checkDoctorAccess($doctorId);
-		$checkLocation  = $this->_checkClinicAccess($locationId);
-		$checkSpecialty = $this->_checkSpecialtyAccess($specialtyId);
+        if (!empty($arrDoctorIds) && !empty($doctors)) {
+            $maxPage = ceil($countAllDoctors / $pageSize);
+            $showAllSpecialties = false;
+        } else {
+            $allQueryName = array_keys($cRequest->getQuery());
+            $findDoctorQueryName = array('doctorId', 'doctorName', 'specialtyId', 'locationId', 'location');
 
-
-		if(!empty($doctorId) && !empty($checkDoctor)){
-			$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-			$doctor = Doctors::model()->findByPk($doctorId, array('condition'=> $condition, 'limit'=>$limit));
-			if($doctor){
-				$arrDoctorIds    = array();
-				$doctors[]       = $doctor->getFieldsAsArray();
-				$arrDoctorIds[]  = (int)$doctorId;
-			}else{
-				$actionMessage = CWidget::create('CMessage', array('error', A::t('appointments', 'Doctor not found'), array('button'=>true)));
-			}
-		}elseif(!empty($doctorName)){
-			$fullName = explode(' ', $doctorName, 2);
-
-			if(!empty($fullName)){
-				if(count($fullName) == 1){
-					$fullName[0] = strip_tags(CString::quote($fullName[0]));
-					$params[':doctor_first_name'] = $fullName[0].'%';
-					$params[':doctor_last_name']  = $fullName[0].'%';
-
-					$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name OR '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name';
-
-				}elseif(count($fullName) == 2){
-					$fullName[0] = strip_tags(CString::quote($fullName[0]));
-					$fullName[1] = strip_tags(CString::quote($fullName[1]));
-					$params[':doctor_first_name_1'] = $fullName[1].'%';
-					$params[':doctor_last_name_1']  = $fullName[0].'%';
-					$params[':doctor_first_name_2'] = $fullName[0].'%';
-					$params[':doctor_last_name_2']  = $fullName[1].'%';
-
-					$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND ('.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name_1 AND '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name_1) OR ('.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name_2 AND '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name_2)';
-				}
-
-				$result = Doctors::model()->findAll(array(
-					'condition' => $condition.' AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0',
-					'order'=>'doctor_first_name,doctor_last_name',
-					'limit'=>$limit
-				),
-					$params
-				);
-
-				// Filter Doctors
-				if(!empty($result) && is_array($result)){
-					$doctors = array();
-					$countAllDoctors = Doctors::model()->count(array(
-						'condition' => $condition.' AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0',
-						'order'=>'doctor_first_name,doctor_last_name'
-					),
-						$params
-					);
-					$tmpArrDoctorIds = array();
-					foreach($result as $doctor){
-						$tmpArrDoctorIds[] = $doctor['id'];
-						$doctors[] = $doctor;
-					}
-					$arrDoctorIds = $tmpArrDoctorIds;
-				}else{
-					$arrDoctorIds = array();
-					$doctors = array();
-				}
-
-			}
-		}
-
-		if(!empty($specialtyId) && empty($doctorId) && !empty($checkSpecialty)){
-			$arrDoctorIds = AppointmentsComponent::getDoctorIdsBySpecialty($specialtyId);
-			if(!empty($arrDoctorIds)){
-				$condition 		 = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-				$doctors         = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-				$countAllDoctors = Doctors::model()->count(array('condition'=> $condition));
-			}else{
-				$actionMessage = CWidget::create('CMessage', array('error', A::t('appointments', 'No doctors found in this specialty at this moment!'), array('button'=>true)));
-			}
-		}
-
-		if(!empty($locationId) && empty($doctorId) && empty($specialtyId) && !empty($checkLocation)){
-			$arrDoctorIds = AppointmentsComponent::getDoctorIdsByLocation($locationId);
-			if(!empty($arrDoctorIds)){
-				$condition 		 = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-				$doctors         = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-				$countAllDoctors = Doctors::model()->count(array('condition'=>$condition));
-			}else{
-				$actionMessage = CWidget::create('CMessage', array('error', A::t('appointments', 'No doctors found in this address at this moment!'), array('button'=>true)));
-			}
-		}elseif(!empty($location) && empty($doctorName)){
-			$location = trim(preg_replace("/  +/"," ", $location));
-			$location = explode(' ', $location);
-			if(!empty($location)){
-				$tableClinicsTranslation = CConfig::get('db.prefix').Clinics::model()->getTableTranslationName();
-				$countLocation = count($location);
-				if($countLocation == 1){
-					$location[0] = strip_tags(CString::quote($location[0]));
-					$params[':location'] = '%'.$location[0].'%';
-
-					$condition = $tableClinicsTranslation.'.address LIKE :location OR '.$tableClinicsTranslation.'.name LIKE :location';
-				}else{
-					$condition = '';
-					for ($i=0;$i<$countLocation;$i++){
-						$location[$i] = strip_tags(CString::quote($location[$i]));
-						$params[':location_'.$i] = '%'.$location[$i].'%';
-
-						$condition .= $tableClinicsTranslation.'.address LIKE :location_'.$i.' OR '.$tableClinicsTranslation.'.name LIKE :location_'.$i;
-						if($i<$countLocation - 1) $condition .= ' AND ';
-					}
-				}
-
-				$result = Clinics::model()->findAll(array(
-					'condition' => $condition,
-					'order'=>'address'
-				),
-					$params
-				);
-				// Filter Doctors
-				if(!empty($result) && is_array($result)){
-					$tmpArrDoctorIds = array();
-					foreach($result as $clinic){
-						$tmpArrDoctorIds[] = AppointmentsComponent::getDoctorIdsByLocation($clinic['id']);
-					}
-
-
-					foreach($tmpArrDoctorIds as $tmpArrDoctorId){
-						foreach($tmpArrDoctorId as $key => $val){
-							if(in_array($val, $arrDoctorIds)) continue;
-							$arrDoctorIds[] = $val;
-						}
-					}
-
-					if(!empty($arrDoctorIds)){
-						$condition 		  = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-						$doctors          = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-						$countAllDoctors  = Doctors::model()->count(array('condition'=> $condition));
-					}else{
-						$actionMessage = CWidget::create('CMessage', array('error', A::t('appointments', 'No doctors found in this address at this moment!'), array('button'=>true)));
-						$doctors = array();
-						$arrDoctorIds = array();
-					}
-				}
-			}
-		}
-
-		if(!empty($arrDoctorIds) && !empty($doctors)){
-			$maxPage = ceil($countAllDoctors / $pageSize);
-			$showAllSpecialties = false;
-		}else{
-			$allQueryName = array_keys($cRequest->getQuery());
-			$findDoctorQueryName = array('doctorId', 'doctorName', 'specialtyId', 'locationId', 'location');
-
-			if(array_intersect($allQueryName, $findDoctorQueryName)){
-				$actionMessage = CWidget::create('CMessage', array('warning', A::t('appointments', 'No search criteria selected! Please select or enter any search criteria and try again.'), array('button'=>true)));
-			}
-		}
+//            if (array_intersect($allQueryName, $findDoctorQueryName)) {
+//                $actionMessage = CWidget::create('CMessage', array('warning', A::t('appointments', 'No search criteria selected! Please select or enter any search criteria and try again.'), array('button' => true)));
+//            }
+        }
 
         $drawFindDoctorsBlock = AppointmentsComponent::drawFindDoctorsBlock($doctors, $arrDoctorIds, $genders, $degrees);
 
         $this->_view->drawFindDoctorsBlock = $drawFindDoctorsBlock;
-        $this->_view->doctorId             = $doctorId;
-        $this->_view->locationId           = $locationId;
-        $this->_view->doctorName           = $doctorName;
-        $this->_view->location             = $location;
-        $this->_view->specialtyId          = $specialtyId;
-        $this->_view->maxPage              = $maxPage;
-        $this->_view->showAllSpecialties   = $showAllSpecialties;
-        $this->_view->allSpecialties       = $this->_getAllSpecialties();
-        $this->_view->actionMessage        = $actionMessage;
+        $this->_view->locationId = !empty($cRequest->get('locationId')) ? (int)$cRequest->get('locationId') : 0;
+        $this->_view->location = !empty($cRequest->get('location')) ? (string)$cRequest->get('location') : '';
+        $this->_view->specialtyId = !empty($cRequest->get('specialtyId')) ? (int)$cRequest->get('specialtyId') : 0;
+        $this->_view->doctorId = !empty($cRequest->get('doctorId')) ? (int)$cRequest->get('doctorId') : 0;
+        $this->_view->doctorName = !empty($cRequest->get('doctorName')) ? (string)$cRequest->get('doctorName') : '';
+        $this->_view->maxPage = $maxPage;
+        $this->_view->showAllSpecialties = $showAllSpecialties;
+        $this->_view->allSpecialties = $this->_getAllSpecialties();
+        $this->_view->actionMessage = $actionMessage;
 
-        if(in_array($loggedRole, array('admin', 'owner'))){
+        if (in_array($loggedRole, array('admin', 'owner'))) {
             $this->_view->render('appointments/backend/findDoctors');
-        }else{
+        } else {
             $this->_view->render('appointments/findDoctors');
         }
 	}
@@ -543,7 +415,7 @@ class AppointmentsController extends CController
 			A::app()->getSession()->setFlash('alert', $alert);
 			$this->redirect($redirectPage);
 		}
-		
+
 
 		$this->_view->multiClinics       	        = $multiClinics;
 		$this->_view->clinicId       	  		    = $clinicId;
@@ -579,6 +451,7 @@ class AppointmentsController extends CController
         $alertType          = '';
         $address            = '';
         $timeVisit          = '';
+        $noSpecialty        = '';
         $doctorId           = (int)$doctorId;
         $clinicTime         = array();
         $loggedRole         = CAuth::getLoggedRole();
@@ -732,6 +605,12 @@ class AppointmentsController extends CController
                 }
             }
         }
+        $arrDoctorSpecialties = $this->_getDoctorSpecialties($doctorId, $doctor->membership_specialties_count);
+
+        if(empty($arrDoctorSpecialties)){
+            $noSpecialty = CWidget::create('CMessage', array('info', A::t('appointments', 'Sorry, this doctor does not have specialty yet.'), array('button'=>false)));
+        }
+
 		$this->_view->doctorId        	            = $doctorId;
 		$this->_view->clinicTime        	        = $clinicTime;
 		$this->_view->address        	            = $address;
@@ -739,12 +618,14 @@ class AppointmentsController extends CController
 		$this->_view->appointmnetnDate              = $dateAppointment.' '.$timeAppointment;
 		$this->_view->profileDoctor                 = $doctor;
 		$this->_view->fullname                      = $doctor->getFullName();
-		$this->_view->arrDoctorSpecialties          = $this->_getDoctorSpecialties($doctorId, $doctor->membership_specialties_count);
+		$this->_view->arrDoctorSpecialties          = $arrDoctorSpecialties;
 		$this->_view->visitedBefore                 = $this->_getVisitedDoctorBefore(($adminLogin || $doctorLogin) ? 'adminOrDoctor' : 'patient');
 		$this->_view->appointmentForWhom            = $this->_getWhoAppointment(($adminLogin || $doctorLogin) ? 'adminOrDoctor' : 'patient');
 		$this->_view->insurance                     = $this->_getInsurance();
 		$this->_view->appointmentTimeFormat         = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
         $this->_view->visitReasons                  = $this->_getReasons();
+        $this->_view->createPatientPopup            = AppointmentsComponent::createPatientPopup();
+        $this->_view->noSpecialty                   = $noSpecialty;
 
 		if($adminLogin){
             $this->_view->render('appointments/backend/appointmentDetails');
@@ -755,6 +636,31 @@ class AppointmentsController extends CController
         }
 	}
 
+    /**
+     * Displays a calendar with all appointments.
+     * @param int $doctorId
+     */
+    public function calendarAction($doctorId = 0)
+    {
+
+        // set backend mode
+        Website::setBackend();
+        Website::prepareBackendAction('manage', 'admin', 'modules/index');
+
+        $doctor = $this->_checkDoctorAccess($doctorId);
+
+        $drawCalendar = AppointmentsComponent::drawCalendar($doctor->id);
+        $actionMessage = '';
+
+        if (!$drawCalendar) {
+            $actionMessage = CWidget::create('CMessage', array('info', A::t('app', 'No records found!'), array('button'=>false)));
+        }
+
+        $this->_view->doctorFullName = $doctor->getFullName();
+        $this->_view->actionMessage = $actionMessage;
+        $this->_view->page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+        $this->_view->render('appointments/backend/calendar');
+    }
 
     /**
      * Admin change appointment action handler
@@ -783,156 +689,34 @@ class AppointmentsController extends CController
         }
 
 		$output = '';
-		$condition             = array();
 		$doctors               = array();
-		$arrDoctorIds          = array();
 		$genders               = $this->_getGenders();
 		$degrees               = $this->_getDegrees();
-		$titles                = $this->_getTitle();
         $page                  = (int)$cRequest->get('page');
-        $doctorId              = (int)$cRequest->get('doctorId');
-        $locationId            = (int)$cRequest->get('locationId');
-		$specialtyId           = (int)$cRequest->get('specialtyId');
-		$doctorName            = (string)$cRequest->get('doctorName');
-		$location              = (string)$cRequest->get('location');
         $pageSize              = ModulesSettings::model()->param('appointments', 'doctors_per_page');
 		$limit 				   = ($page * $pageSize).', '.$pageSize;
-		$tableAccountsName  = CConfig::get('db.prefix').Accounts::model()->getTableName();
-		$tableDoctorsName  = CConfig::get('db.prefix').Doctors::model()->getTableName();
 
-		$checkDoctor    = $this->_checkDoctorAccess($doctorId);
-		$checkLocation  = $this->_checkClinicAccess($locationId);
-		$checkSpecialty = $this->_checkSpecialtyAccess($specialtyId);
+        $getConditionFindDoctors = AppointmentsComponent::getConditionFindDoctors();
+        $condition = !empty($getConditionFindDoctors['condition']) ? $getConditionFindDoctors['condition'] : '';
+        $params = !empty($getConditionFindDoctors['params']) ? $getConditionFindDoctors['params'] : array();
+        $arrDoctorIds = !empty($getConditionFindDoctors['arr_doctor_ids']) ? $getConditionFindDoctors['arr_doctor_ids'] : array();
 
-
-		if(!empty($doctorId) && !empty($checkDoctor)){
-			$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-			$doctor = Doctors::model()->findByPk($doctorId, array('condition'=> $condition, 'limit'=>$limit));
-			$arrDoctorIds    = array();
-			$doctors[]       = $doctor->getFieldsAsArray();
-			$arrDoctorIds[]  = (int)$doctorId;
-		}elseif(!empty($doctorName)){
-			$fullName = explode(' ', $doctorName, 2);
-
-			if(!empty($fullName)){
-				if(count($fullName) == 1){
-					$fullName[0] = strip_tags(CString::quote($fullName[0]));
-					$params[':doctor_first_name'] = $fullName[0].'%';
-					$params[':doctor_last_name']  = $fullName[0].'%';
-
-					$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name OR '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name';
-
-				}elseif(count($fullName) == 2){
-					$fullName[0] = strip_tags(CString::quote($fullName[0]));
-					$fullName[1] = strip_tags(CString::quote($fullName[1]));
-					$params[':doctor_first_name_1'] = $fullName[1].'%';
-					$params[':doctor_last_name_1']  = $fullName[0].'%';
-					$params[':doctor_first_name_2'] = $fullName[0].'%';
-					$params[':doctor_last_name_2']  = $fullName[1].'%';
-
-					$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND ('.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name_1 AND '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name_1) OR ('.$tableDoctorsName.'.doctor_first_name LIKE :doctor_first_name_2 AND '.$tableDoctorsName.'.doctor_last_name LIKE :doctor_last_name_2)';
-				}
-
-				$result = Doctors::model()->findAll(array(
-					'condition' => $condition.' AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0',
-					'order'=>'doctor_first_name,doctor_last_name',
-					'limit'=>$limit
-				),
-					$params
-				);
-
-				// Filter Doctors
-				if(!empty($result) && is_array($result)){
-					$doctors = array();
-					$tmpArrDoctorIds = array();
-					foreach($result as $doctor){
-						$tmpArrDoctorIds[] = $doctor['id'];
-						$doctors[] = $doctor;
-					}
-					$arrDoctorIds = $tmpArrDoctorIds;
-				}else{
-					$arrDoctorIds = array();
-					$doctors = array();
-				}
-
-			}
-		}
-
-		if(!empty($specialtyId) && empty($doctorId) && !empty($checkSpecialty)){
-			$arrDoctorIds = AppointmentsComponent::getDoctorIdsBySpecialty($specialtyId);
-			if(!empty($arrDoctorIds)){
-				$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-				$doctors   = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-			}
-		}
-
-		if(!empty($locationId) && empty($doctorId) && empty($specialtyId) && !empty($checkLocation)){
-			$arrDoctorIds = AppointmentsComponent::getDoctorIdsByLocation($locationId);
-			if(!empty($arrDoctorIds)){
-				$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-				$doctors   = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-			}
-		}elseif(!empty($location) && empty($doctorName)){
-			$location = trim(preg_replace("/  +/"," ", $location));
-			$location = explode(' ', $location);
-			if(!empty($location)){
-				$tableClinicsTranslation = CConfig::get('db.prefix').Clinics::model()->getTableTranslationName();
-				$countLocation = count($location);
-				if($countLocation == 1){
-					$location[0] = strip_tags(CString::quote($location[0]));
-					$params[':location'] = '%'.$location[0].'%';
-
-					$condition = $tableClinicsTranslation.'.address LIKE :location OR '.$tableClinicsTranslation.'.name LIKE :location';
-				}else{
-					$condition = '';
-					for ($i=0;$i<$countLocation;$i++){
-						$location[$i] = strip_tags(CString::quote($location[$i]));
-						$params[':location_'.$i] = '%'.$location[$i].'%';
-
-						$condition .= $tableClinicsTranslation.'.address LIKE :location_'.$i.' OR '.$tableClinicsTranslation.'.name LIKE :location_'.$i;
-						if($i<$countLocation - 1) $condition .= ' AND ';
-					}
-				}
-
-				$result = Clinics::model()->findAll(array(
-					'condition' => $condition,
-					'order'=>'address'
-				),
-					$params
-				);
-				// Filter Doctors
-				if(!empty($result) && is_array($result)){
-					$tmpArrDoctorIds = array();
-					foreach($result as $clinic){
-						$tmpArrDoctorIds[] = AppointmentsComponent::getDoctorIdsByLocation($clinic['id']);
-					}
-
-					foreach($tmpArrDoctorIds as $tmpArrDoctorId){
-						foreach($tmpArrDoctorId as $key => $val){
-							if(in_array($val, $arrDoctorIds)) continue;
-							$arrDoctorIds[] = $val;
-						}
-					}
-
-					if(!empty($arrDoctorIds)){
-						$condition = $tableDoctorsName.".membership_expires >= '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableDoctorsName.'.membership_show_in_search = 1 AND '.$tableDoctorsName.'.id IN ('.implode(',',$arrDoctorIds).') AND '.$tableAccountsName.'.is_active = 1 AND '.$tableAccountsName.'.is_removed = 0';
-						$doctors   = Doctors::model()->findAll(array('condition'=> $condition, 'limit'=>$limit));
-					}else{
-						$doctors = array();
-						$arrDoctorIds = array();
-					}
-				}
-			}
-		}
+        if (!empty($condition)) {
+            $doctors = Doctors::model()->findAll(array(
+                'condition' => $condition,
+                'limit'=>$limit
+            ),
+                $params
+            );
+        }
 
 		$output .= '<div class="one_first" id="page-'.$page.'">';
-        $output .= AppointmentsComponent::drawFindDoctorsBlock($doctors, $arrDoctorIds, $titles, $genders, $degrees);
+        $output .= AppointmentsComponent::drawFindDoctorsBlock($doctors, $arrDoctorIds, $genders, $degrees);
 		$output .= '</div>';
 
 		echo $output;
 
         exit;
-
 	}
 
 	/**
@@ -958,13 +742,10 @@ class AppointmentsController extends CController
             $reasonsId            = (int)$cRequest->get('reasonsId');
             $appointmentForWhomId = $cRequest->get('appointmentForWhomId');
             $bannedAppointmentToSpecialist = false;
-            $loggedRole = CAuth::getLoggedRole();
             if(in_array($loggedRole, array('admin', 'owner', 'doctor'))){
                 $patientId = (int)$cRequest->get('patientId');
-            }else{
-                if(CAuth::getLoggedId() && CAuth::getLoggedRole() == 'patient'){
-                    $patientId = CAuth::getLoggedRoleId();
-                }
+            }elseif(CAuth::getLoggedId() && $loggedRole == 'patient'){
+                $patientId = CAuth::getLoggedRoleId();
             }
 
             // Prepare datetime
@@ -985,7 +766,7 @@ class AppointmentsController extends CController
 
             $checkAppointmentDateTime = $this->_checkAppointmentDateTime($doctorId, $dateAppointment, $timeAppointment);
 
-            if(CAuth::getLoggedId() && CAuth::getLoggedRole() == 'patient'){
+            if(CAuth::getLoggedId() && $loggedRole == 'patient'){
                 // Ban a patient from ordering appointments to this specialist
                 $maxAppointmentToSpecialist = ModulesSettings::model()->param('appointments', 'max_allowed_appointment_to_specialist');
                 $doctorSpecialties = DoctorSpecialties::model()->findAll('doctor_id = :doctor_id', array(':doctor_id'=>$doctor->id));
@@ -1090,14 +871,11 @@ class AppointmentsController extends CController
             $patientName          = $cRequest->get('patientName');
             $adminOrDoctorLogin   = false;
 
-            $loggedRole = CAuth::getLoggedRole();
             if(in_array($loggedRole, array('admin', 'owner', 'doctor'))){
                 $adminOrDoctorLogin = true;
                 $patientId = (int)$cRequest->get('patientId');
-            }else{
-                if(CAuth::getLoggedId() && CAuth::getLoggedRole() == 'patient'){
-                    $patientId = CAuth::getLoggedRoleId();
-                }
+            }elseif(CAuth::getLoggedId() && $loggedRole == 'patient'){
+                $patientId = CAuth::getLoggedRoleId();
             }
 
             // Prepare datetime
@@ -1131,19 +909,19 @@ class AppointmentsController extends CController
                 $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Doctor'))).'"';
             }elseif(empty($specialty)){
                 $arr[] = '"status": "0"';
-                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>'specialty')).'"';
+                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Specialty'))).'"';
             }elseif(empty($insurance)){
                 $arr[] = '"status": "0"';
-                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>'insurance')).'"';
+                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Insurance'))).'"';
             }elseif(empty($reasons)){
                 $arr[] = '"status": "0"';
-                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>'reasons')).'"';
+                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Reasons'))).'"';
             }elseif(empty($visitedBefore)){
                 $arr[] = '"status": "0"';
-                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>'visited before')).'"';
+                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Visited Before'))).'"';
             }elseif(empty($appointmentForWhom)){
                 $arr[] = '"status": "0"';
-                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>'appointment for whom')).'"';
+                $arr[] = '"error": "'.A::t('appointments', 'A {param} with such an ID does not exist or was blocked', array('{param}'=>A::t('appointments', 'Appointment for Whom'))).'"';
             }elseif(!CTime::isValidDate($year, $month, $day) || !CTime::isValidTime($hour, $minute, $second)){
                 $arr[] = '"status": "0"';
                 if(APPHP_MODE == 'debug'){
@@ -1215,7 +993,11 @@ class AppointmentsController extends CController
                     }
                 }else{
                     $arr[] = '"status": "0"';
-                    $arr[] = '"error": "'.A::t('appointments', 'An error occurred! Please try again later.').'"';
+					if(APPHP_MODE == 'demo'){
+						$arr[] = '"error": "'.A::t('appointments', 'This operation is blocked in Demo Mode!').'"';
+					}else{
+						$arr[] = '"error": "'.A::t('appointments', 'An error occurred! Please try again later.').'"';
+					}
                 }
             }
         }else{
@@ -1702,6 +1484,7 @@ class AppointmentsController extends CController
             return true;
         }
     }
+
 	/**
 	 * Check if passed Specialty ID is valid
 	 * @param int $id
@@ -1812,6 +1595,4 @@ class AppointmentsController extends CController
 
 		return $result;
 	}
-
-
 }

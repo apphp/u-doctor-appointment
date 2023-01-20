@@ -51,7 +51,7 @@ A::app()->getClientScript()->registerScriptFile('templates/default/js/gmap3.min.
 </section>
 
 <?php
-A::app()->getClientScript()->registerScriptFile('//maps.google.com/maps/api/js?sensor=false&language=en&ver=3.8.3&key='.Bootstrap::init()->getSettings('mapping_api_key'));
+A::app()->getClientScript()->registerScriptFile('//maps.google.com/maps/api/js?sensor=false&language=en&ver=3.8.3&key='.Bootstrap::init()->getSettings('mapping_http_key'));
 A::app()->getClientScript()->registerScript(
     'clinicMapFunction',
     'function clinicMap(clinicId){

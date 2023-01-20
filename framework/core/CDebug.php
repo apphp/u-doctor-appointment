@@ -33,18 +33,18 @@ class CDebug
     private static $_startMemoryUsage;
 	/** @var string */
     private static $_endMemoryUsage;
-	/** @var array */
-	private static $_arrGeneral;
-	/** @var array */
-    private static $_arrParams;
-	/** @var array */
-    private static $_arrConsole;
-	/** @var array */
-    private static $_arrWarnings;    
-	/** @var array */
-    private static $_arrErrors;
-	/** @var array */
-	private static $_arrQueries;
+    /** @var array */
+    private static $_arrGeneral = array();
+    /** @var array */
+    private static $_arrParams = array();
+    /** @var array */
+    private static $_arrConsole = array();
+    /** @var array */
+    private static $_arrWarnings = array();
+    /** @var array */
+    private static $_arrErrors = array();
+    /** @var array */
+    private static $_arrQueries = array();
 	/** @var array */
 	private static $_arrData;
 	/** @var float */
@@ -250,12 +250,15 @@ class CDebug
     public static function addMessage($type = 'params', $key = '', $val = '', $storeType = '')
     {
         if(APPHP_MODE != 'debug') return false;
-        
+	
 		// Store message in session
-        if($storeType == 'session'){
-            A::app()->getSession()->set('debug-'.$type, $val);
+		if ($storeType == 'session') {
+			$objSession = A::app()->getSession();
+			if (!empty($objSession)) {
+				$objSession->set('debug-' . $type, $val);
+			}
 			return false;
-        }
+		}
 		
         if($type == 'general') self::$_arrGeneral[$key][] = CFilter::sanitize('string', $val);
 		elseif($type == 'params') self::$_arrParams[$key] = CFilter::sanitize('string', $val);

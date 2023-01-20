@@ -19,29 +19,39 @@ class CGeoLocation
 {
 
     /**
-     * Find coordinates by given adsress
+     * Find coordinates by given address
      * @param string $address
      * @param string $region
+     * @param string $key
+     * @return array
      */
-    public static function coordinatesByAddress($address = '', $region = '')
+    public static function coordinatesByAddress($address = '', $region = '', $key = '')
     {
-		$coordinates = array('longitude'=>'', 'latitude'=>'');
-		
-		if(!empty($address)){
-			$address = str_replace(' ', '+', $address);					
-			$json = file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false&region='.$region);
-			$json = json_decode($json);
-			if(!empty($json) && $json->{'results'} != false){
-				$longitude = $json->{'results'}[0]->{'geometry'}->{'location'}->{'lng'};
-				$latitude = $json->{'results'}[0]->{'geometry'}->{'location'}->{'lat'};
-			}
-			
-			if(!empty($longitude) && !empty($latitude)){
-				$coordinates['longitude'] = $longitude;
-				$coordinates['latitude'] = $latitude;
-			}			
-		}		
-	
+        $coordinates = array('longitude'=>'', 'latitude'=>'');
+
+        if(!empty($address)){
+            $address = str_replace(' ', '+', $address);
+            // Format: https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=YOUR_API_KEY
+            $url = 'https://maps.googleapis.com/maps/api/geocode/json'.
+                '?address='.$address.
+                '&sensor=false'.
+                '&region='.$region.
+                (!empty($key) ? '&key='.$key : '');
+
+            $json = A::app()->getRequest()->getUrlContent($url, 'get', array(), array(), 'curl');
+            $json = json_decode($json);
+
+            if(!empty($json) && $json->{'results'} != false){
+                $longitude = $json->{'results'}[0]->{'geometry'}->{'location'}->{'lng'};
+                $latitude = $json->{'results'}[0]->{'geometry'}->{'location'}->{'lat'};
+            }
+
+            if(!empty($longitude) && !empty($latitude)){
+                $coordinates['longitude'] = $longitude;
+                $coordinates['latitude'] = $latitude;
+            }
+        }
+
         return $coordinates;
     }
 

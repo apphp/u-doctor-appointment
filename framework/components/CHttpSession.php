@@ -276,7 +276,7 @@ class CHttpSession extends CComponent
 
 		@session_start();
 		if(APPHP_MODE == 'debug' && session_id() == ''){
-            Debug::addMessage('errors', 'session', A::t('core', 'Failed to start session'));
+			CDebug::addMessage('errors', 'session', A::t('core', 'Failed to start session'));
 		}
 	}
 
@@ -296,7 +296,7 @@ class CHttpSession extends CComponent
 			ini_set('session.use_cookies', '1');
 			ini_set('session.use_only_cookies', '1');
 		}else{
-			Debug::addMessage('warnings', 'session_cookie_mode', A::t('core', 'HttpSession.cookieMode can only be "none", "allow" or "only".'));
+			CDebug::addMessage('warnings', 'session_cookie_mode', A::t('core', 'HttpSession.cookieMode can only be "none", "allow" or "only".'));
 		}
 	}
 	

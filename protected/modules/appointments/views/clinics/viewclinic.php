@@ -79,7 +79,7 @@ if($clinic->latitude && $clinic->longitude){
 </section>
 <?php
 if($drawMap){
-    A::app()->getClientScript()->registerScriptFile('//maps.google.com/maps/api/js?sensor=false&language=en&ver=3.8.3&key='.Bootstrap::init()->getSettings('mapping_api_key'));
+    A::app()->getClientScript()->registerScriptFile('//maps.google.com/maps/api/js?sensor=false&language=en&ver=3.8.3&key='.Bootstrap::init()->getSettings('mapping_http_key'));
     A::app()->getClientScript()->registerScript(
         'clinicMapView',
         'jQuery(document).ready(function(){

@@ -131,9 +131,9 @@ class News extends CActiveRecord
 		if($keywords !== ''){
 			
 			$limit = !empty($itemsCount) ? '0, '.(int)$itemsCount : '';
-			$condition = CConfig::get('db.prefix').$this->_table.'.is_published = 1 AND '.
+			$condition = CConfig::get('db.prefix').$this->_table.'.is_published = 1 AND ('.
 				CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords OR '.
-				CConfig::get('db.prefix').$this->_tableTranslation.'.news_header LIKE :keywords';
+				CConfig::get('db.prefix').$this->_tableTranslation.'.news_header LIKE :keywords)';
 			
 			// Count total items in result
 			$total = $this->count(array('condition'=>$condition), array(':keywords'=>'%'.$keywords.'%'));

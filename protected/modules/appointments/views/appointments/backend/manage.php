@@ -25,8 +25,9 @@
         // echo $actionMessage;
 
         if(Admins::hasPrivilege('modules', 'edit') && Admins::hasPrivilege('appointment', 'add')){
-            echo '<a href="appointments/add" class="add-new">'.A::t('appointments', 'Add Appointment').'</a>';
+            echo '<a href="appointments/add" class="add-new">'.A::t('appointments', 'Add Appointment').'</a> ';
         }
+
 
         $tableName = CConfig::get('db.prefix').Appointments::model()->getTableName();
         echo CWidget::create('CGridView', array(
@@ -38,27 +39,31 @@
             'pagination'=>array('enable'=>true, 'pageSize'=>20),
             'sorting'=>true,
             'filters'=>array(
+                'patient_id' => array('title'=>'', 'visible'=>false, 'table'=>$tableName, 'type'=>'textbox', 'operator'=>'=', 'width'=>'100px', 'maxLength'=>'32'),
 				'appointment_number' => array('title'=>A::t('appointments', 'Appointment ID'), 'type'=>'textbox', 'operator'=>'%like%', 'width'=>'100px', 'maxLength'=>'32'),
 				'patient_first_name,patient_last_name' => array('title'=>A::t('appointments', 'Patient Name'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'32'),
-				'doctor_first_name,doctor_middle_name,doctor_last_name' => array('title'=>A::t('appointments', 'Doctor Name'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'32'),
+				'doctor_first_name,doctor_last_name' => array('title'=>A::t('appointments', 'Doctor Name'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'32'),
+     			'appointment_date' => array('title'=>A::t('appointments', 'Date'), 'type'=>'datetime', 'table'=>$tableName, 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'date'),
             ),
             'fields'=>array(
-				'appointment_number'        => array('type'=>'label', 'title'=>A::t('appointments', 'Appointment ID'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
+				'appointment_number'        => array('type'=>'label', 'title'=>A::t('appointments', 'ID'), 'width'=>'100px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
 				'patient_name'              => array('title'=>A::t('appointments', 'Patient Name'), 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'linkUrl'=>'patients/manage/?id={patient_id}&but_filter=Filter', 'linkText'=>'{patient_name}', 'definedValues'=>array(), 'htmlOptions'=>array()),
 				'doctor_name'               => array('title'=>A::t('appointments', 'Doctor Name'), 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'linkUrl'=>'doctors/manage/?id={doctor_id}&but_filter=Filter', 'linkText'=>'{doctor_name}', 'definedValues'=>array(), 'htmlOptions'=>array()),
-				'specialty_name'            => array('type'=>'label', 'title'=>A::t('appointments', 'Specialty'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
-				'appointment_date' 	        => array('title'=>A::t('appointments', 'Date'), 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'format'=>$dateFormat, 'htmlOptions'=>array()),
-				'appointment_time' 	        => array('title'=>A::t('appointments', 'Time'), 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'format'=>$appointmentTimeFormat, 'htmlOptions'=>array()),
-				'clinic_name'               => array('type'=>'label', 'title'=>A::t('appointments', 'Clinic Name'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
-                'change_link'               => array('title'=>'', 'type'=>'html', 'align'=>'', 'width'=>'65px', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'callback'=>array('class'=>'Modules\Appointments\Components\AppointmentsComponent', 'function'=>'getAdminChangeLink'), 'definedValues'=>array(), 'htmlOptions'=>array()),
+				'specialty_clinic'          => array('title'=>A::t('appointments', 'Specialty'), 'type'=>'concat', 'align'=>'', 'width'=>'210px', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('specialty_name', 'clinic_name'), 'concatSeparator'=>'<br>',),
+				//'specialty_name'            => array('type'=>'label', 'title'=>A::t('appointments', 'Specialty'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
+				//'clinic_name'               => array('type'=>'label', 'title'=>A::t('appointments', 'Clinic Name'), 'width'=>'150px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
+				'appointment_date' 	        => array('title'=>A::t('appointments', 'Date'), 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>$dateFormat, 'htmlOptions'=>array()),
+				'appointment_time' 	        => array('title'=>A::t('appointments', 'Time'), 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'40px', 'maxLength'=>'', 'format'=>$appointmentTimeFormat, 'htmlOptions'=>array()),
+                'change_link'               => array('title'=>'', 'type'=>'html', 'align'=>'', 'width'=>'60px', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'callback'=>array('class'=>'Modules\Appointments\Components\AppointmentsComponent', 'function'=>'getAdminChangeLink'), 'definedValues'=>array(), 'htmlOptions'=>array()),
                 'p_arrival_reminder_sent'   => array('type'=>'label', 'title'=>A::t('appointments', 'PA'), 'headerTooltip'=>A::t('appointments', 'Patient Arrival Reminder'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array('0'=>'<span class="label-red label-square">'.A::t('appointments', 'Not Sent').'</span>', '1'=>'<span class="label-green label-square">'.A::t('appointments', 'Sent').'</span>'), 'isSortable'=>true),
 				//'p_confirm_reminder_sent'   => array('type'=>'label', 'title'=>A::t('appointments', 'PC'), 'headerTooltip'=>A::t('appointments', 'Patient Confirm Reminder'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array('0'=>'<span class="label-red label-square">'.A::t('appointments', 'Not Sent').'</span>', '1'=>'<span class="label-green label-square">'.A::t('appointments', 'Sent').'</span>'), 'isSortable'=>true),
 				//'d_confirm_reminder_sent'   => array('type'=>'label', 'title'=>A::t('appointments', 'DC'), 'headerTooltip'=>A::t('appointments', 'Doctor Confirm Reminder'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array('0'=>'<span class="label-red label-square">'.A::t('appointments', 'Not Sent').'</span>', '1'=>'<span class="label-green label-square">'.A::t('appointments', 'Sent').'</span>'), 'isSortable'=>true),
-				'doctor_internal_notes'     => array('type'=>'html', 'title'=>A::t('appointments', 'ICD'), 'headerTooltip'=>A::t('appointments', 'Doctor Comments (for internal use)'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(), 'isSortable'=>true, 'trigger'=>array('trigger_key'=>'doctor_internal_notes', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>', 'wrong_value'=>'--')),
+				'doctor_internal_notes'     => array('type'=>'html', 'title'=>A::t('appointments', 'ICD'), 'headerTooltip'=>A::t('appointments', 'Doctor Comments (for medical card)'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(), 'isSortable'=>true, 'trigger'=>array('trigger_key'=>'doctor_internal_notes', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>', 'wrong_value'=>'--')),
 				'doctor_external_notes'     => array('type'=>'html', 'title'=>A::t('appointments', 'CD'), 'headerTooltip'=>A::t('appointments', 'Comments for patient'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(), 'isSortable'=>true, 'trigger'=>array('trigger_key'=>'doctor_external_notes', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>', 'wrong_value'=>'--')),
                 'patient_internal_notes'    => array('type'=>'html', 'title'=>A::t('appointments', 'ICP'), 'headerTooltip'=>A::t('appointments', 'Patient Comments (for internal use)'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(), 'isSortable'=>true, 'trigger'=>array('trigger_key'=>'patient_internal_notes', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>', 'wrong_value'=>'--')),
 				'patient_external_notes'    => array('type'=>'html', 'title'=>A::t('appointments', 'CP'), 'headerTooltip'=>A::t('appointments', 'Comments for doctor'), 'width'=>'55px', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(), 'isSortable'=>true, 'trigger'=>array('trigger_key'=>'patient_external_notes', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>', 'wrong_value'=>'--')),
-				'status'                    => array('type'=>'label', 'title'=>A::t('appointments', 'Status'), 'definedValues'=>$labelStatusAppointments, 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true),
+				'status'                    => array('type'=>'label', 'title'=>A::t('appointments', 'Status'), 'definedValues'=>$labelStatusAppointments, 'width'=>'50px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true),
+				'status_arrival'            => array('type'=>'label', 'title'=>A::t('appointments', 'Arrived'), 'definedValues'=>$labelPatientArrivalStatus, 'width'=>'50px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true),
             ),
             'actions'=>array(
                 'edit'    => array(
@@ -74,5 +79,6 @@
         ));
 
     ?>
+        <div id='calendar'></div>
     </div>
 </div>

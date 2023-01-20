@@ -353,78 +353,85 @@ class CView
 		}
 		
 		$this->_isRendered = true;
-	} 	
- 
+	}
+	
 	/**
- 	 * Renders a view for components
- 	 * @param string $view
- 	 * @return void
- 	 */
-	public function renderContent($view)
+	 * Renders a view for components
+	 * @param string $view
+	 * @param bool $return
+	 * @return void
+	 */
+	public function renderContent($view, $return = false)
 	{
-        if(in_array(strtolower($view), $this->_isCompRendered)){
+		if(in_array(strtolower($view), $this->_isCompRendered)){
 			CDebug::addMessage('warnings', 'render-double-call', A::t('core', 'Double call of function {function} with parameters: {params}', array('{function}'=>'renderContent()', '{params}'=>'')));
 			return '';
 		}
-
-        // Check if this method is called by CController classes only
-        $trace = debug_backtrace();
-        if(isset($trace[1])){
-            $calledByClass = get_parent_class($trace[1]['class']);
-            if($calledByClass != '' && $calledByClass != 'CComponent'){
+		
+		// Check if this method is called by CController classes only
+		$trace = debug_backtrace();
+		if(isset($trace[1])){
+			$calledByClass = get_parent_class($trace[1]['class']);
+			if($calledByClass != '' && $calledByClass != 'CComponent'){
 				CDebug::addMessage('errors', 'render-content-caller', A::t('core', 'The View::renderContent() method cannot be called by {class} class. Component classes allowed only.', array('{class}'=>$calledByClass)));
-                return false;                
-            }
-        }
-
-        $content = '';
+				return false;
+			}
+		}
+		
 		// [19.09.2016] under check - doesn't work with uppercase
 		//$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.$view.'.php');
 		$this->__viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.strtolower($view).'.php';
-
-        if(is_file($this->__viewFile) && file_exists($this->__viewFile)){
-            // Prepare content variables for view file
-            foreach($this->_vars as $key => $value){
-                $$key = $value;
-            }		
-
-			// Get view file content
-            if(file_exists($this->__viewFile)){
-                ob_start();
-                include $this->__viewFile;
-                $this->__renderContent = ob_get_contents();
-                ob_end_clean();
-				
-				CDebug::addMessage('general', 'included', $this->__viewFile);
-            }else{
-                if(preg_match('/[A-Z]/', $this->_controller)){
-                    CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
-                }else{
-                    CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));
-                }
-            }
-
-			// Output content
-			$renderContent = $this->__renderContent;
-			if(APPHP_MODE == 'debug') {
-				$beforeCompression = strlen($renderContent);	
-			}			
-			$renderContent = ($this->_htmlCompression) ? CMinify::html($renderContent) : $renderContent;
-			if(APPHP_MODE == 'debug') {
-				$afterCompression = strlen($renderContent);
-				CDebug::addMessage('data', 'html-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+		
+		if(is_file($this->__viewFile) && file_exists($this->__viewFile)){
+			// Prepare content variables for view file
+			foreach($this->_vars as $key => $value){
+				$$key = $value;
 			}
 			
-			echo $renderContent;
+			// Get view file content
+			if(file_exists($this->__viewFile)){
+				ob_start();
+				include $this->__viewFile;
+				$this->__renderContent = ob_get_contents();
+				ob_end_clean();
+				
+				CDebug::addMessage('general', 'included', $this->__viewFile);
+			}else{
+				if(preg_match('/[A-Z]/', $this->_controller)){
+					CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
+				}else{
+					CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));
+				}
+			}
+			
+			// Output content
+			$output = $this->__renderContent;
+			
+			// Compress content
+			if($this->_htmlCompression){
+				if(APPHP_MODE == 'debug') {
+					$beforeCompression = strlen($output);
+				}
+				$output = CMinify::html($output);
+				if(APPHP_MODE == 'debug') {
+					$afterCompression = strlen($output);
+					CDebug::addMessage('data', 'render-content-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+				}
+			}
+			
+			$this->_isCompRendered[] = strtolower($view);
+			
+			if($return){
+				return $output;
+			}else{
+				echo $output;
+			}
 			
 			CDebug::addMessage('params', 'render-content', $this->__viewFile);
-        }else{
-            CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
-        }
-        
-		$this->_isCompRendered[] = strtolower($view);
-        echo $content;
-    }
+		}else{
+			CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
+		}
+	}
 
  	/**
  	 * Renders a view from another view

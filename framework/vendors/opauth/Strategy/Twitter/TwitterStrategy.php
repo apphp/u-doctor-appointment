@@ -23,7 +23,7 @@ class TwitterStrategy extends OpauthStrategy {
      */
     public $defaults = array(
         'method' => 'POST',         // The HTTP method being used. e.g. POST, GET, HEAD etc
-        'oauth_callback' => '{complete_url_to_strategy}oauth_callback',
+        'oauth_callback' => '{complete_url_to_strategy}oauth2callback',
 
         // For Twitter
         'request_token_url' => 'https://api.twitter.com/oauth/request_token',
@@ -88,7 +88,7 @@ class TwitterStrategy extends OpauthStrategy {
     /**
      * Receives oauth_verifier, requests for access_token and redirect to callback
      */
-    public function oauth_callback() {
+    public function oauth2callback() {
         if(!session_id()) {
             session_start();
         }

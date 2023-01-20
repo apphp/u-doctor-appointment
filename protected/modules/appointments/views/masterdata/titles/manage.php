@@ -41,7 +41,7 @@
             'sorting'        => true,
             'filters'        => array(),
             'fields'         => array(
-                'title'          => array('title'=>A::t('appointments', 'Title'), 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
+                'title'          => array('title'=>A::t('appointments', 'Title'), 'type'=>'label', 'align'=>'', 'width'=>'250px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true),
                 'sort_order'     => array('title'=>A::t('appointments', 'Sort Order'), 'type'=>'label', 'align'=>'', 'width'=>'80px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true),
                 'is_active'      => $isActive,
             ),

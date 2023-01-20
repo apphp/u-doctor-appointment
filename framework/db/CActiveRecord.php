@@ -7,7 +7,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  * @version PHP 5.3.0 or higher
  *
@@ -778,9 +778,10 @@ abstract class CActiveRecord extends CModel
 
     /**
      * Save data
+	 * @param bool $forceSave
      * @return boolean
      */
-    public function save()
+	public function save($forceSave = false)
     {
         $data = array();        
         $this->_removeCustomFields();
@@ -803,7 +804,7 @@ abstract class CActiveRecord extends CModel
             }
             
             if($this->_pkValue > 0){
-                $result = $this->_db->update($this->_table, $data, $this->_primaryKey.' = :primary_key', array(':primary_key'=>(int)$this->_pkValue));
+                $result = $this->_db->update($this->_table, $data, $this->_primaryKey.' = :primary_key', array(':primary_key'=>(int)$this->_pkValue), $forceSave);
 				$this->_isNewRecord = false;
             }else{
                 $result = $this->_db->insert($this->_table, $data);

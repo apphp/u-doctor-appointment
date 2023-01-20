@@ -29,14 +29,15 @@
         $doctorTableName = CConfig::get('db.prefix').Doctors::model()->getTableName();
         $filterFields['id']        = array('title'=>'', 'visible'=>false, 'table'=>$doctorTableName, 'type'=>'textbox', 'operator'=>'=', 'width'=>'100px', 'maxLength'=>'32');
         $filterFields['doctor_first_name,doctor_last_name'] = array('title'=>A::t('appointments', 'Doctor Name'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'32');
-        $filterFields['username']  = array('title'=>A::t('appointments', 'Username'), 'type'=>'textbox', 'operator'=>'like%', 'default'=>'', 'width'=>'100px', 'maxLength'=>'25');
+        $filterFields['username']  = array('title'=>A::t('appointments', 'Username'), 'type'=>'textbox', 'operator'=>'like%', 'default'=>'', 'width'=>'100px', 'maxLength'=>'32');
         $filterFields['email']     = array('title'=>A::t('appointments', 'Email'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'100');
         $filterFields['is_active'] = array('title'=>A::t('appointments', 'Active'), 'type'=>'enum', 'operator'=>'=', 'width'=>'60px', 'source'=>array(''=>'', '0'=>A::t('appointments', 'No'), '1'=>A::t('appointments', 'Yes')), 'emptyOption'=>true, 'emptyValue'=>'');
 
         $fields = array(
             'avatar_by_gender'  => array('title'=>A::t('appointments', 'Photo'), 'type'=>'image', 'align'=>'', 'width'=>'50px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>false, 'imagePath'=>'assets/modules/appointments/images/doctors/', 'defaultImage'=>'no_avatar.png', 'imageWidth'=>'30px', 'imageHeight'=>'27px', 'alt'=>'', 'showImageInfo'=>true),
-            'doctor_first_name' => array('title'=>A::t('appointments', 'First Name'), 'type'=>'label', 'align'=>'', 'width'=>'90px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-            'doctor_last_name'  => array('title'=>A::t('appointments', 'Last Name'), 'type'=>'label', 'align'=>'', 'width'=>'90px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+            //'doctor_first_name' => array('title'=>A::t('appointments', 'First Name'), 'type'=>'label', 'align'=>'', 'width'=>'90px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+            //'doctor_last_name'  => array('title'=>A::t('appointments', 'Last Name'), 'type'=>'label', 'align'=>'', 'width'=>'90px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+			'doctor_name' 		=> array('title'=>A::t('appointments', 'Name'), 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'sortBy'=>'doctor_last_name', 'concatFields'=>array('doctor_first_name', 'doctor_last_name'), 'concatSeparator'=>' ',),
             //'username'        => array('title'=>A::t('appointments', 'Username'), 'type'=>'label', 'align'=>'', 'width'=>'80px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
             'email'             => array('title'=>A::t('appointments', 'Email'), 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
             //'phone'           => array('title'=>A::t('appointments', 'Phone'), 'type'=>'label', 'align'=>'', 'width'=>'90px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
@@ -50,7 +51,9 @@
             'special_id'        => array('title'=>'', 'sourceField'=>'id', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'30px', 'source'=>$specialtyCounters, 'definedValues'=>array(''=>'<span class="label-zerogray">0</span>'), 'isSortable'=>true, 'class'=>'left', 'prependCode'=>'<span class="label-lightgray">', 'appendCode'=>'</span>'),
             'images_link'       => array('title'=>'', 'type'=>'link', 'width'=>'55px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'doctorImages/manage/doctorId/{id}', 'linkText'=>A::t('appointments', 'Images'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
             'images_id'         => array('title'=>'', 'sourceField'=>'id', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'30px', 'source'=>$arrImages, 'definedValues'=>array(''=>'<span class="label-zerogray">0</span>'), 'isSortable'=>true, 'class'=>'left', 'prependCode'=>'<span class="label-lightgray">', 'appendCode'=>'</span>'),
-            'book_appointments' => array('title'=>'', 'type'=>'link', 'width'=>'120px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'appointments/{id}', 'linkText'=>A::t('appointments', 'Book Appointment'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
+            'calendar_link'     => array('title'=>'', 'type'=>'link', 'width'=>'70px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'appointments/calendar/doctorId/{id}?page='.$page, 'linkText'=>A::t('appointments', 'Calendar'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
+            'orders_link'       => array('title'=>'', 'type'=>'link', 'width'=>'55px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'orders/doctorsManage?doctor_id={id}&but_filter=Filter', 'linkText'=>A::t('appointments', 'Orders'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
+            'book_appointments' => array('title'=>'', 'type'=>'link', 'width'=>'95px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'appointments/{id}', 'linkText'=>'+ '.A::t('appointments', 'Appointment'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
         );
 
         if(Admins::hasPrivilege('modules', 'edit') && Admins::hasPrivilege('doctor', 'edit')){

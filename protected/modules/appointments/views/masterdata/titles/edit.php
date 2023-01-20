@@ -43,7 +43,7 @@
             ),
             'translationInfo'   => array('relation'=>array('id', 'title_id'), 'languages'=>Languages::model()->findAll(array('condition'=>'is_active = 1', 'orderBy'=>'sort_order ASC'))),
             'translationFields' => array(
-                'title'=>array('type'=>'textbox', 'title'=>A::t('appointments', 'Title'), 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'text', 'maxLength'=>'50'), 'htmlOptions'=>array('maxLength'=>'50')),
+                'title'=>array('type'=>'textbox', 'title'=>A::t('appointments', 'Title'), 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'text', 'maxLength'=>'50'), 'htmlOptions'=>array('maxLength'=>'50', 'class'=>'middle')),
             ),
             'buttons'           => array(
                 'submitUpdateClose' => array('type'=>'submit', 'value'=>A::t('appointments', 'Update & Close'), 'htmlOptions'=>array('name'=>'btnUpdateClose')),

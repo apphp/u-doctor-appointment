@@ -861,3 +861,11 @@ and (orientation : landscape)
 	padding:15px 2.5% 20px;
 	width:95%;
 }
+
+
+#createPatientPopupForm .row{ margin-bottom: 5px}
+#createPatientPopupForm .row .chosen-container{ width: 210px!important;}
+label.error { display:inline-block; font-weight:normal; border:0px; color:#bd3020; text-align:left; padding:0px 0 5px 190px; margin:0; width: 300px; }
+#createPatientPopupForm_row_1,#createPatientPopupForm_row_3,#createPatientPopupForm_row_5,#createPatientPopupForm_row_7,#createPatientPopupForm_row_9, #createPatientPopupForm_row_10, #createPatientPopupForm_row_12, #createPatientPopupForm_row_14, #createPatientPopupForm_row_16,#createPatientPopupForm_row_17,#createPatientPopupForm_row_18 { min-height: 0 }
+
+.old-events{ opacity: 0.5; }

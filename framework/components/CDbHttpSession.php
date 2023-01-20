@@ -424,7 +424,7 @@ class CDbHttpSession extends CComponent
 
 		@session_start();
 		if(APPHP_MODE == 'debug' && session_id() == ''){
-            Debug::addMessage('errors', 'session', A::t('core', 'Failed to start session'));
+			CDebug::addMessage('errors', 'session', A::t('core', 'Failed to start session'));
 		}
 	}
 

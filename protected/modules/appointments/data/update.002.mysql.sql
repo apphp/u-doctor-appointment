@@ -18,3 +18,4 @@ INSERT INTO `<DB_PREFIX>appt_working_hours` (`id`, `week_day`, `start_time`, `en
 (5, 5, '09:00', '21:00', 1),
 (6, 6, '09:00', '21:00', 1),
 (7, 7, '00:00', '00:00', 0);
+

@@ -48,7 +48,7 @@
                             echo '<div class="form_info cmsms_input">'.PHP_EOL;
                             echo '<label>'.A::t('appointments', 'Password').':</label>'.PHP_EOL;
                             echo '<div class="form_field_wrap">'.PHP_EOL;
-                            echo '<input id="login_password" type="password" name="login_password" value="" maxlength="20" data-required="true" autocomplete="off" />'.PHP_EOL;
+                            echo '<input id="login_password" type="password" name="login_password" value="" maxlength="25" data-required="true" autocomplete="off" />'.PHP_EOL;
                             echo CHtml::tag('p', array('class'=>'error', 'style'=>'display:none', 'id'=>'passwordErrorEmpty'), A::t('appointments', 'Password field cannot be empty!')).PHP_EOL;
                             echo '</div>'.PHP_EOL;
                             echo '</div>'.PHP_EOL;

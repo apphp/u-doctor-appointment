@@ -8,11 +8,12 @@
  * getOpenHoursDoctors          _beforeSave
  * getSchedulesForDate          _getScheduleIdForDate
  * getSchedulesForDay           _getTimeSchedule
- * getTimeOffs                  _repairWorkingHoursInTimeBlock
+ * getTimeOffs
  * getAppointmetsDoctors
  * getMaxPageSchedules
  * existsSchedulesForDoctor
  * getNearestSchedule
+ * repairWorkingHoursInTimeBlock
  *
  * STATIC:
  * ---------------------------------------------------------------
@@ -194,7 +195,7 @@ class DoctorScheduleTimeBlocks extends CActiveRecord
                 if(isset($openHours[$timeBlocks[$i]['week_day']])){
                     $openHours[$timeBlocks[$i]['week_day']]['time_to'] = date($timeFormat, strtotime($timeBlocks[$i]['time_to']));
                 }else{
-					$day = ($timeBlocks[$i]['week_day'] == 7) ? 1 : $timeBlocks[$i]['week_day'];
+                    $day = ($timeBlocks[$i]['week_day'] == 7) ? 1 : $timeBlocks[$i]['week_day'];
                     $openHours[$timeBlocks[$i]['week_day']]['time_from'] = date($timeFormat, strtotime($timeBlocks[$i]['time_from']));
                     $openHours[$timeBlocks[$i]['week_day']]['time_to'] = date($timeFormat, strtotime($timeBlocks[$i]['time_to']));
                     $openHours[$timeBlocks[$i]['week_day']]['week_day_name'] = A::t('i18n', 'weekDayNames.wide.'.$day);
@@ -227,14 +228,15 @@ class DoctorScheduleTimeBlocks extends CActiveRecord
 			$currentDate = date('Y-m-d', $i);
 			//Find the actual schedule
 			$currentSchedules = $this->getSchedulesForDay($doctorId, $currentDate, $clinicId);
-			if(!empty($currentSchedules)){
+            if(!empty($currentSchedules)){
 				//Create from the time block array with time visits
 				$arrPrepareSchedules[$currentDate] = $this->_getTimeSchedule($doctorId, $currentSchedules, $currentDate);
 			}else{
 				$arrPrepareSchedules[$currentDate] = '';
 			}
 		}
-		//Check if the schedule exists
+
+        //Check if the schedule exists
 		if(!empty($arrPrepareSchedules)){
             foreach($arrPrepareSchedules as $arrPrepareSchedule){
                 if(!empty($arrPrepareSchedule)){
@@ -274,11 +276,16 @@ class DoctorScheduleTimeBlocks extends CActiveRecord
             }
 			$timeBlocks = DoctorScheduleTimeBlocks::model()->findAll($condition, $param);
 
-            if(!empty($timeBlocks)){
-                $timeForDayWeek = $this->_repairWorkingHoursInTimeBlock($timeBlocks);
+            if(!empty($timeBlocks) && is_array($timeBlocks)){
+                foreach ($timeBlocks as $key => $timeBlock) {
+                    $timeSlotsType = TimeSlotsType::model()->findByPk($timeBlock['time_slot_type_id']);
+                    if(!$timeSlotsType || !$timeSlotsType->is_bookable) {
+                        unset($timeBlocks[$key]);
+                    }
+                }
+                $timeForDayWeek = $this->repairWorkingHoursInTimeBlock($timeBlocks);
 			}
 		}
-
         return $timeForDayWeek;
 	}
 
@@ -568,7 +575,7 @@ class DoctorScheduleTimeBlocks extends CActiveRecord
      * @param array $timeBlocks
      * @return array
      */
-    private function _repairWorkingHoursInTimeBlock($timeBlocks = array())
+    public function repairWorkingHoursInTimeBlock($timeBlocks = array())
     {
         if(!empty($timeBlocks)){
             foreach($timeBlocks as $key => $timeBlock){

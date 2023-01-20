@@ -42,7 +42,9 @@
                             <li><a href="doctorSchedules/mySchedules"><?= A::t('appointments', 'Schedules'); ?></a></li>
                             <li><a href="doctorSpecialties/mySpecialties"><?= A::t('appointments', 'Specialties'); ?></a></li>
                             <li><a href="doctorTimeoffs/myTimeoffs"><?= A::t('appointments', 'Timeoffs'); ?></a></li>
+                            <li><a href="doctors/patients"><?= A::t('appointments', 'Patients'); ?></a></li>
                             <li><a href="doctors/appointments"><?= A::t('appointments', 'Appointments'); ?></a></li>
+                            <li><a href="doctors/calendar"><?= A::t('appointments', 'Calendar'); ?></a></li>
                         </ul>
                     </fieldset>
                 </div>

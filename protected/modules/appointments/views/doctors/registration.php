@@ -218,7 +218,7 @@
                         $accountInfo .= CHtml::openTag('div', array('class'=>'form_info cmsms_input'));
                         $accountInfo .= CHtml::tag('label', array(), $requiredChar.A::t('appointments', 'Username'));
                         $accountInfo .= '<div class="form_field_wrap">'.PHP_EOL;
-                        $accountInfo .= CHtml::textField('username', '', array('data-required'=>'true', 'maxlength'=>'25', 'autocomplete'=>'off'));
+                        $accountInfo .= CHtml::textField('username', '', array('data-required'=>'true', 'maxlength'=>'32', 'autocomplete'=>'off'));
                         $accountInfo .= CHtml::tag('p', array('class'=>'error', 'style'=>'display:none', 'id'=>'usernameErrorEmpty'), A::t('appointments', 'The field username cannot be empty!'));
                         $accountInfo .= CHtml::closeTag('div');
                         $accountInfo .= CHtml::closeTag('div');
@@ -226,7 +226,7 @@
                         $accountInfo .= CHtml::openTag('div', array('class'=>'form_info cmsms_input'));
                         $accountInfo .= CHtml::tag('label', array(), $requiredChar.A::t('appointments', 'Password'));
                         $accountInfo .= '<div class="form_field_wrap">'.PHP_EOL;
-                        $accountInfo .= CHtml::passwordField('password', '', array('data-required'=>'true', 'maxlength'=>'20', 'autocomplete'=>'off'));
+                        $accountInfo .= CHtml::passwordField('password', '', array('data-required'=>'true', 'maxlength'=>'25', 'autocomplete'=>'off'));
                         $accountInfo .= CHtml::tag('p', array('class'=>'error', 'style'=>'display:none', 'id'=>'passwordErrorEmpty'), A::t('appointments', 'The field password cannot be empty!'));
                         $accountInfo .= CHtml::closeTag('div');
                         $accountInfo .= CHtml::closeTag('div');
@@ -234,7 +234,7 @@
                         $accountInfo .= CHtml::openTag('div', array('class'=>'form_info cmsms_input'));
                         $accountInfo .= CHtml::tag('label', array(), $requiredChar.A::t('appointments', 'Confirm Password'));
                         $accountInfo .= '<div class="form_field_wrap">'.PHP_EOL;
-                        $accountInfo .= CHtml::passwordField('confirm_password', '', array('data-required'=>'true', 'maxlength'=>'20', 'autocomplete'=>'off'));
+                        $accountInfo .= CHtml::passwordField('confirm_password', '', array('data-required'=>'true', 'maxlength'=>'25', 'autocomplete'=>'off'));
                         $accountInfo .= CHtml::tag('p', array('class'=>'error', 'style'=>'display:none', 'id'=>'confirmPasswordErrorEmpty'), A::t('appointments', 'The field confirm password cannot be empty!'));
                         $accountInfo .= CHtml::tag('p', array('class'=>'error', 'style'=>'display:none', 'id'=>'confirmPasswordErrorEqual'), A::t('appointments', 'The password field must match the password confirmation field!'));
                         $accountInfo .= CHtml::closeTag('div');

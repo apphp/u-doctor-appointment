@@ -32,6 +32,7 @@
             'action'=>'doctorSpecialties/edit/doctorId/'.$doctorId.'/id/'.$specialty->id,
             'successUrl'=>'doctorSpecialties/manage/doctorId/'.$doctorId,
             'cancelUrl'=>'doctorSpecialties/manage/doctorId/'.$doctorId,
+			'passParameters'=> true,
             'method'=>'post',
             'htmlOptions'=>array(
                 'id'=>$formName,

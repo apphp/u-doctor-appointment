@@ -7,7 +7,7 @@ $direction = A::app()->getLanguage('direction');
 <html<?= ($direction == 'rtl') ? ' dir="RTL"' : ''; ?>>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="content-type" />
-    <meta name="keywords" content="<?= CHtml::encode($this->_pageKeywords); ?>" />
+    <meta name="keywords1" content="<?= CHtml::encode($this->_pageKeywords); ?>" />
     <meta name="description" content="<?= CHtml::encode($this->_pageDescription); ?>" />
     <meta name="generator" content="<?= CConfig::get('name').' v'.CConfig::get('version'); ?>" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />

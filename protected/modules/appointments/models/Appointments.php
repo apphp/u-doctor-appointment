@@ -83,6 +83,7 @@ class Appointments extends CActiveRecord
 				'fields'=>array(
 					'patient_first_name',
 					'patient_last_name',
+					'phone' => 'patient_phone',
 				)
 			),
 			'doctor_specialty_id' => array(
@@ -364,6 +365,7 @@ class Appointments extends CActiveRecord
             $patientFullName 	= $patient->getFullName();
 			$doctorFullName  	= $doctor->getFullName();
             $clinic             = Clinics::model()->findByPk($appointment->doctor_address_id);
+            $googleMapLink      = '';
             $timeZone           = A::app()->getLocalTime()->getTimeZoneInfo($clinic->time_zone, 'full_name');
 
 			foreach($toSend as $to){
@@ -378,6 +380,7 @@ class Appointments extends CActiveRecord
 					$languageCode = $patient->language_code;
 					$fullName = $patientFullName;
 				}
+
 				//Create table apppointment details for email message
 				$appointmentDetails = '';
 				$appointmentDetails .= CHtml::openTag('table');
@@ -404,7 +407,7 @@ class Appointments extends CActiveRecord
 				$appointmentDetails .= CHtml::closeTag('tr');
 				$appointmentDetails .= CHtml::openTag('tr');
 				$appointmentDetails .= CHtml::tag('td', '', A::t('appointments', 'Time'));
-				$appointmentDetails .= CHtml::tag('td', '', CLocale::date($appointmentTimeFormat, $appointment->appointment_time));
+				$appointmentDetails .= CHtml::tag('td', '', CLocale::date($appointmentTimeFormat, '1970-01-01 '.$appointment->appointment_time));
 				$appointmentDetails .= CHtml::closeTag('tr');
 				$appointmentDetails .= CHtml::openTag('tr');
 				$appointmentDetails .= CHtml::tag('td', '', A::t('app', 'Time Zone'));
@@ -416,7 +419,10 @@ class Appointments extends CActiveRecord
 				$appointmentDetails .= CHtml::closeTag('tr');
 				$appointmentDetails .= CHtml::openTag('tr');
 				$appointmentDetails .= CHtml::tag('td', '', A::t('appointments', 'Clinic Address'));
-				$appointmentDetails .= CHtml::tag('td', '', $appointment->clinic_address);
+                if ($clinic->longitude && $clinic->latitude) {
+                    $googleMapLink = '<a href="https://www.google.by/maps/place/'.$clinic->address.'/@'.$clinic->latitude.','.$clinic->longitude.'" target="_blank">'.A::t('appointments', 'View On The Map').'</a>';
+                }
+				$appointmentDetails .= CHtml::tag('td', '', $appointment->clinic_address.(!empty($googleMapLink) ? ' ('.$googleMapLink.')' : ''));
 				$appointmentDetails .= CHtml::closeTag('tr');
 				$appointmentDetails .= CHtml::closeTag('table');
 

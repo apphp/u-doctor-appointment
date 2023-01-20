@@ -31,6 +31,7 @@ use \Modules\Appointments\Components\AppointmentsComponent;
 use \Modules\Appointments\Components\DoctorsComponent;
 use \Modules\Appointments\Models\Doctors;
 use \Modules\Appointments\Models\DoctorScheduleTimeBlocks;
+use \Modules\Appointments\Models\TimeSlotsType;
 use \Modules\Appointments\Models\DoctorSchedules;
 use \Modules\Appointments\Models\Clinics;
 use \Modules\Appointments\Models\DoctorClinics;
@@ -107,7 +108,7 @@ class DoctorSchedulesController extends CController
         $this->_view->checkUploadSchedulesCountAccess = $this->_checkUploadSchedulesCountAccess($doctor->id, $doctor->membership_schedules_count);
         $this->_view->actionMessage = $actionMessage;
         $this->_view->doctorId = $doctor->id;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->timeBlockCounters = $this->_prepareTimeBlockCounters($doctorId);
         $this->_view->render('doctorSchedules/manage');
     }
@@ -134,7 +135,7 @@ class DoctorSchedulesController extends CController
 
         $this->_view->doctorId = $doctor->id;
         $this->_view->minDate = $minDate;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->render('doctorSchedules/add');
     }
 
@@ -162,7 +163,7 @@ class DoctorSchedulesController extends CController
         $this->_view->id = $schedule->id;
         $this->_view->doctorId = $doctor->id;
         $this->_view->minDate = $minDate;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->render('doctorSchedules/edit');
     }
 
@@ -278,12 +279,13 @@ class DoctorSchedulesController extends CController
         $this->_view->actionMessage         = $actionMessage;
         $this->_view->messageWorkingHours   = $this->_checkWorkingHoursClinic($schedule->id);
         $this->_view->doctorId              = $doctor->id;
-        $this->_view->doctorName            = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName            = $doctor->getFullName();
         $this->_view->scheduleId            = $schedule->id;
         $this->_view->scheduleName          = $schedule->name;
         $this->_view->doctorClinics         = $doctorClinics;
         $this->_view->arrWeekDays           = $this->_getWeekDays();
         $this->_view->arrTimeSlots          = $this->_getTimeSlots();
+        $this->_view->arrTimeSlotsType      = $this->_getTimeSlotsType();
 
         $this->_view->render('doctorSchedules/timeBlocks/manage');
     }
@@ -315,6 +317,7 @@ class DoctorSchedulesController extends CController
 
         $this->_view->clinicId      = !empty($clinicId) ? $clinicId : 0;
         $this->_view->doctorClinics = $this->_getDoctorClinics($doctor->id);
+        $this->_view->timeSlotsType = $this->_gettimeSlotsType();
         $this->_view->multiClinics  = $multiClinics;
         $this->_view->doctorId      = $doctor->id;
         $this->_view->minDate       = $minDate;
@@ -361,6 +364,7 @@ class DoctorSchedulesController extends CController
         }
         $this->_view->actionMessage = $actionMessage;
         $this->_view->doctorClinics = $this->_getDoctorClinics($doctor->id);
+        $this->_view->timeSlotsType = $this->_gettimeSlotsType();
         $this->_view->multiClinics  = $multiClinics;
         $this->_view->id            = $scheduleTimeBlock->id;
         $this->_view->clinicId      = !empty($clinicId) ? $clinicId : $scheduleTimeBlock->address_id;
@@ -368,7 +372,7 @@ class DoctorSchedulesController extends CController
         $this->_view->scheduleId    = $schedule->id;
         $this->_view->doctorId      = $doctor->id;
         $this->_view->minDate       = $minDate;
-        $this->_view->doctorName    = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName    = $doctor->getFullName();
         $this->_view->scheduleId    = $schedule->id;
         $this->_view->scheduleName  = $schedule->name;
         $this->_view->arrWeekDays   = $this->_getWeekDays();
@@ -446,7 +450,7 @@ class DoctorSchedulesController extends CController
         $this->_view->dateFormat = $this->_settings->date_format;
         $this->_view->actionMessage = $actionMessage;
         $this->_view->doctorId = $doctorId;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->timeBlockCounters = $this->_prepareTimeBlockCounters($doctorId);
         $this->_view->render('doctorSchedules/mySchedules');
     }
@@ -478,7 +482,7 @@ class DoctorSchedulesController extends CController
 
         $this->_view->doctorId = $doctorId;
         $this->_view->minDate = $minDate;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->render('doctorSchedules/addMySchedule');
     }
 
@@ -510,7 +514,7 @@ class DoctorSchedulesController extends CController
         $this->_view->id = $schedule->id;
         $this->_view->doctorId = $doctorId;
         $this->_view->minDate = $minDate;
-        $this->_view->doctorName = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName = $doctor->getFullName();
         $this->_view->render('doctorSchedules/editMySchedule');
     }
 
@@ -624,11 +628,12 @@ class DoctorSchedulesController extends CController
         $this->_view->actionMessage                         = $actionMessage;
         $this->_view->doctorId                              = $doctorId;
         $this->_view->checkAccessAccountUsingMembershipPlan = DoctorsComponent::checkAccessAccountUsingMembershipPlan(false);
-        $this->_view->doctorName                            = $doctor->doctor_first_name.' '.$doctor->doctor_last_name;
+        $this->_view->doctorName                            = $doctor->getFullName();
         $this->_view->scheduleId                            = $schedule->id;
         $this->_view->scheduleName                          = $schedule->name;
         $this->_view->arrWeekDays                           = $this->_getWeekDays();
         $this->_view->arrTimeSlots                          = $this->_getTimeSlots();
+        $this->_view->arrTimeSlotsType                      = $this->_getTimeSlotsType();
         $this->_view->render('doctorSchedules/timeBlocks/myTimeBlocks');
     }
 
@@ -664,6 +669,7 @@ class DoctorSchedulesController extends CController
 
         $this->_view->clinicId      = !empty($clinicId) ? $clinicId : 0;
         $this->_view->doctorClinics = $this->_getDoctorClinics($doctor->id);
+        $this->_view->timeSlotsType = $this->_gettimeSlotsType();
         $this->_view->doctorId      = $doctor->id;
         $this->_view->multiClinics  = $multiClinics;
         $this->_view->minDate       = $minDate;
@@ -720,6 +726,7 @@ class DoctorSchedulesController extends CController
 
         $this->_view->actionMessage = $actionMessage;
         $this->_view->doctorClinics = $this->_getDoctorClinics($doctor->id);
+        $this->_view->timeSlotsType = $this->_gettimeSlotsType();
         $this->_view->id            = $scheduleTimeBlock->id;
         $this->_view->scheduleId    = $schedule->id;
         $this->_view->multiClinics  = $multiClinics;
@@ -1062,6 +1069,25 @@ class DoctorSchedulesController extends CController
         }
 
         return $doctorClinics;
+    }
+
+    /**
+     * Get Time Slots Type
+     * @param int $doctorId
+     * @return bool|array|string
+     */
+    private function _getTimeSlotsType()
+    {
+        $result = array();
+
+        $timeSlotsType = TimeSlotsType::model()->findAll('is_active = 1');
+        if (!empty($timeSlotsType) && is_array($timeSlotsType)) {
+            foreach ($timeSlotsType as $timeSlotType) {
+                $result[$timeSlotType['id']] = $timeSlotType['name'];
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -432,6 +432,7 @@ function appointments_RegistrationForm(el, formName, type)
                     var obj = $.parseJSON(html);
                     if(obj.status == '1'){
                         $('.error').hide();
+
                         //$('#'+formName+' select[name=title_id]').val('');
                         $('#'+formName+' input[name=first_name]').val('');
                         $('#'+formName+' input[name=middle_name]').val('');
@@ -466,11 +467,23 @@ function appointments_RegistrationForm(el, formName, type)
                         $('#'+formName+' input[name=notifications]').attr('checkbox', '');
                         $('#'+formName+' #i_agree').attr('checkbox', '');
 
-                        $('#'+formName).slideUp();
-                        $('html, body').animate({
-                            scrollTop: $('#messageSuccess').offset().top
-                        }, 1000);
-                        $('#messageSuccess').show();
+
+                        if (formName == "createPatientPopupForm") {
+                            $('#patient_name').val(firstName + ' ' + lastName);
+                            $('#patient_id').val(obj.patientId);
+
+                            $('.ui-dialog-titlebar-close').trigger('click');
+
+                            $(el).html($(el).data('send'));
+                            $(el).removeClass('hover');
+                            $(el).removeAttr('disabled');
+                        } else {
+                            $('#'+formName).slideUp();
+                            $('html, body').animate({
+                                scrollTop: $('#messageSuccess').offset().top
+                            }, 1000);
+                            $('#messageSuccess').show();
+                        }
                     }else{
                         if(globalDebug){
                             console.error('get ajax question error');
@@ -714,11 +727,17 @@ function slidePageBookAppointments(el) {
     // define this to prevent name overlapping
     var $ = jQuery;
     var page = $(el).data("page");
+    var deviceType = $(el).data("deviceType");
     var typePage = $(el).attr('id');
     var maxPage  = $(el).data("maxPage");
     //var prevPage = $('#prev_page').data("prevPage");
     var doctorId = $(el).data("doctorId");
     var clinicId = $(el).data("clinicId");
+    var controller = 'appointments';
+
+    if (deviceType == 'mobile'){
+        controller = 'mobile';
+    }
 
     if($(el).data("page") <= 0 || $(el).data("page")-1 >= maxPage){
         return false;
@@ -733,7 +752,7 @@ function slidePageBookAppointments(el) {
     $(el).parent('div').prepend('<img class="img-ajax-loading" src="templates/default/images/ajax_loading.gif" class="img-ajax-loading" alt="loading" />');
 
     $.ajax({
-        url: 'appointments/ajaxBookAppointment',
+        url: controller +'/ajaxBookAppointment',
         global: false,
         type: 'GET',
         data: ({

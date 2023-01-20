@@ -14,7 +14,7 @@
 		'country'		=> 'us',
 		'first_name'	=> 'John',
 		'last_name'		=> 'Smith',
-		'email'			=> 'j.smith@email.me',
+		'email'			=> 'j.smith@example.com',
 		'phone'			=> '12345678',
 	);
 	

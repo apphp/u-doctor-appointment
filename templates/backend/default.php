@@ -17,7 +17,7 @@
     <!-- jQuery files -->
 	<?php
         // <!-- jQuery - DON'T REMOVE IT -->
-        // echo CHtml::scriptFile('http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js');
+        // echo CHtml::scriptFile('http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js');
         // echo CHtml::scriptFile('http://code.jquery.com/ui/1.10.2/jquery-ui.js');
         // echo CHtml::scriptFile('assets/vendors/jquery/jquery.js');
         // Use registerScriptFile() because we want to prevent loading jquery.js twice (may be used in framework widgets)
@@ -43,6 +43,9 @@
     <!-- Site JS main files -->
 	<?= CHtml::script('var cookiePath = "'.A::app()->getRequest()->getBasePath().'";'); ?>
 	<?= CHtml::scriptFile('templates/backend/js/main.js'); ?>
+
+    <!-- globalDebug option which allows you to display additional information about the script work in the browser console -->
+    <?= CHtml::script("var globalDebug = ".(APPHP_MODE == 'debug' ? 'true' : 'false')); ?>
 </head>
 <?php
 	/* Define special class for body when left menu is collapsed */

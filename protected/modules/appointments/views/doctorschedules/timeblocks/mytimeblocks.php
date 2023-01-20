@@ -28,18 +28,19 @@
                             'condition'=>'schedule_id = '.(int)$scheduleId.' AND doctor_id = '.(int)$doctorId,
                             'passParameters'=>true,
                             'pagination'=>array('enable'=>true, 'pageSize'=>20),
-                            'defaultOrder'=>array('time_from'=>'ASC'),
+                            'defaultOrder'=>array('week_day'=>'ASC', 'time_from'=>'ASC'),
                             'options'=>array(
                                 'gridTable'=>array('class'=>'table'),
                             ),
                             'sorting'=>true,
                             'fields'=>array(
-                                'week_day'    => array('title'=>A::t('appointments', 'Week Day'), 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'source'=>$arrWeekDays),
-                                'address'     => array('title'=>A::t('appointments', 'Address'), 'type'=>'label', 'align'=>'left', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown'))),
-			                    'clinic_name' => array('type'=>'label', 'title'=>A::t('appointments', 'Clinic Name'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown'))),
-                                'time_from'   => array('title'=>A::t('appointments', 'From Time'), 'type'=>'label', 'align'=>'', 'width'=>'120px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown')), 'format'=>$timeFormat),
-                                'time_to'     => array('title'=>A::t('appointments', 'To Time'), 'type'=>'label', 'align'=>'', 'width'=>'120px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown')), 'format'=>$timeFormat),
-                                'time_slots'  => array('title'=>A::t('appointments', 'Time Slots'), 'type'=>'enum', 'align'=>'', 'width'=>'120px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>$arrTimeSlots, 'definedValues'=>array(), 'format'=>''),
+                                'week_day'          => array('title'=>A::t('appointments', 'Week Day'), 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'source'=>$arrWeekDays),
+                                'address'           => array('title'=>A::t('appointments', 'Address'), 'type'=>'label', 'align'=>'left', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown'))),
+			                    'clinic_name'       => array('type'=>'label', 'title'=>A::t('appointments', 'Clinic Name'), 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown'))),
+                                'time_from'         => array('title'=>A::t('appointments', 'From Time'), 'type'=>'label', 'align'=>'', 'width'=>'100px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown')), 'format'=>$timeFormat),
+                                'time_to'           => array('title'=>A::t('appointments', 'To Time'), 'type'=>'label', 'align'=>'', 'width'=>'100px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'definedValues'=>array(null=>A::t('appointments', 'Unknown')), 'format'=>$timeFormat),
+                                'time_slots'        => array('title'=>A::t('appointments', 'Time Slots'), 'type'=>'enum', 'align'=>'', 'width'=>'100px', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>$arrTimeSlots, 'definedValues'=>array(), 'format'=>''),
+                                'time_slot_type_id' => array('title'=>A::t('appointments', 'Time Slots Type'), 'type'=>'enum', 'align'=>'', 'width'=>'120px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'source'=>$arrTimeSlotsType, 'definedValues'=>array(), 'format'=>''),
                             ),
                             'actions'=>array(
                                 'edit'    => array(

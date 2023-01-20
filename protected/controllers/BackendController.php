@@ -56,7 +56,7 @@ class BackendController extends CController
         // Draw predefined alerts
         if(APPHP_MODE == 'debug') $alerts[] = array('type'=>'warning', 'message'=>A::t('app', 'Debug Mode Alert'));
 		if(CConfig::get('cookies.path') == '/' && $this->_cRequest->getBasePath() != '/') $alerts[] = array('type'=>'warning', 'message'=>A::t('app', 'Cookies Base Path Alert', array('{path}'=>$this->_cRequest->getBasePath())));			 
-        if(CAuth::getLoggedEmail() == '' || preg_match('/email.me/i', CAuth::getLoggedEmail())) $alerts[] = array('type'=>'error', 'message'=>A::t('app', 'Default Email Alert'));
+        if(CAuth::getLoggedEmail() == '' || preg_match('/example.com/i', CAuth::getLoggedEmail())) $alerts[] = array('type'=>'error', 'message'=>A::t('app', 'Default Email Alert'));
 		if(in_array(CAuth::getLoggedRole(), array('owner', 'mainadmin'))){
 			if(($errorLogSize = CFile::getFileSize('protected/tmp/logs/error.log')) > 0) $alerts[] = array('type'=>'error', 'message'=>A::t('app', 'There seems to be some errors in your system: error log file is not empty ({size}Kb)! Click <a href="error/viewErrorLog">here</a> to check it.', array('{size}'=>$errorLogSize)));
 		}
@@ -180,10 +180,10 @@ class BackendController extends CController
 			// Perform auto-login "remember me"
 			// --------------------------------------------------
 			if(!CAuth::isLoggedIn()){
-				parse_str(A::app()->getCookie()->get('auth'));
-				if(!empty($usr) && !empty($hash)){
-					$username = CHash::decrypt($usr, CConfig::get('password.hashKey'));
-					$password = $hash;
+				parse_str(A::app()->getCookie()->get('auth'), $output);
+				if(!empty($output['usr']) && !empty($output['hash'])){
+					$username = CHash::decrypt($output['usr'], CConfig::get('password.hashKey'));
+					$password = $output['hash'];
 	
 					// Check if access is blocked to this username 
 					$usernameBanned = Website::checkBan('username', $username);
@@ -202,8 +202,8 @@ class BackendController extends CController
 				// Perform login form validation
 				$result = CWidget::create('CFormValidation', array(
 					'fields'=>array(
-						'username'=>array('title'=>A::t('app', 'Username'), 'validation'=>array('required'=>true, 'type'=>'any', 'minLength'=>4, 'maxLength'=>20)),
-						'password'=>array('title'=>A::t('app', 'Password'), 'validation'=>array('required'=>true, 'type'=>'any', 'minLength'=>4, 'maxLength'=>20)),
+						'username'=>array('title'=>A::t('app', 'Username'), 'validation'=>array('required'=>true, 'type'=>'any', 'minLength'=>6, 'maxLength'=>32)),
+						'password'=>array('title'=>A::t('app', 'Password'), 'validation'=>array('required'=>true, 'type'=>'any', 'minLength'=>6, 'maxLength'=>25)),
 						'remember'=>array('title'=>A::t('app', 'Remember me'), 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1))),
 					),            
 				));

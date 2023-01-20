@@ -1,5 +1,17 @@
-Version 0.0.3 -
+Version 0.0.3 - Jun 15, 2019
 ----------------------------
+- New: added patients management for doctors.
+- New: added possibility for doctors to add links to social networks
+- New: added possibility for doctors and administrators to create a new patient in the pop-up window on the appointments page
+- New: added possibility for doctors and administrators to create / view appointments in the calendar
+- Enh: footer on mobile is collapsed with option to open by click every block
+- Enh: added possibility for administrators can edit doctors membership plans
+- Enh: added possibility for administrators can see the entire history of orders of the doctors
+- Enh: added medical card for doctors and administrators
+- Enh: added possibility for administrators to select the type of search by location(autocomplete or dropdownbox)
+- Enh: added possibility for doctors and administrators to change the price of a patient's visit
+- Enh: added possibility for doctors and administrators to change patient arrival status
+- Bug: display the address in the profile of the doctor fixed
 
 
 Version 0.0.2 - Oct 30, 2018
@@ -12,6 +24,7 @@ Version 0.0.2 - Oct 30, 2018
 - Enh: translation for some texts
 - Enh: added possibility for doctors to add internal and external notes
 - Bug: some security issues fixed
+
 
 Version 0.0.1 - Jul 15, 2018
 ----------------------------

@@ -245,7 +245,7 @@ class SetupController extends CController
             'dbPort'     	=> array('type'=>'textbox', 'value'=>$this->_view->dbPort, 'title'=>A::t('setup', 'Database Port'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxLength'=>'10', 'autocomplete'=>'off', 'placeholder'=>'e.g. 3306', 'style'=>'width:80px'), 'validation'=>array('required'=>false, 'type'=>'integer'), 'disabled'=>($this->_view->dbConnectType == 'host' ? false : true)),
             'dbName'     	=> array('type'=>'textbox', 'value'=>$this->_view->dbName, 'title'=>A::t('setup', 'Database Name'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'20', 'autocomplete'=>'off'), 'validation'=>array('required'=>true, 'type'=>'text')),
             'dbUser'     	=> array('type'=>'textbox', 'value'=>$this->_view->dbUser, 'title'=>A::t('setup', 'Database User'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'20', 'autocomplete'=>'off'), 'validation'=>array('required'=>true, 'type'=>'text')),
-            'dbPassword' 	=> array('type'=>'password', 'value'=>$this->_view->dbPassword, 'title'=>A::t('setup', 'Database Password'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxLength'=>'20', 'autocomplete'=>'off'), 'validation'=>array('required'=>false, 'type'=>'text')),
+            'dbPassword' 	=> array('type'=>'password', 'value'=>$this->_view->dbPassword, 'title'=>A::t('setup', 'Database Password'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxLength'=>'25', 'autocomplete'=>'off'), 'validation'=>array('required'=>false, 'type'=>'text')),
         );
         $validationFields = array_merge($separatorGeneralFields, $separatorConenctionSettingsFields);
         $this->_view->formFields = array(

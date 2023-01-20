@@ -29,7 +29,7 @@ $this->_breadCrumbs = array(
                         </td>
                         <td>
                             <p><strong><?= A::t('appointments', 'Name'); ?>: </strong><?= $fullname ? CHtml::encode($fullname) : '--'; ?></p>
-                            <p><strong><?= A::t('appointments', 'Gender'); ?>: </strong><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? A::t('appointments', 'Male') : A::t('appointments', 'Famale') : '--'; ?></p>
+                            <p><strong><?= A::t('appointments', 'Gender'); ?>: </strong><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? A::t('appointments', 'Male') : A::t('appointments', 'Female') : '--'; ?></p>
                             <p><strong><?= A::t('appointments', 'Degree'); ?>: </strong><?= $profileDoctor->degrees_name ? CHtml::encode($profileDoctor->degrees_name) : '--'; ?></p>
                             <p>
                                 <strong><?= A::t('appointments', 'Specialty'); ?>: </strong>

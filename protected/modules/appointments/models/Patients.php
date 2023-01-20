@@ -148,6 +148,10 @@ class Patients extends CActiveRecord
         $email     = empty($email) && $this->isColumnExists('email') ? $this->email : $email;
         $avatar    = $this->isColumnExists('avatar') && $this->avatar != '' ? $this->avatar : $avatar;
 
+        if (CAuth::isLoggedInAs('doctor') && !empty($email)) {
+            $username = $email;
+        }
+
         if($id > 0){
             $account = Accounts::model()->findByPk((int)$this->account_id);
             $salt = $account->salt;

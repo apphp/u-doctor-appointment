@@ -22,6 +22,7 @@
 namespace Modules\Appointments\Controllers;
 
 // Module
+use Bootstrap;
 use \Modules\Appointments\Components\AppointmentsComponent;
 use \Modules\Appointments\Components\DoctorsComponent;
 use \Modules\Appointments\Models\Clinics;
@@ -107,6 +108,7 @@ class ClinicsController extends CController
 
             $this->_view->tabs = AppointmentsComponent::prepareTab('clinics');
         }
+        $this->_settings = Bootstrap::init()->getSettings();
     }
 
     /**
@@ -330,11 +332,13 @@ class ClinicsController extends CController
 			$arr['alert']       = A::te('appointments', 'This operation is blocked in Demo Mode!');
 			$arr['alert_type']  = 'warning';
 		}elseif(CAuth::isLoggedInAsAdmin()){
+
+            $countryCode = 'US';
             $address = $this->_cRequest->getPost('address');
             $act = $this->_cRequest->getPost('act');
 			
             if($act == 'send' && !empty($address)){
-                $coordinates = CGeoLocation::coordinatesByAddress($address);
+                $coordinates = CGeoLocation::coordinatesByAddress($address, '', $this->_settings->mapping_api_key);
                 if(!empty($coordinates['longitude']) && !empty($coordinates['latitude'])){
                     $arr['status']     = 1;
                     $arr['longitude']  = $coordinates['longitude'];

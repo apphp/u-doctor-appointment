@@ -214,6 +214,9 @@ class AdminsController extends CController
     public function changeStatusAction($id, $page = 0)
     {
 		$admin = Admins::model()->findByPk($id);
+		$isMyAccount = ($admin->id == $this->_loggedId ? true : false);
+    	$this->_view->isMyAccount = $isMyAccount;
+
     	if(!$admin){
             if($isMyAccount){
                 A::app()->getSession()->endSession();
@@ -222,8 +225,7 @@ class AdminsController extends CController
                 $this->redirect('backend/index');    
             }
     	}
-    	$this->_view->isMyAccount = ($admin->id == $this->_loggedId ? true : false);
-		
+
     	// Allow access to edit other admins only to site owner or main admin
         if(!$this->_view->isMyAccount && 
        		!CAuth::isLoggedInAs('owner', 'mainadmin') && 

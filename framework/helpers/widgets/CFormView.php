@@ -8,148 +8,148 @@
  * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC(static):			PROTECTED:					PRIVATE:
+ * PUBLIC(static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * init			                                        _formField
- *                                                      _drawButtons
- *
- */
+ *                                                      _drawButtons 
+ * 
+ */	  
 
 class CFormView extends CWidgs
 {
-
+	
 	/** @const string */
-	const NL = "\n";
-	/** @var int */
-	private static $_rowCount = 0;
-	/** @var int */
-	private static $_pickerCount = 0;
-	/** @var int */
-	private static $_autocompleteCount = 0;
-	/** @var int */
-	private static $_colorCount = 0;
+    const NL = "\n";
+    /** @var int */
+    private static $_rowCount = 0;
+    /** @var int */
+    private static $_pickerCount = 0;
+    /** @var int */
+    private static $_autocompleteCount = 0;
+    /** @var int */
+    private static $_colorCount = 0;
 
-	/**
-	 * Draws HTML form
-	 * @param array $params
-	 *
-	 * Notes:
-	 *   - to prevent double quotes issue use: 'encode'=>true in htmlOptions
-	 *   - insert code (for all fields): 'prependCode'=>'', 'appendCode'=>''
-	 *   - to use <button> tag for buttons use 'buttonTag'=>'button'
-	 *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
+    /**
+     * Draws HTML form
+     * @param array $params
+     * 
+     * Notes:
+     *   - to prevent double quotes issue use: 'encode'=>true in htmlOptions
+     *   - insert code (for all fields): 'prependCode'=>'', 'appendCode'=>''
+     *   - to use <button> tag for buttons use 'buttonTag'=>'button'
+     *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
 	 *   - to disable:
 	 * 		- field or button use: 'disabled'=>true
 	 *   	- the whole section use: 'separatorInfo' => array(..., 'disabled'=>true),
-	 *   - 'viewType' optional values: '' or 'custom'
-	 *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
-	 *   - attribute 'autocomplete'=>array(..., 'varN'=>array('function'=>'jQuery("#id").val()')) passed as a parameter jQuery or javascript the function instead of use the variable
-	 *
-	 * Usage: (in view)
-	 *  echo CWidget::create('CFormView', array(
-	 *       'action'		=> 'locations/update',
-	 *       'cancelUrl'	=> 'locations/view',
-	 *       'method'		=> 'post',
-	 *       'htmlOptions'	=> array(
-	 *           'name'			  => 'form-contact',
-	 *           'enctype'		  => 'multipart/form-data', // multipart/form-data, application/x-www-form-urlencoded, text/plain or ''
-	 *           'autoGenerateId' => false
-	 *       ),
-	 *       'requiredFieldsAlert'=>true,
-	 *       'fieldSets'	=> array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
-	 *       'fieldWrapper' => array('tag'=>'div', 'class'=>'row'),
-	 *       'fields'		=> array(
+     *   - 'viewType' optional values: '' or 'custom'
+     *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
+     *   - attribute 'autocomplete'=>array(..., 'varN'=>array('function'=>'jQuery("#id").val()')) passed as a parameter jQuery or javascript the function instead of use the variable
+     *   
+     * Usage: (in view)
+     *  echo CWidget::create('CFormView', array(
+     *       'action'		=> 'locations/update',
+     *       'cancelUrl'	=> 'locations/view',
+     *       'method'		=> 'post',
+     *       'htmlOptions'	=> array(
+     *           'name'			  => 'form-contact',
+     *           'enctype'		  => 'multipart/form-data', // multipart/form-data, application/x-www-form-urlencoded, text/plain or ''
+     *           'autoGenerateId' => false
+     *       ),
+     *       'requiredFieldsAlert'=>true,
+     *       'fieldSets'	=> array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
+     *       'fieldWrapper' => array('tag'=>'div', 'class'=>'row'),
+     *       'fields'		=> array(
 	 *         	 'separatorName' =>array(
 	 *               'separatorInfo' => array('legend'=>A::t('app', 'Headers & Footers'), 'disabled'=>false),
 	 *               'field_1'=>array('type'=>'textbox', 'title'=>'Field 1', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'50')),
 	 *               ...
 	 *           ),
-	 *           'field_1'=>array('type'=>'hidden', 'value'=>'', 'htmlOptions'=>array()),
-	 *           'field_2'=>array('type'=>'textbox',  	'title'=>'Field 2', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
-	 *           'field_3'=>array('type'=>'textbox',  	'title'=>'Autocomplete', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'part/to/handler/file', 'minLength'=>3, 'default'=>'', 'returnId'=>true, 'params'=>array()), 'htmlOptions'=>array('maxLength'=>'50')),
-	 *           'field_4'=>array('type'=>'password', 	'title'=>'Field 4', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
-	 *           'field_4_confirm'=>array('type'=>'password', 'title'=>'Confirm Field 4', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
-	 *           'field_5'=>array('type'=>'textarea', 	'title'=>'Field 5', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'250')),
-	 *           'field_6'=>array('type'=>'file',     	'title'=>'Field 6', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array()),
-	 *           'field_7'=>array('type'=>'image',    	'title'=>'Field 7', 'tooltip'=>'', 'mandatoryStar'=>true, 'src'=>'', 'alt'=>'Field 7', 'htmlOptions'=>array()),
-	 *           'field_8'=>array('type'=>'html',     	'title'=>'Field 8', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array()),
-	 *           'field_9'=>array('type'=>'label',    	'title'=>'Field 9', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'stripTags'=>false, 'htmlOptions'=>array()),
-	 *          'field_10'=>array('type'=>'link',     	'title'=>'Field 10', 'tooltip'=>'', 'mandatoryStar'=>true, 'linkUrl'=>'path/to/param', 'linkText'=>'', 'videoPreview'=>false, 'htmlOptions'=>array()),
-	 *          'field_11'=>array('type'=>'videolink',	'title'=>'Field 11', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'preview'=>false, 'htmlOptions'=>array('maxLength'=>'50')),
-	 *          'field_12'=>array('type'=>'datetime', 	'title'=>'Date Picker', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'viewType'=>'datetime|date|time', 'dateFormat'=>'yy-mm-dd', 'timeFormat'=>'HH:mm:ss', 'minDate'=>'', 'maxDate'=>'', 'yearRange'=>'-100:+0', 'buttonTrigger'=>true, 'htmlOptions'=>array('maxlength'=>'19')),
-	 *          'field_13'=>array('type'=>'checkbox', 	'title'=>'Field 14', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>true, 'htmlOptions'=>array(), 'viewType'=>'|custom'),
-	 *          'field_14'=>array('type'=>'select',   	'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>array(), 'emptyOption'=>false, 'emptyValue'=>'', 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-	 *          'field_15'=>array('type'=>'color',    	'title'=>'Field 16', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
-	 *          'field_16'=>array('type'=>'email',    	'title'=>'Field 17', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'100')),
-	 *          'field_17'=>array('type'=>'radioButton', 'title'=>'Field 18', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
-	 *          'field_18'=>array('type'=>'radioButtonList', 'title'=>'Field 19', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
-	 *          'field_19'=>array('type'=>'captcha',  	'title'=>'Captcha', 'tooltip'=>'', 'value'=>''),
+     *           'field_1'=>array('type'=>'hidden', 'value'=>'', 'htmlOptions'=>array()),
+     *           'field_2'=>array('type'=>'textbox',  	'title'=>'Field 2', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
+     *           'field_3'=>array('type'=>'textbox',  	'title'=>'Autocomplete', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'part/to/handler/file', 'minLength'=>3, 'default'=>'', 'returnId'=>true, 'params'=>array()), 'htmlOptions'=>array('maxLength'=>'50')),
+     *           'field_4'=>array('type'=>'password', 	'title'=>'Field 4', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
+     *           'field_4_confirm'=>array('type'=>'password', 'title'=>'Confirm Field 4', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
+     *           'field_5'=>array('type'=>'textarea', 	'title'=>'Field 5', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'250')),
+     *           'field_6'=>array('type'=>'file',     	'title'=>'Field 6', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array()),
+     *           'field_7'=>array('type'=>'image',    	'title'=>'Field 7', 'tooltip'=>'', 'mandatoryStar'=>true, 'src'=>'', 'alt'=>'Field 7', 'htmlOptions'=>array()),
+     *           'field_8'=>array('type'=>'html',     	'title'=>'Field 8', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array()),
+     *           'field_9'=>array('type'=>'label',    	'title'=>'Field 9', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'stripTags'=>false, 'htmlOptions'=>array()),
+     *          'field_10'=>array('type'=>'link',     	'title'=>'Field 10', 'tooltip'=>'', 'mandatoryStar'=>true, 'linkUrl'=>'path/to/param', 'linkText'=>'', 'videoPreview'=>false, 'htmlOptions'=>array()),
+     *          'field_11'=>array('type'=>'videolink',	'title'=>'Field 11', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'preview'=>false, 'htmlOptions'=>array('maxLength'=>'50')),
+     *          'field_12'=>array('type'=>'datetime', 	'title'=>'Date Picker', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'viewType'=>'datetime|date|time', 'dateFormat'=>'yy-mm-dd', 'timeFormat'=>'HH:mm:ss', 'minDate'=>'', 'maxDate'=>'', 'yearRange'=>'-100:+0', 'buttonTrigger'=>true, 'htmlOptions'=>array('maxlength'=>'19')),
+     *          'field_13'=>array('type'=>'checkbox', 	'title'=>'Field 14', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>true, 'htmlOptions'=>array(), 'viewType'=>'|custom'),
+     *          'field_14'=>array('type'=>'select',   	'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>array(), 'emptyOption'=>false, 'emptyValue'=>'', 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
+     *          'field_15'=>array('type'=>'color',    	'title'=>'Field 16', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
+     *          'field_16'=>array('type'=>'email',    	'title'=>'Field 17', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'100')),
+     *          'field_17'=>array('type'=>'radioButton', 'title'=>'Field 18', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
+     *          'field_18'=>array('type'=>'radioButtonList', 'title'=>'Field 19', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
+     *          'field_19'=>array('type'=>'captcha',  	'title'=>'Captcha', 'tooltip'=>'', 'value'=>''),
 	 *          'field_20'=>array('type'=>'imageUpload', 'title'=>'Field 21', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'',
 	 *          	'imageOptions' =>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'showImageDimensions'=>true, 'imageClass'=>'avatar'),
 	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'rotateOptions'=>array('showLinks'=>true, 'linkRotateLeft'=>'admins/edit/rotate/left', 'linkRotateRigth'=>'admin/edit/rotate/right', 'iconRotateLeft'=>'templates/backend/images/rotateLeft.png', 'iconRotateRight'=>'templates/backend/images/rotateRight.png'),
 	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
 	 *          ),
-	 *          'field_21'=>array('type'=>'fileUpload', 'title'=>'Field 22', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 'download'=>false,
+     *          'field_21'=>array('type'=>'fileUpload', 'title'=>'Field 22', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 'download'=>false,
 	 *          	'iconOptions'=>array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
 	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'templates/backend/files/accounts/', 'linkText'=>'Delete'),
 	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
-	 *          ),
-	 *       ),
-	 *       'checkboxes'=>array(
-	 *           'remember'=>array('type'=>'checkbox', 'title'=>'Remember me', 'tooltip'=>'', 'value'=>'1', 'checked'=>false, 'htmlOptions'=>array()),
-	 *       ),
-	 *       'links'=>array(
-	 *           'restorePassword'=>array('type'=>'link', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
-	 *       ),
-	 *       'buttons'=>array(
-	 *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>'')),
-	 *          'submitUpdate'=>array('type'=>'submit', 'value'=>'Update', 'htmlOptions'=>array('name'=>'btnUpdate')),
-	 *          'submitUpdateClose'=>array('type'=>'submit', 'value'=>'Update & Close', 'htmlOptions'=>array('name'=>'btnUpdateClose')),
+     *          ),
+     *       ),
+     *       'checkboxes'=>array(
+     *           'remember'=>array('type'=>'checkbox', 'title'=>'Remember me', 'tooltip'=>'', 'value'=>'1', 'checked'=>false, 'htmlOptions'=>array()),
+     *       ),
+     *       'links'=>array(
+     *           'restorePassword'=>array('type'=>'link', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
+     *       ),
+     *       'buttons'=>array(
+     *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>'')),
+     *          'submitUpdate'=>array('type'=>'submit', 'value'=>'Update', 'htmlOptions'=>array('name'=>'btnUpdate')),
+     *          'submitUpdateClose'=>array('type'=>'submit', 'value'=>'Update & Close', 'htmlOptions'=>array('name'=>'btnUpdateClose')),
 	 *          'reset' =>array('type'=>'reset', 'value'=>'Reset', 'htmlOptions'=>array()),
-	 *          'cancel'=>array('type'=>'button', 'value'=>'Cancel', 'htmlOptions'=>array('name'=>'', 'class'=>'button white')),
+     *          'cancel'=>array('type'=>'button', 'value'=>'Cancel', 'htmlOptions'=>array('name'=>'', 'class'=>'button white')),
 	 *          'custom' =>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"jQuery(location).attr('href','categories/index');")),
-	 *       ),
-	 *       'buttonsPosition'=>'bottom',
-	 *       'events'=>array(
-	 *           'focus'=>array('field'=>$errorField)
-	 *       ),
-	 *       'return'=>true,
-	 *  ));
-	 */
-	public static function init($params = array())
-	{
-		parent::init($params);
+     *       ),
+     *       'buttonsPosition'=>'bottom',
+     *       'events'=>array(
+     *           'focus'=>array('field'=>$errorField)
+     *       ),
+     *       'return'=>true,
+     *  ));
+     */
+    public static function init($params = array())
+    {
+		parent::init($params);		
 
-		$output 	   			= '';
+        $output 	   			= '';		
 		$action 		   		= self::params('action', '');
-		$method 				= self::params('method', 'post');
-		$htmlOptions 			= self::params('htmlOptions', array(), 'is_array');
+        $method 				= self::params('method', 'post');
+        $htmlOptions 			= self::params('htmlOptions', array(), 'is_array');
 		$autoGenerateId 		= self::params('htmlOptions.autoGenerateId', false);
-		$formName 				= self::params('htmlOptions.name', '');
-		$requiredFieldsAlert 	= self::params('requiredFieldsAlert', false);
-		$fields 				= self::params('fields', array());
-		$checkboxes 			= self::params('checkboxes', array());
-		$links 					= self::params('links', array());
-		$buttonsPosition 		= self::params('buttonsPosition', 'bottom');
-		$buttons 				= self::params('buttons', array());
-		$events 				= self::params('events', array());
-		$return 				= self::params('return', true);
+        $formName 				= self::params('htmlOptions.name', '');
+		$requiredFieldsAlert 	= self::params('requiredFieldsAlert', false);		
+        $fields 				= self::params('fields', array());		
+        $checkboxes 			= self::params('checkboxes', array());
+		$links 					= self::params('links', array());		
+        $buttonsPosition 		= self::params('buttonsPosition', 'bottom');		
+        $buttons 				= self::params('buttons', array());		
+        $events 				= self::params('events', array());		
+        $return 				= self::params('return', true);
 		$fieldSetType			= self::params('fieldSets.type', 'frameset', 'in_array', array('tabs', 'tabsList', 'frameset'));
 		$fieldSetFirstTabActive	= self::params('fieldSets.firstTabActive', true);
 		$fieldWrapperTag		= self::params('fieldWrapper.tag', 'div');
 		$fieldWrapperClass		= self::params('fieldWrapper.class', 'row');
-
+		
 		$tabs = array();
 		$tabsCount = 0;
-
+        
 		// Run in loop:
 		// 1. Remove disabled fields
 		// 2. Add or remove 'enctype'=>'multipart/form-data' according to defined "file" fields in the form
 		$fileFieldFound = false;
 		foreach($fields as $field => $fieldInfo){
-			if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
-				if(self::keyAt('separatorInfo.disabled', $fieldInfo, '') == true){
+            if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
+            	if(self::keyAt('separatorInfo.disabled', $fieldInfo, '') == true){
 					// Unset disabled section
 					unset($fields[$field]);
 				}else{
@@ -167,69 +167,69 @@ class CFormView extends CWidgs
 						}
 					}
 				}
-			}else{
+            }else{
 				// Unset disabled field
 				if(self::keyAt('type', $fieldInfo) === 'data' || (bool)self::keyAt('disabled', $fieldInfo) === true){
 					unset($fields[$field]);
 				}
-
+				
 				// Automatically add enctype according if "file" field found
-				if(!$fileFieldFound && isset($fieldInfo['type']) && in_array(strtolower($fieldInfo['type']), array('file', 'fileupload', 'imageupload'))){
+				if(!$fileFieldFound && isset($fieldInfo['type']) && in_array(strtolower($fieldInfo['type']), array('file', 'fileupload', 'imageupload'))){	
 					$fileFieldFound = true;
 					if(empty($htmlOptions['enctype'])){
 						$htmlOptions['enctype'] = 'multipart/form-data';
 					}
 				}
-			}
+            }			
 		}
-
+		
 		// Automatically clean enctype if no "file" fields found
 		if(!$fileFieldFound && isset($htmlOptions['enctype']) && $htmlOptions['enctype'] === 'multipart/form-data'){
 			unset($htmlOptions['enctype']);
 		}
-
+		
 		self::unsetKey('autoGenerateId', $htmlOptions);
 		if(!self::issetKey('class', $htmlOptions)) $htmlOptions['class'] = 'widget-cformview';
 		else $htmlOptions['class'] .= ' widget-cformview';
-		$output .= CHtml::openForm($action, $method, $htmlOptions).self::NL;
-
-		// Draw required fields alert
+        $output .= CHtml::openForm($action, $method, $htmlOptions).self::NL;
+		
+        // Draw required fields alert
 		if($requiredFieldsAlert){
 			$output .= CHtml::tag('span', array('class'=>'required-fields-alert'), A::t('core','Items marked with an asterisk (*) are required'), true).self::NL;
 		}
-
-		// Draw top buttons
-		if($buttonsPosition == 'top' || $buttonsPosition == 'both'){
+		
+        // Draw top buttons
+        if($buttonsPosition == 'top' || $buttonsPosition == 'both'){
 			$output .= self::_drawButtons($buttons, 'top');
 		}
 
 		// Run in loop to draw fields
-		foreach($fields as $field => $fieldInfo){
-			if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
-				$legend = self::keyAt('separatorInfo.legend', $fieldInfo, '');
+        foreach($fields as $field => $fieldInfo){
+            if(preg_match('/separator/i', $field) && is_array($fieldInfo)){                
+                $legend = self::keyAt('separatorInfo.legend', $fieldInfo, '');
 				self::unsetKey('separatorInfo', $fieldInfo);
 
-				if($fieldSetType == 'tabs' || $fieldSetType == 'tabsList'){
+                if($fieldSetType == 'tabs' || $fieldSetType == 'tabsList'){
 					$content = '';
-					foreach($fieldInfo as $iField => $iFieldInfo){
-						$content .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
+					foreach($fieldInfo as $iField => $iFieldInfo){						
+					    $content .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
 					}
 					$tabsCount++;
-					$tabs[$legend] = array('href'=>'#tab'.$field.$tabsCount, 'id'=>'tab'.$field.$tabsCount, 'content'=>$content);
+					$tabs[$legend] = array('href'=>'#tab'.$field.$tabsCount, 'id'=>'tab'.$field.$tabsCount, 'content'=>$content);					
 				}else{
 					$output .= CHtml::openTag('fieldset').self::NL;
-					$output .= CHtml::tag('legend', array(), $legend, true).self::NL;
+					$output .= CHtml::tag('legend', array(), $legend, true).self::NL;					
 					foreach($fieldInfo as $iField => $iFieldInfo){
-						$output .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
-					}
-					$output .= CHtml::closeTag('fieldset').self::NL;
-				}
-			}else{
-				$output .= self::_formField($field, $fieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
-			}
-		}
+					    $output .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
+					}                
+					$output .= CHtml::closeTag('fieldset').self::NL;					
+				}					
+            }else{				
+                $output .= self::_formField($field, $fieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag'=>$fieldWrapperTag, 'fieldWrapperClass'=>$fieldWrapperClass));
+            }            
+        }
 		if($fieldSetType == 'tabs'){
-			// Collapsible
+			// Collapsible 
 			$output .= CWidget::create('CTabs', array(
 				'tabsWrapper'=>array('tag'=>'div', 'class'=>'title formview-tabs'),
 				'tabsWrapperInner'=>array('tag'=>'div', 'class'=>'tabs static', 'id'=>''),
@@ -240,7 +240,7 @@ class CFormView extends CWidgs
 				'return'=>true,
 			));
 		}elseif($fieldSetType == 'tabsList'){
-			// Collapsible
+			// Collapsible 
 			$output .= CWidget::create('CTabs', array(
 				'tabsWrapper'=>array('tag'=>'div', 'class'=>''),
 				'tabsWrapperInner'=>array('tag'=>'ul', 'class'=>'nav nav-tabs', 'id'=>''),
@@ -253,120 +253,120 @@ class CFormView extends CWidgs
 				'events'=>array(),
 				'return'=>true,
 			));
-		}
-
-		// Draw bottom buttons
-		if($buttonsPosition == 'bottom' || $buttonsPosition == 'both') $output .= self::_drawButtons($buttons, 'bottom');
-
-		// Draw checkboxes
-		if(count($checkboxes) > 0){
-			$output .= CHtml::openTag('div', array('class'=>'checkboxes-wrapper'));
-			foreach($checkboxes as $checkbox => $checkboxInfo){
-				$title = self::keyAt('title', $checkboxInfo, false);
-				$checked = self::keyAt('checked', $checkboxInfo, false);
-				$htmlOptions = (array)self::keyAt('htmlOptions', $checkboxInfo);
-				$output .= CHtml::checkBox($checkbox, $checked, $htmlOptions).self::NL;
-				if($title){
-					$output .= CHtml::label($title, $checkbox);
-				}
-			}
-			$output .= CHtml::closeTag('div').self::NL;
-		}
-
-		// Draw links
-		if(count($links) > 0){
+		}	
+        
+        // Draw bottom buttons
+        if($buttonsPosition == 'bottom' || $buttonsPosition == 'both') $output .= self::_drawButtons($buttons, 'bottom');
+        
+        // Draw checkboxes
+        if(count($checkboxes) > 0){
+            $output .= CHtml::openTag('div', array('class'=>'checkboxes-wrapper'));
+            foreach($checkboxes as $checkbox => $checkboxInfo){
+                $title = self::keyAt('title', $checkboxInfo, false);
+                $checked = self::keyAt('checked', $checkboxInfo, false);
+                $htmlOptions = (array)self::keyAt('htmlOptions', $checkboxInfo);
+                $output .= CHtml::checkBox($checkbox, $checked, $htmlOptions).self::NL;
+                if($title){                    
+                    $output .= CHtml::label($title, $checkbox);
+                }
+            }
+            $output .= CHtml::closeTag('div').self::NL;
+        }
+        
+        // Draw links
+        if(count($links) > 0){
 			$output .= CHtml::openTag('div', array('class'=>'links-wrapper'));
 			foreach($links as $link => $linkInfo){
-				$linkUrl = self::keyAt('linkUrl', $linkInfo, false);
-				$linkText = self::keyAt('linkText', $linkInfo, false);
-				$htmlOptions = (array)self::keyAt('htmlOptions', $linkInfo);
+                $linkUrl = self::keyAt('linkUrl', $linkInfo, false);
+                $linkText = self::keyAt('linkText', $linkInfo, false);
+                $htmlOptions = (array)self::keyAt('htmlOptions', $linkInfo);
 				$output .= CHtml::link($linkText, $linkUrl, $htmlOptions);
 			}
 			$output .= CHtml::closeTag('div').self::NL;
 		}
-
+		
 		$output .= CHtml::closeForm().self::NL;
+        
+        // Attach events
+        foreach($events as $event => $eventInfo){
+            $field = self::keyAt('field', $eventInfo, '');
+            if($event == 'focus'){
+                if(!empty($field)){
+                    A::app()->getClientScript()->registerScript($formName, 'document.forms["'.$formName.'"].'.$field.'.focus();', 5);
+                }
+            }
+        }
+        
+        if($return) return $output;
+        else echo $output;       
+    }
 
-		// Attach events
-		foreach($events as $event => $eventInfo){
-			$field = self::keyAt('field', $eventInfo, '');
-			if($event == 'focus'){
-				if(!empty($field)){
-					A::app()->getClientScript()->registerScript($formName, 'document.forms["'.$formName.'"].'.$field.'.focus();', 5);
-				}
-			}
-		}
-
-		if($return) return $output;
-		else echo $output;
-	}
-
-	/**
-	 * Draws HTML form field
-	 * @param string $field
-	 * @param array $fieldInfo
-	 * @param array $events
-	 * @param string $formName
-	 * @param bol $autoGenerateId
-	 * @param array $params
-	 * @see init()
-	 */
-	private static function _formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false, $params = array())
-	{
-		$output = '';
-
-		$type 			= strtolower(self::keyAt('type', $fieldInfo, 'textbox'));
-		$value			= self::keyAt('value', $fieldInfo, '');
-		$title 			= self::keyAt('title', $fieldInfo, false);
+    /**
+     * Draws HTML form field
+     * @param string $field
+     * @param array $fieldInfo
+     * @param array $events
+     * @param string $formName
+     * @param bol $autoGenerateId
+     * @param array $params
+     * @see init()
+     */    
+    private static function _formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false, $params = array())
+    {
+        $output = '';
+        
+        $type 			= strtolower(self::keyAt('type', $fieldInfo, 'textbox')); 
+        $value			= self::keyAt('value', $fieldInfo, '');
+        $title 			= self::keyAt('title', $fieldInfo, false);
 		$tooltip 		= self::keyAt('tooltip', $fieldInfo, '');
 		$default 		= self::keyAt('default', $fieldInfo, '');
 		$definedValues 	= self::keyAt('definedValues', $fieldInfo, '');
-		$mandatoryStar 	= self::keyAt('mandatoryStar', $fieldInfo, false);
+        $mandatoryStar 	= self::keyAt('mandatoryStar', $fieldInfo, false);
 		$autocomplete 	= self::keyAt('autocomplete', $fieldInfo, array(), 'is_array');
-		$htmlOptions 	= (array)self::keyAt('htmlOptions', $fieldInfo, array(), 'is_array');
+        $htmlOptions 	= (array)self::keyAt('htmlOptions', $fieldInfo, array(), 'is_array');
 		$prependCode 	= self::keyAt('prependCode', $fieldInfo, '');
 		$appendCode 	= self::keyAt('appendCode', $fieldInfo, '');
 		$appendLabel 	= '';
 
 		$fieldWrapperTag	= isset($params['fieldWrapperTag']) ? $params['fieldWrapperTag'] : 'div';
 		$fieldWrapperClass	= isset($params['fieldWrapperClass']) ? $params['fieldWrapperClass'] : 'row';
-
+		
 		// Encode special characters into HTML entities
 		if(is_array($value)){
 			$value = array_map(array('CHtml', 'encode'), $value);
 		}elseif($type != 'textarea'){
 			$value = CHtml::encode($value);
 		}
-
+        
 		// Force removing of ID if not specified
-		if(!self::issetKey('id', $htmlOptions)) $htmlOptions['id'] = false;
+        if(!self::issetKey('id', $htmlOptions)) $htmlOptions['id'] = false;
 		if($autoGenerateId && !$htmlOptions['id']) $htmlOptions['id'] = $formName.'_'.$field;
-
-		// Highlight error field
-		if(self::issetKey('focus.field', $events) && self::keyAt('focus.field', $events) == $field){
-			if(self::issetKey('class', $htmlOptions)) $htmlOptions['class'] .= ' field-error';
-			else $htmlOptions['class'] = 'field-error';
-		}
-
-		switch($type){
-			case 'checkbox':
-				$viewType = self::keyAt('viewType', $fieldInfo, '');
+		
+        // Highlight error field
+        if(self::issetKey('focus.field', $events) && self::keyAt('focus.field', $events) == $field){
+            if(self::issetKey('class', $htmlOptions)) $htmlOptions['class'] .= ' field-error';
+            else $htmlOptions['class'] = 'field-error';                     
+        }
+        
+        switch($type){
+            case 'checkbox':
+                $viewType = self::keyAt('viewType', $fieldInfo, '');
 				$checked = (bool)self::keyAt('checked', $fieldInfo, false);
 				if(!empty($value)) $htmlOptions['value'] = $value;
-				if($viewType == 'custom'){
-					$fieldHtml  = CHtml::openTag('div', array('class'=>'slideBox'));
-					$fieldHtml .= CHtml::checkBox($field, $checked, $htmlOptions);
-					$fieldHtml .= CHtml::label('', $htmlOptions['id']);
-					$fieldHtml .= CHtml::closeTag('div');
-				}else{
-					$fieldHtml = CHtml::checkBox($field, $checked, $htmlOptions);
-				}
+                if($viewType == 'custom'){
+                    $fieldHtml  = CHtml::openTag('div', array('class'=>'slideBox'));
+                    $fieldHtml .= CHtml::checkBox($field, $checked, $htmlOptions);
+                    $fieldHtml .= CHtml::label('', $htmlOptions['id']);
+                    $fieldHtml .= CHtml::closeTag('div');				
+                }else{
+        			$fieldHtml = CHtml::checkBox($field, $checked, $htmlOptions);                    
+                }
 				break;
-
-			case 'videolink':
-				$preview = self::keyAt('preview', $fieldInfo, false);
+			
+            case 'videolink':
+				$preview = self::keyAt('preview', $fieldInfo, false);                
 				$fieldHtml = '';
-
+				
 				if($preview == true && !empty($value)){
 					$fieldHtml = CHtml::openTag('div', array('style'=>'display:inline-block;'));
 					$matches = array();
@@ -384,43 +384,43 @@ class CFormView extends CWidgs
 				}
 				$fieldHtml .= CHtml::textField($field, $value, $htmlOptions);
 				if($preview == true && !empty($value)) $fieldHtml .= CHtml::closeTag('div');
-				break;
-
-			case 'html':
+                break;
+			
+            case 'html':
 				if(is_array($definedValues) && self::issetKey($value, $definedValues)){ /* don't use here self::keyAt */
-					$value = $definedValues[$value];
-				}
-				$fieldHtml = html_entity_decode($value);
-				break;
-
-			case 'label':
+                    $value = $definedValues[$value];
+                }
+                $fieldHtml = html_entity_decode($value);
+                break;
+			
+            case 'label':				
 				if($value === ''){
 					$value = $default;
 				}
 
 				$format = self::keyAt('format', $fieldInfo, '');
-				$stripTags = (bool)self::keyAt('stripTags', $fieldInfo, false);
-				if($stripTags) $value = strip_tags(CHtml::decode($value));
-
+                $stripTags = (bool)self::keyAt('stripTags', $fieldInfo, false);
+                if($stripTags) $value = strip_tags(CHtml::decode($value));
+                
 				if(is_array($definedValues) && self::issetKey($value, $definedValues)){ /* don't use here self::keyAt */
-					$value = $definedValues[$value];
-				}elseif($format != '' && $format != 'american' && $format != 'european'){
-					$value = date($format, strtotime($value));
-				}
+                    $value = $definedValues[$value];
+                }elseif($format != '' && $format != 'american' && $format != 'european'){
+                    $value = date($format, strtotime($value));
+                }
 
-				$for = self::keyAt('for', $htmlOptions, false);
-				$fieldHtml = CHtml::label($value, $for, $htmlOptions);
-				break;
-
-			case 'link':
+                $for = self::keyAt('for', $htmlOptions, false);
+                $fieldHtml = CHtml::label($value, $for, $htmlOptions);
+                break;
+			
+            case 'link':
 				$linkUrl = self::keyAt('linkUrl', $fieldInfo, '#');
 				$linkText = self::keyAt('linkText', $fieldInfo, '');
 				$videoPreview = (bool)self::keyAt('videoPreview', $fieldInfo, false);
-				$fieldHtml = CHtml::link($linkText, $linkUrl, $htmlOptions);
-				break;
-
+				$fieldHtml = CHtml::link($linkText, $linkUrl, $htmlOptions);	
+                break;
+			
 			case 'datetime':
-			case 'datetimepicker':
+            case 'datetimepicker':
 				$fieldId = self::keyAt('id',  $htmlOptions, $formName.'_'.$field);
 				$viewType = self::keyAt('viewType', $fieldInfo, 'date');
 				$dateFormat = self::keyAt('dateFormat', $fieldInfo, 'yy-mm-dd');
@@ -429,16 +429,16 @@ class CFormView extends CWidgs
 				if(empty($timeFormat)) $timeFormat = 'HH:mm:ss';
 
 				$buttonTrigger = self::keyAt('buttonTrigger', $fieldInfo, true);
-				$minDate = (int)self::keyAt('minDate', $fieldInfo, ''); /* max days before current date */
-				$maxDate = (int)self::keyAt('maxDate', $fieldInfo, ''); /* max days from current date */
+                $minDate = (int)self::keyAt('minDate', $fieldInfo, ''); /* max days before current date */
+                $maxDate = (int)self::keyAt('maxDate', $fieldInfo, ''); /* max days from current date */
 				$yearRange = self::keyAt('yearRange', $fieldInfo, '');  /* ex.: "-100:+2" */
 				if(is_array($definedValues) && self::issetKey($value, $definedValues)){ /* don't use here self::keyAt */
-					$value = $definedValues[$value];
+					$value = $definedValues[$value];				
 				}
-				if(!self::issetKey('autocomplete', $htmlOptions)) $htmlOptions['autocomplete'] = 'off';
+                if(!self::issetKey('autocomplete', $htmlOptions)) $htmlOptions['autocomplete'] = 'off';
 				if(self::issetKey('maxlength', $htmlOptions)) $value = CString::substr($value, (int)$htmlOptions['maxlength']);
 				$fieldHtml = CHtml::textField($field, $value, $htmlOptions);
-
+				
 				A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
 				A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.min.css');
 
@@ -448,7 +448,7 @@ class CFormView extends CWidgs
 				A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2);
 
 				// UI:
-				//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd
+				//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd 
 				// Bootstrap:
 				// 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
 				//		autoclose: true,
@@ -496,43 +496,43 @@ class CFormView extends CWidgs
 						});'
 					);
 				}
-				break;
-
+                break;
+				
 			case 'hidden':
-				$fieldHtml = CHtml::hiddenField($field, $value, $htmlOptions);
-				break;
-
-			case 'password':
-				$fieldHtml = CHtml::passwordField($field, $value, $htmlOptions);
-				break;
-
+                $fieldHtml = CHtml::hiddenField($field, $value, $htmlOptions);
+                break;
+			
+            case 'password':
+                $fieldHtml = CHtml::passwordField($field, $value, $htmlOptions);
+                break;
+			
 			case 'enum':
-			case 'select':
-			case 'dropdown':
-			case 'dropdownlist':
-				$data = self::keyAt('data', $fieldInfo, array());
+            case 'select':
+            case 'dropdown':
+            case 'dropdownlist':
+                $data = (array)self::keyAt('data', $fieldInfo, array());
 				$viewType = self::keyAt('viewType', $fieldInfo, 'dropdownlist');
 				$multiple = (bool)self::keyAt('multiple', $fieldInfo, false);
 				$storeType = self::keyAt('storeType', $fieldInfo, 'separatedValues');
 				$separator = self::keyAt('separator', $fieldInfo, ';');
 				$emptyOption = (bool)self::keyAt('emptyOption', $fieldInfo, false);
 				$emptyValue  = self::keyAt('emptyValue', $fieldInfo, '');
-
-				$selectedValues = '';
-				if(is_array($value)){
-					// Actually after form submit
-					$selectedValues = $value;
-				}else{
-					// Actually after reading data from database
-					if($storeType == 'serialized'){
-						if(CString::isSerialized($value)){
-							$deserializeValue = htmlspecialchars_decode($value);
-							$selectedValues = unserialize($deserializeValue);
-						}
-					}else{
-						$selectedValues = explode($separator, $value);
-					}
-				}
+				
+                $selectedValues = '';
+                if(is_array($value)){
+                    // Actually after form submit
+                    $selectedValues = $value;
+                }else{
+                    // Actually after reading data from database
+                    if($storeType == 'serialized'){
+                        if(CString::isSerialized($value)){
+                            $deserializeValue = htmlspecialchars_decode($value);
+                            $selectedValues = unserialize($deserializeValue);	
+                        }
+                    }else{
+                        $selectedValues = explode($separator, $value);	
+                    }
+                }
 
 				if($viewType == 'checkboxes'){
 					$htmlOptions['listWrapperTag'] = 'ul';
@@ -547,21 +547,21 @@ class CFormView extends CWidgs
 					}
 					$htmlOptions['multiple'] = $multiple;
 					$fieldHtml = CHtml::dropDownList($field, $selectedValues, $data, $htmlOptions);
-				}
-				break;
-
+				}                
+                break;
+            
 			case 'file':
 				if(APPHP_MODE == 'demo') $htmlOptions['disabled'] = 'disabled';
-				$fieldHtml = CHtml::fileField($field, $value, $htmlOptions);
-				break;
-
+                $fieldHtml = CHtml::fileField($field, $value, $htmlOptions);
+                break;
+            
 			case 'image':
-				$src = self::keyAt('src', $fieldInfo, '');
-				$alt = self::keyAt('alt', $fieldInfo, '');
-				if(!self::issetKey('name', $htmlOptions)) $htmlOptions['name'] = $field;
-				$fieldHtml = CHtml::image($src, $alt, $htmlOptions);
-				break;
-
+                $src = self::keyAt('src', $fieldInfo, '');
+                $alt = self::keyAt('alt', $fieldInfo, '');
+                if(!self::issetKey('name', $htmlOptions)) $htmlOptions['name'] = $field;
+                $fieldHtml = CHtml::image($src, $alt, $htmlOptions);
+                break;
+			
 			case 'imageupload':
 				// Image max size label
 				$maxSize = self::keyAt('maxSize', $fieldInfo, 0);
@@ -570,10 +570,10 @@ class CFormView extends CWidgs
 				$showImage = (bool)self::keyAt('imageOptions.showImage', $fieldInfo, false);
 				// ImagePath is deprecated from v0.6.0
 				if(self::issetKey('imageOptions.imagePath', $fieldInfo)){
-					$filePath = $fieldInfo['imageOptions']['imagePath'];
+					$filePath = $fieldInfo['imageOptions']['imagePath'];	
 				}else{
-					$filePath = self::keyAt('fileOptions.filePath', $fieldInfo, '');
-				}
+					$filePath = self::keyAt('fileOptions.filePath', $fieldInfo, '');	
+				}				
 				$showImageName = (bool)self::keyAt('imageOptions.showImageName', $fieldInfo, false);
 				$showImageSize = (bool)self::keyAt('imageOptions.showImageSize', $fieldInfo, false);
 				$showImageDimensions = (bool)self::keyAt('imageOptions.showImageDimensions', $fieldInfo, false);
@@ -585,42 +585,42 @@ class CFormView extends CWidgs
 				$deleteLinkPath = self::keyAt('deleteOptions.linkUrl', $fieldInfo, '');
 				$deleteLinkText = self::keyAt('deleteOptions.linkText', $fieldInfo, A::t('core', 'Delete'));
 				$imageText = '';
-				// Rotate link options
-				$showRotateLinks = isset($fieldInfo['rotateOptions']['showLinks']) ? (bool)$fieldInfo['rotateOptions']['showLinks'] : false;
-				$rotateRightLink = isset($fieldInfo['rotateOptions']['linkRotateRigth']) ? $fieldInfo['rotateOptions']['linkRotateRigth'] : '';
-				$rotateLeftLink = isset($fieldInfo['rotateOptions']['linkRotateLeft']) ? $fieldInfo['rotateOptions']['linkRotateLeft'] : '';
-				$iconRotateRight = isset($fieldInfo['rotateOptions']['iconRotateRight']) ? $fieldInfo['rotateOptions']['iconRotateRight'] : '';
-				$iconRotateLeft = isset($fieldInfo['rotateOptions']['iconRotateLeft']) ? $fieldInfo['rotateOptions']['iconRotateLeft'] : '';
-				$rotateText = '';
+                // Rotate link options
+                $showRotateLinks = isset($fieldInfo['rotateOptions']['showLinks']) ? (bool)$fieldInfo['rotateOptions']['showLinks'] : false;
+                $rotateRightLink = isset($fieldInfo['rotateOptions']['linkRotateRigth']) ? $fieldInfo['rotateOptions']['linkRotateRigth'] : '';
+                $rotateLeftLink = isset($fieldInfo['rotateOptions']['linkRotateLeft']) ? $fieldInfo['rotateOptions']['linkRotateLeft'] : '';
+                $iconRotateRight = isset($fieldInfo['rotateOptions']['iconRotateRight']) ? $fieldInfo['rotateOptions']['iconRotateRight'] : '';
+                $iconRotateLeft = isset($fieldInfo['rotateOptions']['iconRotateLeft']) ? $fieldInfo['rotateOptions']['iconRotateLeft'] : '';
+                $rotateText = '';
 				// File options
 				$fileHtmlOptions = self::keyAt('fileOptions', $fieldInfo, array());
 				$showAlways = (bool)self::keyAt('fileOptions.showAlways', $fieldInfo, false);
 				if($showAlways) unset($fileHtmlOptions['showAlways']);
-
+								
 				$fieldHtml = CHtml::openTag('div', array('style'=>'display:inline-block;'));
 				// Image
 				if($showImage && !empty($value)) $fieldHtml .= CHtml::image($filePath.$value, '', $imageHtmlOptions).'<br>';
-				// Rotate buttons
-				if($showRotateLinks && !empty($value) && APPHP_MODE !== 'demo'){
-					$rotateText .= CHtml::openTag('label', array('style'=>'width:100%;'));
-					if(is_file($iconRotateLeft) && is_file($iconRotateRight)){
-						$rotateText .= CHtml::openTag('a', array('href'=>(!empty($rotateLeftLink) ? $rotateLeftLink : ''), 'title'=>A::t('core', 'Rotate 90 degrees Left'), 'class'=>'link-rotate-left'));
-						$rotateText .= CHtml::image($iconRotateLeft, '', array('class'=>'icon-rotate-left'));
-						$rotateText .= CHtml::closeTag('a').' &nbsp;';
-						$rotateText .= CHtml::openTag('a', array('href'=>(!empty($rotateRightLink) ? $rotateRightLink : ''), 'title'=>A::t('core', 'Rotate 90 degrees Right'), 'class'=>'link-rotate-right'));
-						$rotateText .= CHtml::image($iconRotateRight, '', array('class'=>'icon-rotate-right'));
-						$rotateText .= CHtml::closeTag('a');
-					}else{
-						$rotateText .= CHtml::link(A::t('core', 'Rotate 90 degrees Left'), (!empty($rotateLeftLink) ? $rotateLeftLink : '#')).' &nbsp;';
-						$rotateText .= CHtml::link(A::t('core', 'Rotate 90 degrees Right'), (!empty($rotateRightLink) ? $rotateRightLink : '#'));
-					}
-					$rotateText .= CHtml::closeTag('label');
-					$fieldHtml .= $rotateText;
-				}
-				// Image text
+                // Rotate buttons
+                if($showRotateLinks && !empty($value) && APPHP_MODE !== 'demo'){
+                    $rotateText .= CHtml::openTag('label', array('style'=>'width:100%;'));
+                    if(is_file($iconRotateLeft) && is_file($iconRotateRight)){
+                        $rotateText .= CHtml::openTag('a', array('href'=>(!empty($rotateLeftLink) ? $rotateLeftLink : ''), 'title'=>A::t('core', 'Rotate 90 degrees Left'), 'class'=>'link-rotate-left'));
+                        $rotateText .= CHtml::image($iconRotateLeft, '', array('class'=>'icon-rotate-left'));
+                        $rotateText .= CHtml::closeTag('a').' &nbsp;';
+                        $rotateText .= CHtml::openTag('a', array('href'=>(!empty($rotateRightLink) ? $rotateRightLink : ''), 'title'=>A::t('core', 'Rotate 90 degrees Right'), 'class'=>'link-rotate-right'));
+                        $rotateText .= CHtml::image($iconRotateRight, '', array('class'=>'icon-rotate-right'));
+                        $rotateText .= CHtml::closeTag('a');
+                    }else{
+                        $rotateText .= CHtml::link(A::t('core', 'Rotate 90 degrees Left'), (!empty($rotateLeftLink) ? $rotateLeftLink : '#')).' &nbsp;';
+                        $rotateText .= CHtml::link(A::t('core', 'Rotate 90 degrees Right'), (!empty($rotateRightLink) ? $rotateRightLink : '#'));
+                    }
+                    $rotateText .= CHtml::closeTag('label');
+                    $fieldHtml .= $rotateText;
+                }
+				// Image text 
 				if($showImageName && !empty($value)) $imageText .= $value.' ';
 				// Image size and dimensions
-				if(!empty($value)){
+				if(!empty($value)){					
 					if($showImageSize || $showImageDimensions) $imageText .= ' (';
 					$imageFileSize = '';
 					if($showImageSize && !empty($value)){
@@ -635,18 +635,18 @@ class CFormView extends CWidgs
 				}
 				// Delete link
 				if($showDeleteLink && !empty($value) && APPHP_MODE !== 'demo'){
-					$imageText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));
-				}
+					$imageText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));	
+				} 
 				// Middle text
-				if($imageText) $fieldHtml .= CHtml::label($imageText, '', array('style'=>'width:100%;margin-bottom:5px;'));
+				if($imageText) $fieldHtml .= CHtml::label($imageText, '', array('style'=>'width:100%;margin-bottom:5px;'));				
 				// File field
 				if(!self::issetKey('style', $fileHtmlOptions)) $fileHtmlOptions['style'] = 'margin-bottom:5px;';
-				else $fileHtmlOptions['style'] .= 'margin-bottom:5px;';
+				else $fileHtmlOptions['style'] .= 'margin-bottom:5px;';				
 				if(APPHP_MODE == 'demo') $fileHtmlOptions['disabled'] = 'disabled';
-				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);
-				$fieldHtml .= CHtml::closeTag('div');
+				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);				
+				$fieldHtml .= CHtml::closeTag('div');				
 				break;
-
+			
 			case 'fileupload':
 				// File max size label
 				$maxSize = self::keyAt('maxSize', $fieldInfo, 0);
@@ -664,14 +664,14 @@ class CFormView extends CWidgs
 				// Delete link options
 				$showDeleteLink = (bool)self::keyAt('deleteOptions.showLink', $fieldInfo, false);
 				$deleteLinkPath = self::keyAt('deleteOptions.linkUrl', $fieldInfo, '');
-				$deleteLinkText = self::keyAt('deleteOptions.linkText', $fieldInfo, A::t('core', 'Delete'));
-
+				$deleteLinkText = self::keyAt('deleteOptions.linkText', $fieldInfo, A::t('core', 'Delete'));			
+				
 				$icontText = '';
 				// File options
 				$fileHtmlOptions = self::keyAt('fileOptions', $fieldInfo, array());
 				$showAlways = (bool)self::keyAt('fileOptions.showAlways', $fieldInfo, false);
 				if($showAlways) unset($fileHtmlOptions['showAlways']);
-
+								
 				$fieldHtml = CHtml::openTag('div', array('style'=>'display:inline-block;'));
 				// File icon
 				if($showType && !empty($value)){
@@ -684,43 +684,43 @@ class CFormView extends CWidgs
 					}
 					$fieldHtml .= '<br>';
 				}
-				// File text
-				if($showFileName && !empty($value)){
-					if($fileDownload){
-						$icontText .= CHtml::link($value, $filePath.$value, array('download'=>$value)).' ';
-					}else{
-						$icontText .= $value.' ';
-					}
-				}
+				// File text 
+                if($showFileName && !empty($value)){
+                    if($fileDownload){
+                        $icontText .= CHtml::link($value, $filePath.$value, array('download'=>$value)).' ';
+                    }else{
+                        $icontText .= $value.' ';
+                    }
+                }
 				if($showFileSize && !empty($value)){
 					$icontText .= ' ('.CFile::getFileSize($filePath.$value, 'kb').' Kb) ';
 				}
 				// Delete link
 				if($showDeleteLink && !empty($value) && APPHP_MODE !== 'demo'){
-					$icontText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));
-				}
+					$icontText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));	
+				} 
 				// Middle text
 				if($icontText) $fieldHtml .= CHtml::label($icontText, '', array('style'=>'width:100%;margin-bottom:5px;'));
 				// File field
 				$fileHtmlOptions = array('style' => 'margin-bottom:5px;');
 				if(APPHP_MODE == 'demo') $fileHtmlOptions['disabled'] = 'disabled';
-				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);
-				$fieldHtml .= CHtml::closeTag('div');
+				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);				
+				$fieldHtml .= CHtml::closeTag('div');				
 				break;
-
+            
 			case 'textarea':
 				$maxLength = (int)self::keyAt('maxLength', $htmlOptions, 0);
 				if($maxLength > 0) $appendLabel = '<br>'.A::t('core', 'max.: {maxchars} chars', array('{maxchars}'=>$maxLength));
-				$fieldHtml = CHtml::textArea($field, $value, $htmlOptions);
-				break;
-
+                $fieldHtml = CHtml::textArea($field, $value, $htmlOptions);
+                break;
+            
 			case 'radio':
 			case 'radiobutton':
 				$checked = (bool)self::keyAt('checked', $fieldInfo, false);
 				if(!empty($value)) $htmlOptions['value'] = $value;
 				$fieldHtml = CHtml::radioButton($field, $checked, $htmlOptions);
 				break;
-
+			
 			case 'radiobuttons':
 			case 'radiobuttonlist':
 				$data = self::keyAt('data', $fieldInfo, array(), 'is_array');
@@ -728,33 +728,33 @@ class CFormView extends CWidgs
 				$htmlOptions['separator'] = "\n";
 				$fieldHtml = CHtml::radioButtonList($field, $checked, $data, $htmlOptions);
 				break;
-
-			case 'color':
-				$fieldId = self::keyAt('id',  $htmlOptions, $formName.'_'.$field);
-				$fieldHtml  = CHtml::colorField($field, $value, $htmlOptions);
-				$fieldHtml .= '&nbsp;';
-				$fieldHtml .= CHtml::tag('span', array('id'=>'val_color_'.self::$_colorCount), $value);
-				A::app()->getClientScript()->registerScript(
-					'color_'.self::$_colorCount,
-					'jQuery("#'.$fieldId.'").change(function() {
+			
+            case 'color':
+                $fieldId = self::keyAt('id',  $htmlOptions, $formName.'_'.$field);
+                $fieldHtml  = CHtml::colorField($field, $value, $htmlOptions);
+                $fieldHtml .= '&nbsp;';
+                $fieldHtml .= CHtml::tag('span', array('id'=>'val_color_'.self::$_colorCount), $value);
+                A::app()->getClientScript()->registerScript(
+                    'color_'.self::$_colorCount,
+                    'jQuery("#'.$fieldId.'").change(function() {
                         var color = jQuery(this).val();
                         jQuery("#val_color_'.self::$_colorCount.'").text(color);
                     });',
-					4
-				);
-				self::$_colorCount++;
-				break;
-
-			case 'email':
-				$fieldHtml = CHtml::emailField($field, $value, $htmlOptions);
-				break;
-
-			case 'captcha':
+                    4
+                );
+                self::$_colorCount++;
+                break;
+			
+            case 'email':
+                $fieldHtml = CHtml::emailField($field, $value, $htmlOptions);
+                break;
+			
+            case 'captcha':
 				$fieldHtml = CWidget::create('CCaptcha', array('type'=>'math', 'required'=>true, 'id'=>$field, 'name'=>$field, 'value'=>$value, 'return'=>true));
-				break;
-
-			case 'textbox':
-			default:
+                break;
+			
+            case 'textbox':
+            default:
 				$autocompleteEnabled = self::keyAt('enable', $autocomplete);
 				$autocompleteParams = self::keyAt('params', $autocomplete);
 				$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
@@ -768,47 +768,47 @@ class CFormView extends CWidgs
 					if(A::app()->view->getTemplate() != 'backend'){
 						A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
 					}
-
-					$params = '';
-					$numVar = 0;
+					
+                    $params = '';
+                    $numVar = 0;
 					$fieldSearch = $field.'_result';
 					$cRequest = A::app()->getRequest();
 					$arrParams = array();
 
-					if(is_array($autocompleteParams)){
-						foreach($autocompleteParams as $paramKey => $paramValue){
-							if(is_array($paramValue)){
-								$numSubVar = 0;
-								$arrSubParams = array();
+                    if(is_array($autocompleteParams)){
+                        foreach($autocompleteParams as $paramKey => $paramValue){
+                            if(is_array($paramValue)){
+                                $numSubVar = 0;
+                                $arrSubParams = array();
 
-								if(!CValidator::isVariable($paramKey)){
-									$paramKey = 'var'.$numVar++;
-								}
+                                if(!CValidator::isVariable($paramKey)){
+                                    $paramKey = 'var'.$numVar++;
+                                }
 
-								if(isset($paramValue['function'])){
-									$arrParams[] = $paramKey.': '.$paramValue['function'];
-									continue;
-								}
+                                if(isset($paramValue['function'])){
+                                    $arrParams[] = $paramKey.': '.$paramValue['function'];
+                                    continue;
+                                }
 
-								$str = $paramKey.': {';
-								foreach($paramValue as $subKey => $subValue){
-									if(!CValidator::isVariable($subKey)){
-										$subKey = 'var'.$numSubVar++;
-									}
-									$arrSubParams[] = $subKey.': "'.CHtml::encode($subValue).'"';
-								}
-								$str .= implode(', ', $arrSubParams);
-								$str .= '}';
-								$arrParams[] = $str;
-							}else{
-								if(!CValidator::isVariable($paramKey)){
-									$paramKey = 'var'.$numVar++;
-								}
-								$arrParams[] = $paramKey.': "'.CHtml::encode($paramValue).'"';
-							}
-						}
-						$params = (!empty($arrParams) ? implode(", \n", $arrParams) : '');
-					}
+                                $str = $paramKey.': {';
+                                foreach($paramValue as $subKey => $subValue){
+                                    if(!CValidator::isVariable($subKey)){
+                                        $subKey = 'var'.$numSubVar++;
+                                    }
+                                    $arrSubParams[] = $subKey.': "'.CHtml::encode($subValue).'"';
+                                }
+                                $str .= implode(', ', $arrSubParams);
+                                $str .= '}';
+                                $arrParams[] = $str;
+                            }else{
+                                if(!CValidator::isVariable($paramKey)){
+                                    $paramKey = 'var'.$numVar++;
+                                }
+                                $arrParams[] = $paramKey.': "'.CHtml::encode($paramValue).'"';
+                            }
+                        }
+                        $params = (!empty($arrParams) ? implode(", \n", $arrParams) : '');
+                    }
 
 					A::app()->getClientScript()->registerScript(
 						'autocomplete_'.self::$_autocompleteCount++,
@@ -860,82 +860,82 @@ class CFormView extends CWidgs
 
 					// Draw hidden field for field with autocomplete input
 					$fieldHtml = CHtml::hiddenField($field, CHtml::encode($value), $htmlOptions);
-					// Draw textbox
+					// Draw textbox					
 					$fieldValueSearch = $cRequest->isPostRequest() ? $cRequest->getPost($fieldSearch, '', $autocompleteDefault) : $autocompleteDefault;
 					$htmlOptions['id'] = $fieldSearch;
 					$fieldHtml .= CHtml::textField($fieldSearch, CHtml::encode($fieldValueSearch), $htmlOptions);
 				}else{
 					// Draw textbox
 					$fieldHtml = CHtml::textField($field, $value, $htmlOptions);
-				}
+				}						
 				break;
-		}
-
-		if($type == 'hidden'){
-			$output .= $fieldHtml.self::NL;
-		}else{
-			$output .= CHtml::openTag($fieldWrapperTag, array('class'=>$fieldWrapperClass, 'id'=>($autoGenerateId) ? $formName.'_row_'.self::$_rowCount++ : ''));
+        }
+		
+        if($type == 'hidden'){
+            $output .= $fieldHtml.self::NL;    
+        }else{
+            $output .= CHtml::openTag($fieldWrapperTag, array('class'=>$fieldWrapperClass, 'id'=>($autoGenerateId) ? $formName.'_row_'.self::$_rowCount++ : ''));
 			// old placement: $output .= $prependCode;
-			if($title){
+            if($title){
 				$for = self::keyAt('id', $htmlOptions, false);
 				$tooltipText = !empty($tooltip) ? ' '.CHtml::link('', false, array('class'=>'tooltip-icon', 'title'=>$tooltip)) : '';
 				$output .= CHtml::label($title.(trim($title) !== '' ? ':' : '').$tooltipText.(($mandatoryStar) ? CHtml::$afterRequiredLabel : '').$appendLabel, $for);
-			}
+            }
 			$output .= $prependCode;
-			$output .= $fieldHtml;
+            $output .= $fieldHtml;
 			$output .= $appendCode;
-			$output .= CHtml::closeTag($fieldWrapperTag).self::NL;
-		}
+            $output .= CHtml::closeTag($fieldWrapperTag).self::NL;                
+        }
+		
+        return $output;
+    }
+ 
+    /**
+     * Draws HTML form buttons
+     * @param array $buttons
+     * @param string $placement
+     */    
+    private static function _drawButtons($buttons, $placement = 'bottom')
+    {
+        $output = '';
 
-		return $output;
-	}
-
-	/**
-	 * Draws HTML form buttons
-	 * @param array $buttons
-	 * @param string $placement
-	 */
-	private static function _drawButtons($buttons, $placement = 'bottom')
-	{
-		$output = '';
-
-		// Remove disabled buttons
+ 		// Remove disabled buttons
 		foreach($buttons as $key => $val){
 			if(self::issetKey('disabled', $val) && (bool)self::keyAt('disabled', $val) === true) unset($buttons[$key]);
 		}
 
-		// Draw buttons
-		if(count($buttons) > 0){
-			$additionalClass = ($placement == 'top') ? ' bw-top' : ' bw-bottom';
-			$output .= CHtml::openTag('div', array('class'=>'buttons-wrapper'.$additionalClass)).self::NL;
-			foreach($buttons as $button => $buttonInfo){
-				$type = self::keyAt('type', $buttonInfo, '');
-				$value = self::keyAt('value', $buttonInfo, '');
+        // Draw buttons
+        if(count($buttons) > 0){
+            $additionalClass = ($placement == 'top') ? ' bw-top' : ' bw-bottom';
+            $output .= CHtml::openTag('div', array('class'=>'buttons-wrapper'.$additionalClass)).self::NL;
+            foreach($buttons as $button => $buttonInfo){
+                $type = self::keyAt('type', $buttonInfo, '');
+                $value = self::keyAt('value', $buttonInfo, '');
 				$htmlOptions = self::keyAt('htmlOptions', $buttonInfo, array(), 'is_array');
-				if(!self::issetKey('value', $htmlOptions)) $htmlOptions['value'] = $value;
-				switch($type){
-					case 'button':
-						$htmlOptions['type'] = 'button';
-						$output .= CHtml::button('button', $htmlOptions).self::NL;
-						break;
-					case 'reset':
-						$output .= CHtml::resetButton('reset', $htmlOptions).self::NL;
-						break;
-					case 'submitUpdate':
-						$output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
-						break;
-					case 'submitUpdateClose':
-						$output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
-						break;
-					case 'submit':
-					default:
-						$output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
-						break;
-				}
-			}
-			$output .= CHtml::closeTag('div').self::NL;
-		}
-
-		return $output;
-	}
+                if(!self::issetKey('value', $htmlOptions)) $htmlOptions['value'] = $value;
+                switch($type){
+                    case 'button':
+                        $htmlOptions['type'] = 'button';
+                        $output .= CHtml::button('button', $htmlOptions).self::NL;
+                        break;
+                    case 'reset':
+                        $output .= CHtml::resetButton('reset', $htmlOptions).self::NL;
+                        break;
+                    case 'submitUpdate':
+                        $output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
+                        break;
+                    case 'submitUpdateClose':
+                        $output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
+                        break;
+                    case 'submit':
+                    default:
+                        $output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
+                        break;
+                }                        
+            }            
+            $output .= CHtml::closeTag('div').self::NL;
+        }
+        
+        return $output;        
+    }
 }

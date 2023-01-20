@@ -88,13 +88,13 @@ class A
         'CRouter'       => 'core/CRouter.php',
         'CView'         => 'core/CView.php',
         
-        'CActiveRecord' => array('5.3.0'=>'db/CActiveRecord.php'),
+        'CActiveRecord' => array('5.4.0'=>'db/CActiveRecord.php'),
         'CDatabase'     => 'db/CDatabase.php',
         'CDbCommand'    => 'db/CDbCommand.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.3.0'=>'components/CComponent.php')),
+		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.4.0'=>'components/CComponent.php')),
         'clientScript'	=> array('class' => 'CClientScript', 	'path' => 'components/CClientScript.php'),
         'dbSession' 	=> array('class' => 'CDbHttpSession', 	'path' => 'components/CDbHttpSession.php'),
         'request'   	=> array('class' => 'CHttpRequest', 	'path' => 'components/CHttpRequest.php'),
@@ -284,7 +284,7 @@ class A
                 // To prevent 'Web Page exired' message on using submission method 'POST'
                 session_cache_limiter('private, must-revalidate');    
             }
-    
+
             // Initialize Debug class
             CDebug::init(); 
             
@@ -529,7 +529,7 @@ class A
 		// Register application helpers
 		$this->_registerAppHelpers();
 		// Register application modules
-		$this->_registerAppModules();	
+		$this->_registerAppModules();
 		
 		// Run begin events
 		if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
@@ -554,10 +554,10 @@ class A
     	if($component === null){
             unset($this->_components[$id]);		
     	}else{
-            // For PHP_VERSION | phpversion() >= 5.3.0 you may use
-            // $this->_components[$id] = $component::init();
-            if($callback = call_user_func_array($component.'::init', array())){
-                $this->_components[$id] = $callback;    
+            // For PHP_VERSION | phpversion() < 5.4.0 you may use
+			/// if($callback = call_user_func_array($component.'::init', array())){
+            if($callback = $component::init()){
+                $this->_components[$id] = $callback;
             }elseif(!in_array($component, array('CComponent'))){
                 CDebug::addMessage('warnings', 'missing-components', $component);    
             }            
@@ -1120,7 +1120,7 @@ class A
             $enable = isset($module['enable']) ? (bool)$module['enable'] : false;
             $class = isset($module['class']) ? $module['class'] : '';
             if($enable && $class){
-                self::$_appHelpers[$class] = (!empty($module) ? 'modules/'.$module.'/' : '').'helpers/'.$class.'.php';
+                self::$_appHelpers[$class] = (!empty($module) ? 'modules/'.$class.'/' : '').'helpers/'.$class.'.php';
             }
 		}
 	}

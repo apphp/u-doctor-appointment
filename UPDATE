@@ -3,7 +3,7 @@
 ---------------------------------------------------------------------------  
 
 Software requirements:
-- PHP 5.3 or later version
+- PHP 5.4 or later version
 - PDO extension enabled
 
 An update of uDoctorAppointment is a very straight forward process:
@@ -40,9 +40,9 @@ Step 5. Running Setup Wizard.
    Now you can run setup wizard. To do this, open your Internet browser and type
    in Address Bar following:
 
-   http://{www.mydomain.com}/
+   http://{www.example.com}/
    or
-   http://{www.mydomain.com}/{directy-cmf directory}/
+   http://{www.example.com}/{doctor-appointment-directory}/
 
    You have to see the setup wizard starting page. Follow the instructions on the
    screen. While updating process select Update option, then enter the database connection

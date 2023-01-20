@@ -12,9 +12,9 @@ $multiClinics = $configModule['multiClinics'];
 <section id="bottom">
     <div class="bottom_inner">
         <div class="one_fourth">
-            <aside id="text-3" class="widget widget_text">
-                <h3 class="widgettitle"><?= A::t('appointments', 'Medical Information'); ?></h3>
-                <div class="textwidget">
+            <aside id="text-3" class="widget_text">
+                <h3 class="widgettitle" data-id="medical_information"><?= A::t('appointments', 'Medical Information'); ?><span class="pull-right hide-footer">&#x25BE;</span></h3>
+                <div id="medical_information" class="textwidget hide-footer">
                     <?php
                     if($multiClinics):
                         $clinics = Clinics::model()->findAll(array('order'=>'is_default DESC, id DESC', 'limit'=>3));
@@ -37,7 +37,7 @@ $multiClinics = $configModule['multiClinics'];
                         </div>
                     <?php endif; ?>
 					<h5><?= A::t('appointments', 'Website Info'); ?></h5>
-                    <aside class="widget widget_custom_contact_info_entries" id="custom-contact-info-2">
+                    <aside class="widget_custom_contact_info_entries" id="custom-contact-info-2">
                         <?php if($siteAddress): ?>
                             <div class="contact_widget_info">
                                 <span class="contact_widget_name"><?= $siteAddress; ?></span>
@@ -66,9 +66,9 @@ $multiClinics = $configModule['multiClinics'];
             if(!empty($doctors)):
         ?>
             <div class="one_fourth">
-                <aside id="nav_menu-2" class="widget widget_nav_menu">
-                    <h3 class="widgettitle"><?= A::t('appointments', 'Doctors'); ?></h3>
-                    <div class="menu-doctors-container">
+                <aside id="nav_menu-2" class="widget_nav_menu">
+                    <h3 class="widgettitle" data-id="doctors"><?= A::t('appointments', 'Doctors'); ?><span class="pull-right hide-footer">&#x25BE;</span></h3>
+                    <div id="doctors" class="menu-doctors-container hide-footer">
                     <div class="menu-doctors-container">
                         <ul id="menu-doctors" class="menu">
                             <?php foreach($doctors as $doctor): ?>
@@ -86,9 +86,9 @@ $multiClinics = $configModule['multiClinics'];
         
         <?php if(Modules::model()->isInstalled('appointments')): ?>
         <div class="one_fourth">
-            <aside id="nav_menu-4" class="widget widget_nav_menu">
-                <h3 class="widgettitle"><?= A::t('appointments', 'Services'); ?></h3>
-                <div class="menu-services-container">
+            <aside id="nav_menu-4" class="widget_nav_menu">
+                <h3 class="widgettitle" data-id="services"><?= A::t('appointments', 'Services'); ?><span class="pull-right hide-footer">&#x25BE;</span></h3>
+                <div id="services" class="menu-services-container hide-footer">
                     <?php
                         $services = Services::model()->findAll(array('condition'=>'is_active=1', 'order'=>'id ASC', 'limit'=>'0, 12'), array(), 'services-findall-12');
                         if(!empty($services)):
@@ -116,13 +116,9 @@ $multiClinics = $configModule['multiClinics'];
         
         <?php if(Modules::model()->isInstalled('news')): ?>
         <div class="one_fourth">
-            <aside class="widget widget_custom_contact_form_entries">
-                <?= NewsComponent::drawSubscriptionBlock(); ?>
-            </aside>
-			<a class="icon-rss" target="_blank" rel="noopener noreferrer" href="feeds/news_rss.xml" title="RSS"> RSS</a>			
+            <?= NewsComponent::drawSubscriptionBlock(); ?>
         </div>
         <?php endif; ?>
     </div>
 </section>
 <!--  Finish Bottom  -->
-

@@ -19,13 +19,13 @@ Step 1. Decompressing Downloaded Archive.
 Step 2. Uploading Files.
 -------------------------------------
    Upload this directory (all files and sub-directories it includes) to your
-   document root (public_html, www, httpdocs etc.) or to your "directy cmf website"
+   document root (public_html, www, httpdocs etc.) or to your "doctor appointment website"
    directory using FTP. Pay attention to DON'T use the capital letters in the name
    of the directories (for Linux users). 
 
    public_html/
    or
-   public_html/{directy-cmf-website directory}/
+   public_html/{doctor-appointment-website directory}/
    
 
 Step 3. Creating Database and User.
@@ -47,9 +47,9 @@ Step 5. Running Setup Wizard.
    Now you can run setup wizard. To do this, open your Internet browser and type
    in Address Bar following:
 
-   http://{www.mydomain.com}/
+   http://{www.example.com}/
    or
-   http://{www.mydomain.com}/{doctor-appointment-website directory}/
+   http://{www.example.com}/{doctor-appointment-website directory}/
 
    If the script still not installed you will see the setup wizard starting page. 
    Follow the instructions on the screen. You will be asked to enter: database host,

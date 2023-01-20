@@ -53,7 +53,7 @@
 	    	<?= A::t('app', 'Cron Jobs Notice');?>
 	    	<br /><br />
 	    	<?= A::t('app', 'Cron Jobs Batch Command');?>
-			<b>php &#36;HOME/public_html/cron/run &gt;/dev/null 2&gt;&1</b><br /><br />
+			<b>php &#36;HOME/public_html/cron.php &gt;/dev/null 2&gt;&1</b><br /><br />
 			<?= A::t('app', 'Cron Jobs htaccess Block');?>
 			<br /><br />
 

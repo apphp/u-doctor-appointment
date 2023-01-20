@@ -11,8 +11,8 @@
 
     // register module javascript
     A::app()->getClientScript()->registerScriptFile('assets/modules/appointments/js/appointments.js', 2);
-    A::app()->getClientScript()->registerScriptFile('assets/vendors/timepicker/jquery.timepicker.min.js', 2);
-    A::app()->getClientScript()->registerCssFile('assets/vendors/timepicker/jquery.timepicker.min.css');
+    A::app()->getClientScript()->registerScriptFile('templates/default/js/jquery.timepicker.min.js', 2);
+    A::app()->getClientScript()->registerCssFile('templates/default/css/jquery.timepicker.min.css');
 
     $formName = 'frmDoctorScheduleTimeBlockAdd';
 ?>
@@ -48,13 +48,14 @@
             ),
             'requiredFieldsAlert'=>true,
             'fields'=>array(
-                'address_id'  => $address,
-                'time_slots'  => array('type'=>'enum', 'title'=>A::t('appointments', 'Time Slots'), 'default'=>'15', 'validation'=>array('type'=>'set', 'source'=>array_keys($arrTimeSlots)), 'data'=>$arrTimeSlots, 'htmlOptions'=>array()),
-                'week_day'    => array('type'=>'enum', 'title'=>A::t('appointments', 'Week Day'), 'default'=>'', 'validation'=>array('type'=>'set', 'source'=>array_keys($arrWeekDays)), 'data'=>$arrWeekDays, 'htmlOptions'=>array()),
-                'time_from'   => array('type'=>'textbox', 'title'=>A::t('appointments', 'From Time'), 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>'5', 'class'=>'small timepicker'), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>''),
-                'time_to'     => array('type'=>'textbox', 'title'=>A::t('appointments', 'To Time'), 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>'5', 'class'=>'small timepicker'), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'maxDate'=>'', 'minDate'=>''),
-                'doctor_id'   => array('type'=>'data', 'default'=>$doctorId),
-                'schedule_id' => array('type'=>'data', 'default'=>$scheduleId),
+                'address_id'        => $address,
+                'time_slot_type_id' => array('type'=>'select', 'title'=>A::t('appointments', 'Time Slots Type'), 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys($timeSlotsType)), 'data'=>$timeSlotsType, 'emptyOption'=>true, 'emptyValue'=>'- '.A::t('appointments', 'select').' -', 'htmlOptions'=>array()),
+                'time_slots'        => array('type'=>'enum', 'title'=>A::t('appointments', 'Time Slots'), 'default'=>'15', 'validation'=>array('type'=>'set', 'source'=>array_keys($arrTimeSlots)), 'data'=>$arrTimeSlots, 'htmlOptions'=>array()),
+                'week_day'          => array('type'=>'enum', 'title'=>A::t('appointments', 'Week Day'), 'default'=>'', 'validation'=>array('type'=>'set', 'source'=>array_keys($arrWeekDays)), 'data'=>$arrWeekDays, 'htmlOptions'=>array()),
+                'time_from'         => array('type'=>'textbox', 'title'=>A::t('appointments', 'From Time'), 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>'5', 'class'=>'small timepicker'), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>''),
+                'time_to'           => array('type'=>'textbox', 'title'=>A::t('appointments', 'To Time'), 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>'5', 'class'=>'small timepicker'), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'maxDate'=>'', 'minDate'=>''),
+                'doctor_id'         => array('type'=>'data', 'default'=>$doctorId),
+                'schedule_id'       => array('type'=>'data', 'default'=>$scheduleId),
             ),
             'buttons'=>array(
                 'submit' => array('type'=>'submit', 'value'=>A::t('appointments', 'Create'), 'htmlOptions'=>array('name'=>'')),

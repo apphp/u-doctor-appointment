@@ -67,8 +67,9 @@ class Cron extends CModel
 						// Handle namespace
 						$object = A::app()->mapAppModuleClass($object);
 						$object = str_ireplace('Controllers', 'Models', $object);
-						
-						@call_user_func_array($object.'::cron', array());
+						if(!empty($object)) {
+							@call_user_func_array($object.'::cron', array());
+						}
 					}elseif(method_exists($object, $method)){
 						$object->$method();
 					}else{

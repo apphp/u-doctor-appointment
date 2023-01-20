@@ -27,6 +27,7 @@ use \Modules\Appointments\Components\AppointmentsComponent,
     \Modules\Appointments\Models\Insurance,
     \Modules\Appointments\Models\VisitReasons,
     \Modules\Appointments\Models\Titles,
+    \Modules\Appointments\Models\TimeSlotsType,
     \Modules\Appointments\Models\Degrees;
 
 // Global
@@ -145,6 +146,8 @@ class MasterDataController extends CController
         Website::prepareBackendAction('delete', 'masterdata', 'masterData/specialtiesManage');
         $specialty = $this->_checkSpecialtyAccess($id);
 
+        $page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+
         $alert = '';
         $alertType = '';
 
@@ -172,7 +175,7 @@ class MasterDataController extends CController
         }
         
         $this->_view->subTabs = AppointmentsComponent::prepareSubTab('masterdata', 'specialties');
-        $this->redirect('masterdata/specialtiesManage');
+        $this->redirect('masterdata/specialtiesManage'.(!empty($page) ? '?page='.(int)$page : 1));
     }
 
     /**
@@ -720,6 +723,139 @@ class MasterDataController extends CController
         $this->redirect('masterData/degreesManage'.(!empty($page) ? '?page='.(int)$page : 1));
     }
 
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     *                      Time Slots Type
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+    /**
+     * Time Slots Type manage action handler
+     * @return void
+     */
+    public function timeSlotsTypeManageAction()
+    {
+        Website::prepareBackendAction('manage', 'masterdata', 'modules/index');
+
+        $actionMessage = '';
+        $alert = A::app()->getSession()->getFlash('alert');
+        $alertType = A::app()->getSession()->getFlash('alertType');
+
+        if(!empty($alertType)){
+            $actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+        }
+
+        $this->_view->actionMessage = $actionMessage;
+        $this->_view->subTabs = AppointmentsComponent::prepareSubTab('masterdata', 'timeSlotsType');
+        $this->_view->render('masterData/timeSlotsType/manage');
+    }
+
+    /**
+     * Add Time Slot Type action handler
+     * @return void
+     */
+    public function typeTimeSlotAddAction()
+    {
+        Website::prepareBackendAction('add', 'masterdata', 'masterData/timeSlotsTypeManage');
+
+        $this->_view->subTabs = AppointmentsComponent::prepareSubTab('masterdata', 'timeSlotsType', A::t('appointments', 'Add Time Slot Type'));
+        $this->_view->render('masterData/timeSlotsType/add');
+    }
+
+    /**
+     * Edit Time Slot Type action handler
+     * @param int $id
+     * @return void
+     */
+    public function typeTimeSlotEditAction($id = 0)
+    {
+        Website::prepareBackendAction('edit', 'masterdata', 'masterData/timeSlotsTypeManage');
+        $order = $this->_checkTypeTimeSlotAccess($id);
+
+        $this->_view->id = $id;
+        $this->_view->subTabs = AppointmentsComponent::prepareSubTab('masterdata', 'timeSlotsType', A::t('appointments', 'Edit Time Slot Type'));
+        $this->_view->render('masterData/timeSlotsType/edit');
+    }
+
+    /**
+     * Delete type time slot action handler
+     * @param int $id
+     * @return void
+     */
+    public function typeTimeSlotDeleteAction($id = 0)
+    {
+        Website::prepareBackendAction('delete', 'masterdata', 'masterData/timeSlotsTypeManage');
+        $typeTimeSlot = $this->_checkTypeTimeSlotAccess($id);
+
+        $page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+
+        $alert = '';
+        $alertType = '';
+
+        if($typeTimeSlot->delete()){
+            if($typeTimeSlot->getError()){
+                $alert = A::t('app', 'Delete Warning Message');
+                $alertType = 'warning';
+            }else{
+                $alert = A::t('app', 'Delete Success Message');
+                $alertType = 'success';
+            }
+        }else{
+            if(APPHP_MODE == 'demo'){
+                $alert = CDatabase::init()->getErrorMessage();
+                $alertType = 'warning';
+            }else{
+                $alert = A::t('app', 'Delete Error Message');
+                $alertType = 'error';
+            }
+        }
+
+        if(!empty($alert)){
+            A::app()->getSession()->setFlash('alert', $alert);
+            A::app()->getSession()->setFlash('alertType', $alertType);
+        }
+
+        $this->_view->subTabs = AppointmentsComponent::prepareSubTab('masterdata', 'timeSlotsType');
+        $this->redirect('masterData/timeSlotsTypeManage'.(!empty($page) ? '?page='.(int)$page : 1));
+    }
+
+    /**
+     * Change status type time slot action handler
+     * @param int $id       the Type Time Slot ID
+     * @param int $page 	the page number
+     * @return void
+     */
+    public function typeTimeSlotChangeStatusAction($id, $page = 1)
+    {
+        Website::prepareBackendAction('edit', 'masterdata', 'masterData/timeSlotsTypeManage');
+
+        $alert = '';
+        $alertType = '';
+
+        $typeTimeSlot = $this->_checkTypeTimeSlotAccess($id);
+        if($typeTimeSlot){
+            $typeTimeSlot->is_active = $typeTimeSlot->is_active == 1 ? '0' : '1';
+            if($typeTimeSlot->save()){
+                $alert = A::t('appointments', 'Status has been successfully changed!');
+                $alertType = 'success';
+            }else{
+                if(APPHP_MODE == 'demo'){
+                    $alert = CDatabase::init()->getErrorMessage();
+                    $alertType = 'warning';
+                }else{
+                    $alert = A::t('appointments', 'Status changing error');
+                    $alertType = 'error';
+                }
+            }
+
+            if(!empty($alert)){
+                A::app()->getSession()->setFlash('alert', $alert);
+                A::app()->getSession()->setFlash('alertType', $alertType);
+            }
+        }
+
+        $this->redirect('masterData/timeSlotsTypeManage'.(!empty($page) ? '?page='.(int)$page : 1));
+    }
+
     /**
      * Check if passed record ID is valid
      * @param int $specialtyId
@@ -788,5 +924,19 @@ class MasterDataController extends CController
             $this->redirect('masterData/degreesManage');
         }
         return $degree;
+    }
+
+    /**
+     * Check if passed record ID is valid
+     * @param int $typeTimeSlotId
+     * @return object Specialties
+     */
+    private function _checkTypeTimeSlotAccess($typeTimeSlotId = 0)
+    {
+        $typeTimeSlot = TimeSlotsType::model()->findByPk($typeTimeSlotId);
+        if(!$typeTimeSlot){
+            $this->redirect('masterData/timeSlotsTypeManage');
+        }
+        return $typeTimeSlot;
     }
 }

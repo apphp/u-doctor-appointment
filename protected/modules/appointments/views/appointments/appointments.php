@@ -32,7 +32,7 @@ array('label'=> A::t('appointments', 'Book Appointment'))
                     </div>
                     <div class="cmsms_features_item padding-5-0">
                         <span class="cmsms_features_item_title"><?= A::t('appointments', 'Gender'); ?></span>
-                        <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? 'Male' : 'Famale' : '--'; ?></span>
+                        <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? 'Male' : 'Female' : '--'; ?></span>
                     </div>
                     <div class="cmsms_features_item padding-5-0">
                         <span class="cmsms_features_item_title"><?= A::t('appointments', 'Degree'); ?></span>

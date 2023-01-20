@@ -49,7 +49,7 @@
 			'translationInfo' => array('relation'=>array('id', 'banner_id'), 'languages'=>Languages::model()->findAll(array('condition'=>'is_active = 1', 'orderBy'=>'sort_order ASC'))),
 			'translationFields' => array(
 				'banner_title'  => array('type'=>'textbox', 'title'=>A::t('banners', 'Title'), 'validation'=>array('required'=>false, 'type'=>'text', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255', 'class'=>'large')),
-				'banner_text'   => array('type'=>'textarea', 'title'=>A::t('banners', 'Description'), 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>1024), 'htmlOptions'=>array('maxLength'=>'1024')),
+				'banner_text'   => array('type'=>'textarea', 'title'=>A::t('banners', 'Description'), 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>2048), 'htmlOptions'=>array('maxLength'=>'2048')),
 				'banner_button' => array('type'=>'textbox', 'title'=>A::t('banners', 'Button Text'), 'validation'=>array('required'=>false, 'type'=>'text', 'maxLength'=>50), 'htmlOptions'=>array('maxLength'=>'50', 'class'=>'middle')),
 			),
             'buttons'=>array(

@@ -10,8 +10,8 @@
     $formName = 'frmDoctorTimeoffEdit';
 
     // register module javascript
-    A::app()->getClientScript()->registerScriptFile('assets/vendors/timepicker/jquery.timepicker.min.js', 2);
-    A::app()->getClientScript()->registerCssFile('assets/vendors/timepicker/jquery.timepicker.min.css');
+    A::app()->getClientScript()->registerScriptFile('templates/default/js/jquery.timepicker.min.js', 2);
+    A::app()->getClientScript()->registerCssFile('templates/default/css/jquery.timepicker.min.css');
     A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
     A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 1);
 ?>

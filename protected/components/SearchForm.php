@@ -64,11 +64,11 @@ class SearchForm extends CComponent
 		$inputClass = isset($params['inputClass']) ? $params['inputClass'] : 'input-medium search-query';
 		$placeHolder = isset($params['placeHolder']) ? $params['placeHolder'] : A::te('app', 'Search');
 		$buttonHtml = isset($params['buttonHtml']) ? $params['buttonHtml'] : CHtml::submitButton(A::t('app', 'Search'), array('class'=>'btn'));
-		
+
 		$output .= CHtml::openForm('search/find', 'get', array('class'=>'form-search'));
 		if($innerWrapper) $output .= CHtml::openTag($innerWrapperTag, array('class'=>'input-group'));
-		$output .= CHtml::hiddenField('search_category', '', array());
-		$output .= CHtml::searchField('keywords', htmlspecialchars($keywords), array('class'=>$inputClass, 'placeholder'=>$placeHolder, 'maxlength'=>'1024', 'autocomplete'=>'off'));
+		$output .= CHtml::hiddenField('search_category', '', array('id'=>isset($params['idHtml']) ? 'search_category_sidebar' : 'search_category'));
+		$output .= CHtml::searchField('keywords', htmlspecialchars($keywords), array('class'=>$inputClass, 'placeholder'=>$placeHolder, 'maxlength'=>'1024', 'autocomplete'=>'off', 'id'=>isset($params['idHtml']) ? $params['idHtml'] : 'keywords'));
 		$output .= $buttonHtml;
 		if($innerWrapper) $output .= CHtml::closeTag($innerWrapperTag);
 		$output .= CHtml::closeForm();

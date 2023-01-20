@@ -102,10 +102,10 @@ class Services extends CActiveRecord
 		if($keywords !== ''){
 
 			$limit = !empty($itemsCount) ? '0, '.(int)$itemsCount : '';
-			$condition = CConfig::get('db.prefix').$this->_table.'.is_active = 1 AND '.
+			$condition = CConfig::get('db.prefix').$this->_table.'.is_active = 1 AND ('.
 				CConfig::get('db.prefix').$this->_tableTranslation.'.name LIKE :keywords OR '.
 				CConfig::get('db.prefix').$this->_tableTranslation.'.tags LIKE :keywords OR '.
-				CConfig::get('db.prefix').$this->_tableTranslation.'.description LIKE :keywords';
+				CConfig::get('db.prefix').$this->_tableTranslation.'.description LIKE :keywords)';
 
 			// Count total items in result
 			$total = $this->count(array('condition'=>$condition), array(':keywords'=>'%'.$keywords.'%'));

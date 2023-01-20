@@ -121,6 +121,8 @@ class OrdersController extends \CController
         Website::prepareBackendAction('manage', 'order', 'modules/index');
 
         $actionMessage = '';
+        $filterDoctors = array();
+        $doctorIds = array();
         $alert     = A::app()->getSession()->getFlash('alert');
         $alertType = A::app()->getSession()->getFlash('alertType');
 
@@ -139,11 +141,31 @@ class OrdersController extends \CController
             $appendCode = $symbol;
         }
 
+        $orders = Orders::model()->findAll();
+        if (!empty($orders) && is_array($orders)) {
+            foreach ($orders as $order) {
+                if (!in_array($order['doctor_id'], $doctorIds)) {
+                    $doctorIds[] = $order['doctor_id'];
+                }
+            }
+        }
+
+        if (!empty($doctorIds) && is_array($doctorIds)) {
+            $doctorsTable = CConfig::get('db.prefix') . Doctors::model()->getTableName();
+            $doctors = Doctors::model()->findAll($doctorsTable.'.id IN('.implode(',', $doctorIds).')');
+            if (!empty($doctors) && is_array($doctors)) {
+                foreach ($doctors as $doctor) {
+                    $filterDoctors[$doctor['id']] = $doctor['full_name'];
+                }
+            }
+        }
+
         $this->_view->pricePrependCode = $prependCode;
         $this->_view->priceAppendCode  = $appendCode;
         $this->_view->membershipPlans = $this->_getMembershipPlans();
         $this->_view->allPaymentTypes = $this->_getPaymentTypes();
         $this->_view->actionMessage = $actionMessage;
+        $this->_view->filterDoctors = $filterDoctors;
         $this->_view->subTabs = AppointmentsComponent::prepareSubTab('orders', 'doctors');
         $this->_view->render('orders/doctors/manage');
     }
@@ -195,7 +217,8 @@ class OrdersController extends \CController
         $allPaymentMethods  = $this->_getPaymentMethods();
         $allStatus          = $this->_getStatusesForOrder($order->status);
 
-        $doctorName         = $order->doctor_first_name.' '.$order->doctor_last_name;
+        $doctor  = $this->_checkDoctorAccess($order->doctor_id);
+        $doctorName         = $doctor->getFullName();
         $orderStatus        = isset($allStatus[$order->status]) ? $allStatus[$order->status] : A::t('appointments', 'Unknown');
         $orderPaymentMethod = isset($allPaymentMethods[$order->payment_method]) ? $allPaymentMethods[$order->payment_method] : A::t('appointments', 'Unknown');
 
@@ -947,7 +970,11 @@ class OrdersController extends \CController
 			$arrError['errorField'] = 'cc_type';
 			return $arrError;
 		}
-		if(strlen($ccParams['cc_number']) == 0) return $ccErrors[2];
+		if(strlen($ccParams['cc_number']) == 0){
+			$arrError['errorMessage'] = A::t('appointments', 'Card Number is empty');
+			$arrError['errorField'] = 'cc_number';
+			return $arrError;
+		}
 		$ccNumber = str_replace(array(' ', '-'), '', $ccParams['cc_number']);
 
 		// Check that the number is numeric and of the right sort of length.
@@ -973,7 +1000,7 @@ class OrdersController extends \CController
 
 			// handle each digit starting from the right
 			for($i = strlen($ccNumber) - 1; $i >= 0; $i--){
-				$calc = $ccNumber{$i} * $j;
+				$calc = $ccNumber[$i] * $j;
 				// if the result is in two digits add 1 to the checksum total
 				if($calc > 9){
 					$checksum = $checksum + 1;
@@ -1296,7 +1323,7 @@ class OrdersController extends \CController
                                 <td>'.A::t('appointments', 'Date Created').': </td><td>'.CLocale::date($this->_view->dateTimeFormat, $order->created_date).'</td>
                             </tr>
                             <tr>
-                                <td><b>'.A::t('appointments', 'Subtotal').': </b></td><td><b>'.$beforePrice.CNumber::format($order->order_price + $order->shipping_fee, $this->_view->numberFormat, array('decimalPoints'=>2)).$afterPrice.'</b></td>
+                                <td><b>'.A::t('appointments', 'Subtotal').': </b></td><td><b>'.$beforePrice.CNumber::format($order->order_price, $this->_view->numberFormat, array('decimalPoints'=>2)).$afterPrice.'</b></td>
                             </tr>
                             <tr>
                                 <td><b>'.A::t('appointments', 'Grand Total').': </b></td><td><b>'.$beforePrice.CNumber::format($order->total_price, $this->_view->numberFormat, array('decimalPoints'=>2)).$afterPrice.'</b></td>

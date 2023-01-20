@@ -109,18 +109,19 @@ class NewsController extends CController
 
         $news = News::model()->findByPk((int)$nid, 'is_published = 1');
         if($news){
-
             // Counter views
 			$hitsTimeCreated = A::app()->getSession()->get('news_hits_'.$nid);
             if($hitsTimeCreated){
                 if($hitsTimeCreated + 600 < time()){
                     $news->hits++;
-                    $news->save();
+					// Save with forcing update on demo
+					$news->save(true);
                     A::app()->getSession()->set('news_hits_'.$nid, time());
                 }
             }else{
                 $news->hits++;
-                $news->save();
+                // Save with forcing update on demo
+                $news->save(true);
                 A::app()->getSession()->set('news_hits_'.$nid, time());
             }
 

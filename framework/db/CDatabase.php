@@ -300,11 +300,12 @@ class CDatabase extends PDO
      * @param string $data an associative array
      * @param string $where the WHERE clause of query
      * @param array $params
+	 * @param bool $forceUpdate	used to force update on Demo mode
      * @param boolean
      */
-    public function update($table, $data, $where = '1', $params = array())
+    public function update($table, $data, $where = '1', $params = array(), $forceUpdate = false)
     {
-        if(APPHP_MODE == 'demo'){
+		if(APPHP_MODE == 'demo' && !$forceUpdate){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
 			return false;
 		} 

@@ -48,8 +48,8 @@
  * downloadContent
  * downloadFile
  * getBrowser
- * setHttpReferer
- * getUrlReferer
+ * setHttpReferrer
+ * getUrlReferrer
  * getPort
  * getSecurePort
  * getUrlContent
@@ -87,7 +87,10 @@ class CHttpRequest extends CComponent
 	private $_port = null;
 	/** @var int secure port number */
 	private $_securePort = null;
-	/** @var boolean whether to enable referrer storage in session */
+	/** @var boolean
+	 * whether to enable referrer storage in session - has potential risk
+	 * requires special handling to prevent endless loops on redirection on the same page
+	 */
 	private $_referrerInSession = false;
 		
 	
@@ -617,24 +620,14 @@ class CHttpRequest extends CComponent
 
 	/**
 	 * Cleans the request data
-	 * This method removes slashes from request data if get_magic_quotes_gpc() is turned on
+	 * This method removes slashes from request data
 	 * Also performs CSRF validation if {@link _csrfValidation} is true
 	 */
 	protected function _cleanRequest()
 	{
-		// Clean request only for PHP < 5.3, in greater versions of PHP 'magic' functions are deprecated
-		if(version_compare(phpversion(), '5.3.0', '<')){
-			if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
-				$_GET = $this->stripSlashes($_GET);
-				$_POST = $this->stripSlashes($_POST);
-				$_REQUEST = $this->stripSlashes($_REQUEST);
-				$_COOKIE = $this->stripSlashes($_COOKIE);            
-			}
-		}
-        
 		if($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
 		if($this->_gzipCompression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
-		if($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferer'));
+		if($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferrer'));
 	}
 	
 	/**
@@ -819,7 +812,7 @@ class CHttpRequest extends CComponent
 	{
 		$browser = get_browser($userAgent, true);
 		
-		if(!empty($key)){		
+		if(!empty($key)){
 			return isset($browser[$key]) ? $browser[$key] : '';
 		}
 		
@@ -827,26 +820,33 @@ class CHttpRequest extends CComponent
 	}
 	
 	/**
-	 * Sets HTTP Refferer
-	 */	
-	public function setHttpReferer()
+	 * Sets HTTP Referrer
+	 * Has potential risk because can insert current URL as a referrer and lead to endless loops on redirection
+	 * Ex.: language or currency changes
+	 */
+	public function setHttpReferrer()
 	{
-		// Save current data as previous referer
-		A::app()->getSession()->set('http_referer_previous', A::app()->getSession()->get('http_referer_current'));
-		// Save current link as referer 
-		$httpRefererCurrent = $this->_getProtocolAndHost().$this->getRequestUri();	
-		A::app()->getSession()->set('http_referer_current', $httpRefererCurrent);
+		// Save current data as previous referrer
+		A::app()->getSession()->set('http_referrer_previous', A::app()->getSession()->get('http_referrer_current'));
+		// Save current link as referrer
+		$httpReferrerCurrent = $this->_getProtocolAndHost().$this->getRequestUri();
+		A::app()->getSession()->set('http_referrer_current', $httpReferrerCurrent);
 	}
 	 
 	/**
-	 * Returns the URL referer, null if not present
+	 * Returns the URL referrer, null if not present
 	 */	
-	public function getUrlReferer()
+	public function getUrlReferrer()
 	{
-		if($this->_referrerInSession){
-			return A::app()->getSession()->get('http_referer_previous');
+		$serverReferrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+		$sessionReferrer = A::app()->getSession()->get('http_referrer_previous');
+		
+		if(!empty($serverReferrer)){
+			return $serverReferrer;
+		}elseif(!empty($sessionReferrer)){
+			return $sessionReferrer;
 		}else{
-			return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+			return null;
 		}		
 	}
 

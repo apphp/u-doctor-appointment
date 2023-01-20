@@ -505,7 +505,7 @@ class SettingsController extends CController
 				$fields['smtpHost']     = array('title'=>A::t('app', 'SMTP Host'), 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>70));
 				$fields['smtpPort']     = array('title'=>A::t('app', 'SMTP Port'), 'validation'=>array('required'=>true, 'type'=>'numeric', 'maxLength'=>5));
 				$fields['smtpUsername'] = array('title'=>A::t('app', 'SMTP Username'), 'validation'=>array('required'=>true, 'type'=>'email', 'maxLength'=>40));
-				$fields['smtpPassword'] = array('title'=>A::t('app', 'SMTP Password'), 'validation'=>array('required'=>((!$this->_settings->smtp_password) ? true : false), 'type'=>'password', 'maxLength'=>20));
+				$fields['smtpPassword'] = array('title'=>A::t('app', 'SMTP Password'), 'validation'=>array('required'=>((!$this->_settings->smtp_password) ? true : false), 'type'=>'password', 'maxLength'=>25));
 			}
 
 			// Test email settings
@@ -799,82 +799,87 @@ class SettingsController extends CController
 		$this->_view->render('settings/templates');
 	}
 
-	/**
-	 * Mapping API settings
-	 */
-	public function mappingApiAction()
+    /**
+     * Mapping API settings
+     */
+    public function mappingApiAction()
     {
-		// Settings form submit
-		if($this->_cRequest->getPost('act') == 'send'){
+        // Settings form submit
+        if($this->_cRequest->getPost('act') == 'send'){
 
-			// Block access if admin has no active privilege to edit site settings
-			if(!Admins::hasPrivilege('site_settings', 'edit')){
-				$this->redirect('backend/index');
-			}
-				
-			$this->_view->mappingApiType = $this->_cRequest->getPost('mapping_api_type');				
-			$this->_view->mappingApiKey = $this->_cRequest->getPost('mapping_api_key');
-			
-			$result = CWidget::create('CFormValidation', array(
-				'fields'=>array(
-					'mapping_api_type' =>array('title'=>A::t('app', 'Mapping API Type'), 'validation'=>array('required'=>true, 'type'=>'fileName', 'maxLength'=>32)),
-					'mapping_api_key' =>array('title'=>A::t('app', 'Mapping API Key'), 'validation'=>array('required'=>false, 'type'=>'fileName', 'maxLength'=>50)),
-				),
-			));
+            // Block access if admin has no active privilege to edit site settings
+            if(!Admins::hasPrivilege('site_settings', 'edit')){
+                $this->redirect('backend/index');
+            }
 
-			if($result['error']){
-				$this->_alert = $result['errorMessage'];
-				$this->_view->errorField = $result['errorField'];
-				$this->_alertType = 'validation';
-			}else{
-				$this->_settings->mapping_api_type = $this->_view->mappingApiType;
-				$this->_settings->mapping_api_key = $this->_view->mappingApiKey;
+            $this->_view->mappingApiType = $this->_cRequest->getPost('mapping_api_type');
+            $this->_view->mappingApiKey = $this->_cRequest->getPost('mapping_api_key');
+            $this->_view->mappingHttpKey = $this->_cRequest->getPost('mapping_http_key');
 
-				if(APPHP_MODE == 'demo'){
-					$this->_alert = A::t('core', 'This operation is blocked in Demo Mode!');
-					$this->_alertType = 'warning';
-				}else{
-					if($this->_settings->save()){
-						$this->_view->mappingType = $this->_settings->mapping_api_type;
-						$this->_view->mappingTypeKey = $this->_settings->mapping_api_key;
-						$this->_alert = A::t('app', 'Settings Update Success Message');
-						$this->_alertType = 'success';
-					}else{
-						$this->_alert = A::t('app', 'Settings Update Error Message');
-						$this->_view->errorField = '';
-						$this->_alertType = 'error';
-					}
-				}
-			}
-			
-			if(!empty($this->_alert)){
-				$this->_cSession->setFlash('alert', $this->_alert);
-				$this->_cSession->setFlash('alertType', $this->_alertType);
-				$this->redirect('settings/mappingApi');
-			}	
-		}else{
-			$this->_view->mappingType = $this->_settings->mapping_api_type;
-			$this->_view->mappingTypeKey = $this->_settings->mapping_api_key;
-			
-			if($this->_settings->mapping_api_key == ''){
-				$this->_alert = A::t('app', 'Mapping API Key is empty! It may lead to unstable work of map components.');
-				$this->_alertType = 'warning';
-			}
-		}
+            $result = CWidget::create('CFormValidation', array(
+                'fields'=>array(
+                    'mapping_api_type' =>array('title'=>A::t('app', 'Mapping API Type'), 'validation'=>array('required'=>true, 'type'=>'fileName', 'maxLength'=>32)),
+                    'mapping_api_key' => array('title' => A::t('app', 'Mapping API Key'), 'validation' => array('required' => false, 'type' => 'fileName', 'maxLength' => 70)),
+                    'mapping_http_key' => array('title' => A::t('app', 'Mapping HTTP Key'), 'validation' => array('required' => false, 'type' => 'fileName', 'maxLength' => 70)),
+                ),
+            ));
 
-		// Prepare alert message
-		if($this->_cSession->hasFlash('alert')){
-			$this->_alert = $this->_cSession->getFlash('alert');
-			$this->_alertType = $this->_cSession->getFlash('alertType');
-		}
+            if($result['error']){
+                $this->_alert = $result['errorMessage'];
+                $this->_view->errorField = $result['errorField'];
+                $this->_alertType = 'validation';
+            }else{
+                $this->_settings->mapping_api_type = $this->_view->mappingApiType;
+                $this->_settings->mapping_api_key = $this->_view->mappingApiKey;
+                $this->_settings->mapping_http_key = $this->_view->mappingHttpKey;
 
-		if(!empty($this->_alert)){
-			$this->_view->actionMessage = CWidget::create('CMessage', array($this->_alertType, $this->_alert, array('button'=>true)));
-		}
+                if(APPHP_MODE == 'demo'){
+                    $this->_alert = A::t('core', 'This operation is blocked in Demo Mode!');
+                    $this->_alertType = 'warning';
+                }else{
+                    if($this->_settings->save()){
+                        $this->_view->mappingType = $this->_settings->mapping_api_type;
+                        $this->_view->mappingApiKey = $this->_settings->mapping_api_key;
+                        $this->_view->mappingHttpKey = $this->_settings->mapping_http_key;
+                        $this->_alert = A::t('app', 'Settings Update Success Message');
+                        $this->_alertType = 'success';
+                    }else{
+                        $this->_alert = A::t('app', 'Settings Update Error Message');
+                        $this->_view->errorField = '';
+                        $this->_alertType = 'error';
+                    }
+                }
+            }
 
-    	$this->_view->tabs = $this->_prepareTab('mappingapi');
-    	$this->_view->render('settings/mappingapi');
-	}
+            if(!empty($this->_alert)){
+                $this->_cSession->setFlash('alert', $this->_alert);
+                $this->_cSession->setFlash('alertType', $this->_alertType);
+                $this->redirect('settings/mappingApi');
+            }
+        }else{
+            $this->_view->mappingType = $this->_settings->mapping_api_type;
+            $this->_view->mappingApiKey = $this->_settings->mapping_api_key;
+            $this->_view->mappingHttpKey = $this->_settings->mapping_http_key;
+
+            if ($this->_settings->mapping_api_key == '' || $this->_settings->mapping_http_key == '') {
+                $this->_alert = A::t('app', 'One of mapping API Keys is empty! It may lead to unstable work of map components.');
+                $this->_alertType = 'warning';
+            }
+        }
+
+        // Prepare alert message
+        if($this->_cSession->hasFlash('alert')){
+            $this->_alert = $this->_cSession->getFlash('alert');
+            $this->_alertType = $this->_cSession->getFlash('alertType');
+        }
+
+        if(!empty($this->_alert)){
+            $this->_view->actionMessage = CWidget::create('CMessage', array($this->_alertType, $this->_alert, array('button'=>true)));
+        }
+
+        $this->_view->tabs = $this->_prepareTab('mappingapi');
+        $this->_view->render('settings/mappingapi');
+    }
 
 	/**
 	 * Search settings
@@ -1386,7 +1391,7 @@ class SettingsController extends CController
 		$hash_str = sprintf('%u', $hashnum);
 		$length = strlen($hash_str);
 		for($i = $length - 1; $i >= 0; $i --){
-			$re = $hash_str{$i};
+			$re = $hash_str[$i];
 			if (1 === ($flag % 2)){
 				$re += $re;
 				$re = (int)($re / 10) + ($re % 10);
@@ -1442,7 +1447,7 @@ class SettingsController extends CController
 				// If the check less than -2^31
 				$check = ($check < -2147483648) ? ($check + $int_32_u) : $check;
 			}
-			$check += ord($str{$i});
+			$check += ord($str[$i]);
 		}
 		return $check;
 	}

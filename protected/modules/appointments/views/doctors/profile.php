@@ -12,7 +12,7 @@
     use \Modules\Appointments\Components\DoctorsComponent;
 ?>
 
-<section id="content" role="main">
+<section id="content" class="profile-doctor" role="main">
     <div class="entry margin-bottom-20">
         <div class="cmsms_cc">
             <div class="two_fifth first_column">
@@ -71,7 +71,7 @@
                         </div>
                         <div class="cmsms_features_item">
                             <span class="cmsms_features_item_title"><?= A::t('appointments', 'Gender'); ?></span>
-                            <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? 'Male' : 'Famale' : '--'; ?></span>
+                            <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? A::t('appointments', 'Male') : A::t('appointments', 'Female') : '--'; ?></span>
                         </div>
                         <div class="cmsms_features_item">
                             <span class="cmsms_features_item_title"><?= A::t('appointments', 'Degree'); ?></span>
@@ -108,6 +108,28 @@
                             </div>
                         <?php endif; ?>
                     </div>
+                    <?php if($profileDoctor->show_social_networks): ?>
+                        <div class="wrap_social_icons">
+                            <ul class="social_icons">
+                                <?php if($profileDoctor->social_network_facebook): ?>
+                                    <li><a href="<?= $profileDoctor->social_network_facebook; ?>" title="Facebook" target="_blank"><img alt="Facebook" src="images/social_networks/facebook.png"></a></li>
+                                <?php endif; ?>
+                                <?php if($profileDoctor->social_network_twitter): ?>
+                                    <li><a href="<?= $profileDoctor->social_network_twitter; ?>" title="Twitter" target="_blank"><img alt="Twitter" src="images/social_networks/twitter.png"></a></li>
+                                <?php endif; ?>
+                                <?php if($profileDoctor->social_network_youtube): ?>
+                                    <li><a href="<?= $profileDoctor->social_network_youtube; ?>" title="Youtube" target="_blank"><img alt="Youtube" src="images/social_networks/youtube.png"></a></li>
+                                <?php endif; ?>
+                                <?php if($profileDoctor->social_network_instagram): ?>
+                                    <li><a href="<?= $profileDoctor->social_network_instagram; ?>" title="Instagram" target="_blank"><img alt="Instagram" src="images/social_networks/instagram.png"></a></li>
+                                <?php endif; ?>
+
+
+
+
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 <div class="fl margin-top-20">
                     <a class="btn-book-appointment button_small" href="patients/addMyAppointment/doctorId/<?= $profileDoctor->id.'/seoLonk/'.CString::seoString($fullname); ?>">&#128197; &nbsp;<?= A::t('appointments', 'Book Appointment'); ?></a>
                 </div>
@@ -156,7 +178,7 @@
                                             <span class="cmsms_features_item_title"><?= A::t('appointments', 'Address'); ?></span>
                                             <span class="cmsms_features_item_desc">
                                                 <?php
-                                                if(!empty($profileDoctor->address)):
+                                                if($profileDoctor->address):
                                                     echo CHtml::encode($profileDoctor->address).' '.CHtml::encode($profileDoctor->city).' '.CHtml::encode($profileDoctor->zip_code);
                                                     if($profileDoctor->address_2):
                                                         echo '<br/>'.CHtml::encode($profileDoctor->address_2).', '.CHtml::encode($profileDoctor->city).', '.CHtml::encode($profileDoctor->zip_code);

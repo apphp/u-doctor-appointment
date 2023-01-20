@@ -35,7 +35,7 @@
                 ),
 	         	'separatorEmail' =>array(
 	                'separatorInfo' => array('legend'=>A::t('app', 'Email Address')),
-                    'email'	     =>array('type'=>'textbox', 'value'=>($settings->general_email == '' ? CConfig::get('email.from') : $settings->general_email), 'title'=>A::t('app', 'From Email'), 'tooltip'=>A::t('app', 'Email Address Tooltip'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxlength'=>'100', 'class'=>'email', 'autocomplete'=>'off'), 'appendCode'=>A::t('app', 'e.g., info@email.me')),
+                    'email'	     =>array('type'=>'textbox', 'value'=>($settings->general_email == '' ? CConfig::get('email.from') : $settings->general_email), 'title'=>A::t('app', 'From Email'), 'tooltip'=>A::t('app', 'Email Address Tooltip'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxlength'=>'100', 'class'=>'email', 'autocomplete'=>'off'), 'appendCode'=>A::t('app', 'e.g., info@example.com')),
                     'email_name' =>array('type'=>'textbox', 'value'=>($settings->general_email_name == '' ? CConfig::get('email.fromName') : $settings->general_email_name), 'title'=>A::t('app', 'From Name'), 'tooltip'=>A::t('app', 'Email Name Tooltip'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxlength'=>'50', 'autocomplete'=>'off'), 'appendCode'=>A::t('app', 'e.g., John Smith')),	 
 	            ),
 	         	'separatorSmtp' =>array(
@@ -45,7 +45,7 @@
                     'smtpHost'	 =>array('type'=>'textbox', 'value'=>($settings->smtp_host == '' ? CConfig::get('email.smtp.host') : $settings->smtp_host), 'title'=>A::t('app', 'SMTP Host'), 'tooltip'=>A::t('app', 'SMTP Host Tooltip'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxlength'=>'70'), 'appendCode'=>A::t('app', 'e.g., smtp.gmail.com')),
                     'smtpPort'	 =>array('type'=>'textbox', 'value'=>($settings->smtp_port == '' ? CConfig::get('email.smtp.port') : $settings->smtp_port), 'title'=>A::t('app', 'SMTP Port'), 'tooltip'=>A::t('app', 'SMTP Port Tooltip'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxlength'=>'5', 'class'=>'small'), 'appendCode'=>A::t('app', 'e.g., 465 or 587')),
                     'smtpUsername'	=>array('type'=>'textbox', 'value'=>($settings->smtp_username == '' ? CConfig::get('email.smtp.username') : $settings->smtp_username), 'title'=>A::t('app', 'SMTP Username'), 'tooltip'=>A::t('app', 'SMTP Username Tooltip'), 'mandatoryStar'=>true, 'htmlOptions'=>array('maxlength'=>'40'), 'appendCode'=>A::t('app', 'your full email address')),
-                    'smtpPassword'	=>array('type'=>'password', 'value'=>($smtpPassword == '' ? CConfig::get('email.smtp.password') : $smtpPassword), 'title'=>A::t('app', 'SMTP Password'), 'tooltip'=>A::t('app', 'SMTP Password Tooltip'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxlength'=>'20', 'placeholder'=>'&#9679;&#9679;&#9679;&#9679;&#9679;'), 'appendCode'=>A::t('app', 'your email password')),
+                    'smtpPassword'	=>array('type'=>'password', 'value'=>($smtpPassword == '' ? CConfig::get('email.smtp.password') : $smtpPassword), 'title'=>A::t('app', 'SMTP Password'), 'tooltip'=>A::t('app', 'SMTP Password Tooltip'), 'mandatoryStar'=>false, 'htmlOptions'=>array('maxlength'=>'25', 'placeholder'=>'&#9679;&#9679;&#9679;&#9679;&#9679;'), 'appendCode'=>A::t('app', 'your email password')),
                 ),
 	         	'separatorEmailLog' => array(
 	                'separatorInfo' => array('legend'=>A::t('app', 'Email Log')),

@@ -2,8 +2,8 @@
 DROP TABLE IF EXISTS `<DB_PREFIX>admins`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>admins` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(25) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `password` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `username` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `password` varchar(100) CHARACTER SET latin1 NOT NULL,
   `salt` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `token_expires_at` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `display_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `<DB_PREFIX>accounts`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>accounts` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `role` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'defined for each module separately',
-  `username` varchar(25) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `username` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `password` varchar(64) CHARACTER SET latin1 NOT NULL,
   `salt` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `token_expires_at` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>settings` (
   `smtp_host` varchar(70) COLLATE utf8_unicode_ci NOT NULL,
   `smtp_port` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
   `smtp_username` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `smtp_password` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `smtp_password` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `mailing_log` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `rss_feed` tinyint(1) NOT NULL DEFAULT '1',
   `rss_feed_type` enum('rss1','rss2','atom') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'rss1',
@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>settings` (
   `dashboard_statistics` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `mapping_api_type` enum('google_maps') CHARACTER SET latin1 NOT NULL DEFAULT 'google_maps',
   `mapping_api_key` varchar(125) COLLATE utf8_unicode_ci NOT NULL,
+  `mapping_http_key` varchar(125) COLLATE utf8_unicode_ci NOT NULL,
   `website_domain` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `google_rank` varchar(2) CHARACTER SET latin1 NOT NULL,
   `alexa_rank` varchar(12) CHARACTER SET latin1 NOT NULL,
@@ -126,8 +127,8 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `<DB_PREFIX>settings` (`id`, `template`, `ssl_mode`, `date_format`, `time_format`, `datetime_format`, `time_zone`, `daylight_saving`, `week_startday`, `number_format`, `general_email`, `general_email_name`, `mailer`, `smtp_auth`, `smtp_secure`, `smtp_host`, `smtp_port`, `smtp_username`, `smtp_password`, `mailing_log`, `rss_feed`, `rss_feed_type`, `rss_items_per_feed`, `search_items_per_page`, `search_is_highlighted`, `is_offline`, `offline_message`, `analytics_level`, `analytics_code`, `dashboard_hotkeys`, `dashboard_notifications`, `dashboard_statistics`, `mapping_api_type`, `mapping_api_key`, `website_domain`, `google_rank`, `alexa_rank`, `indexed_pages_google`, `indexed_pages_bing`, `indexed_pages_yahoo`, `indexed_pages_yandex`, `indexed_pages_baidu`, `indexed_pages_goo`, `site_last_updated`, `cron_type`, `cron_run_last_time`, `cron_run_period`, `cron_run_period_value`) VALUES
-(1, 'default', 0, 'F d Y', 'H:i:s', 'Y-m-d H:i:s', 'UTC', 1, 1, 'american', 'info@email.me', '', 'phpMail', 1, 'ssl', '', '', '', '', 0, 1, 'rss2', 10, 20, 1, 0, 'Our website is currently offline for maintenance. Please visit us later.', 1, '', 1, 1, 1, 'google_maps', '', '', '', '', '', '', '', '', '', '', NULL, 'non-batch', NULL, 'minute', 1);
+INSERT INTO `<DB_PREFIX>settings` (`id`, `template`, `ssl_mode`, `date_format`, `time_format`, `datetime_format`, `time_zone`, `daylight_saving`, `week_startday`, `number_format`, `general_email`, `general_email_name`, `mailer`, `smtp_auth`, `smtp_secure`, `smtp_host`, `smtp_port`, `smtp_username`, `smtp_password`, `mailing_log`, `rss_feed`, `rss_feed_type`, `rss_items_per_feed`, `search_items_per_page`, `search_is_highlighted`, `is_offline`, `offline_message`, `analytics_level`, `analytics_code`, `dashboard_hotkeys`, `dashboard_notifications`, `dashboard_statistics`, `mapping_api_type`, `mapping_api_key`, `mapping_http_key`, `website_domain`, `google_rank`, `alexa_rank`, `indexed_pages_google`, `indexed_pages_bing`, `indexed_pages_yahoo`, `indexed_pages_yandex`, `indexed_pages_baidu`, `indexed_pages_goo`, `site_last_updated`, `cron_type`, `cron_run_last_time`, `cron_run_period`, `cron_run_period_value`) VALUES
+(1, 'default', 0, 'F d Y', 'H:i:s', 'Y-m-d H:i:s', 'UTC', 1, 1, 'american', 'info@example.com', '', 'phpMail', 1, 'ssl', '', '', '', '', 0, 1, 'rss2', 10, 20, 1, 0, 'Our website is currently offline for maintenance. Please visit us later.', 1, '', 1, 1, 1, 'google_maps', '', '', '', '', '', '', '', '', '', '', '', NULL, 'non-batch', NULL, 'minute', 1);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>site_info`;
@@ -150,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>site_info` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `<DB_PREFIX>site_info` (`id`, `language_code`, `logo`, `site_phone`, `site_fax`, `site_email`, `site_address`, `header`, `slogan`, `footer`, `meta_title`, `meta_description`, `meta_keywords`) VALUES
-(1, 'en', '', '1(800) 123 456', '', 'info@email.me', '', 'PHP Directy CMF', 'Welcome to PHP Directy CMF!', 'PHP Directy CMF © <a class="footer_link" target="_blank" rel="noopener noreferrer" href="https://www.apphp.com/php-directy-cmf/index.php">ApPHP</a>', 'PHP Directy CMF', 'Directy CMF', 'php cmf, php framework, php content management framework, php cms');
+(1, 'en', '', '1(800) 123 456', '', 'info@example.com', '', 'PHP Directy CMF', 'Welcome to PHP Directy CMF!', 'PHP Directy CMF © <a class="footer_link" target="_blank" rel="noopener noreferrer" href="https://www.apphp.com/php-directy-cmf/index.php">ApPHP</a>', 'PHP Directy CMF', 'Directy CMF', 'php cmf, php framework, php content management framework, php cms');
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>modules`;
@@ -204,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>countries` (
   `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `sort_order` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=237 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=239 ;
 
 INSERT INTO `<DB_PREFIX>countries` (`id`, `code`, `is_active`, `is_default`, `sort_order`) VALUES
 (1, 'AF', 1, 0, 0),
@@ -399,50 +400,52 @@ INSERT INTO `<DB_PREFIX>countries` (`id`, `code`, `is_active`, `is_default`, `so
 (190, 'SB', 1, 0, 0),
 (191, 'SO', 1, 0, 0),
 (192, 'ZA', 1, 0, 0),
-(193, 'ES', 1, 0, 0),
-(194, 'LK', 1, 0, 0),
-(195, 'SH', 1, 0, 0),
-(196, 'KN', 1, 0, 0),
-(197, 'PM', 1, 0, 0),
-(198, 'VC', 1, 0, 0),
-(199, 'SD', 1, 0, 0),
-(200, 'SR', 1, 0, 0),
-(201, 'SJ', 1, 0, 0),
-(202, 'SZ', 1, 0, 0),
-(203, 'SE', 1, 0, 0),
-(204, 'CH', 1, 0, 0),
-(205, 'SY', 1, 0, 0),
-(206, 'TW', 1, 0, 0),
-(207, 'TJ', 1, 0, 0),
-(208, 'TZ', 1, 0, 0),
-(209, 'TH', 1, 0, 0),
-(210, 'TG', 1, 0, 0),
-(211, 'TK', 1, 0, 0),
-(212, 'TO', 1, 0, 0),
-(213, 'TT', 1, 0, 0),
-(214, 'TN', 1, 0, 0),
-(215, 'TR', 1, 0, 0),
-(216, 'TM', 1, 0, 0),
-(217, 'TC', 1, 0, 0),
-(218, 'TV', 1, 0, 0),
-(219, 'UG', 1, 0, 0),
-(220, 'UA', 1, 0, 0),
-(221, 'AE', 1, 0, 0),
-(222, 'GB', 1, 0, 999),
-(223, 'US', 1, 1, 1000),
-(224, 'VI', 1, 0, 0),
-(225, 'UY', 1, 0, 0),
-(226, 'UZ', 1, 0, 0),
-(227, 'VU', 1, 0, 0),
-(228, 'VA', 1, 0, 0),
-(229, 'VE', 1, 0, 0),
-(230, 'VN', 1, 0, 0),
-(231, 'WF', 1, 0, 0),
-(232, 'EH', 1, 0, 0),
-(233, 'YE', 1, 0, 0),
-(234, 'ZR', 1, 0, 0),
-(235, 'ZM', 1, 0, 0),
-(236, 'ZW', 1, 0, 0);
+(193, 'GS', 1, 0, 0),
+(194, 'SS', 1, 0, 0),
+(195, 'ES', 1, 0, 0),
+(196, 'LK', 1, 0, 0),
+(197, 'SH', 1, 0, 0),
+(198, 'KN', 1, 0, 0),
+(199, 'PM', 1, 0, 0),
+(200, 'VC', 1, 0, 0),
+(201, 'SD', 1, 0, 0),
+(202, 'SR', 1, 0, 0),
+(203, 'SJ', 1, 0, 0),
+(204, 'SZ', 1, 0, 0),
+(205, 'SE', 1, 0, 0),
+(206, 'CH', 1, 0, 0),
+(207, 'SY', 1, 0, 0),
+(208, 'TW', 1, 0, 0),
+(209, 'TJ', 1, 0, 0),
+(210, 'TZ', 1, 0, 0),
+(211, 'TH', 1, 0, 0),
+(212, 'TG', 1, 0, 0),
+(213, 'TK', 1, 0, 0),
+(214, 'TO', 1, 0, 0),
+(215, 'TT', 1, 0, 0),
+(216, 'TN', 1, 0, 0),
+(217, 'TR', 1, 0, 0),
+(218, 'TM', 1, 0, 0),
+(219, 'TC', 1, 0, 0),
+(220, 'TV', 1, 0, 0),
+(221, 'UG', 1, 0, 0),
+(222, 'UA', 1, 0, 0),
+(223, 'AE', 1, 0, 0),
+(224, 'GB', 1, 0, 999),
+(225, 'US', 1, 1, 1000),
+(226, 'VI', 1, 0, 0),
+(227, 'UY', 1, 0, 0),
+(228, 'UZ', 1, 0, 0),
+(229, 'VU', 1, 0, 0),
+(230, 'VA', 1, 0, 0),
+(231, 'VE', 1, 0, 0),
+(232, 'VN', 1, 0, 0),
+(233, 'WF', 1, 0, 0),
+(234, 'EH', 1, 0, 0),
+(235, 'YE', 1, 0, 0),
+(236, 'ZR', 1, 0, 0),
+(237, 'ZM', 1, 0, 0),
+(238, 'ZW', 1, 0, 0);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>country_translations`;
@@ -454,7 +457,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>country_translations` (
   PRIMARY KEY (`id`),
   KEY `country_code` (`country_code`),
   KEY `language_code` (`language_code`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=237 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=239 ;
 
 INSERT INTO `<DB_PREFIX>country_translations` (`id`, `country_code`, `language_code`, `name`) VALUES
 (1, 'AF', 'en', 'Afghanistan'),
@@ -649,50 +652,52 @@ INSERT INTO `<DB_PREFIX>country_translations` (`id`, `country_code`, `language_c
 (190, 'SB', 'en', 'Solomon Islands'),
 (191, 'SO', 'en', 'Somalia'),
 (192, 'ZA', 'en', 'South Africa'),
-(193, 'ES', 'en', 'Spain'),
-(194, 'LK', 'en', 'Sri Lanka'),
-(195, 'SH', 'en', 'St. Helena'),
-(196, 'KN', 'en', 'St. Kitts and Nevis'),
-(197, 'PM', 'en', 'St. Pierre and Miquelon'),
-(198, 'VC', 'en', 'St. Vincent and the Grenadines'),
-(199, 'SD', 'en', 'Sudan'),
-(200, 'SR', 'en', 'Suriname'),
-(201, 'SJ', 'en', 'Svalbard and Jan Mayen Islands'),
-(202, 'SZ', 'en', 'Swaziland'),
-(203, 'SE', 'en', 'Sweden'),
-(204, 'CH', 'en', 'Switzerland'),
-(205, 'SY', 'en', 'Syrian Arab Republic'),
-(206, 'TW', 'en', 'Taiwan'),
-(207, 'TJ', 'en', 'Tajikistan'),
-(208, 'TZ', 'en', 'Tanzania, United Republic of'),
-(209, 'TH', 'en', 'Thailand'),
-(210, 'TG', 'en', 'Togo'),
-(211, 'TK', 'en', 'Tokelau'),
-(212, 'TO', 'en', 'Tonga'),
-(213, 'TT', 'en', 'Trinidad and Tobago'),
-(214, 'TN', 'en', 'Tunisia'),
-(215, 'TR', 'en', 'Turkey'),
-(216, 'TM', 'en', 'Turkmenistan'),
-(217, 'TC', 'en', 'Turks and Caicos Islands'),
-(218, 'TV', 'en', 'Tuvalu'),
-(219, 'UG', 'en', 'Uganda'),
-(220, 'UA', 'en', 'Ukraine'),
-(221, 'AE', 'en', 'United Arab Emirates'),
-(222, 'GB', 'en', 'United Kingdom (GB)'),
-(223, 'US', 'en', 'United States'),
-(224, 'VI', 'en', 'United States Virgin Islands'),
-(225, 'UY', 'en', 'Uruguay'),
-(226, 'UZ', 'en', 'Uzbekistan'),
-(227, 'VU', 'en', 'Vanuatu'),
-(228, 'VA', 'en', 'Vatican City State'),
-(229, 'VE', 'en', 'Venezuela'),
-(230, 'VN', 'en', 'Vietnam'),
-(231, 'WF', 'en', 'Wallis and Futuna Islands'),
-(232, 'EH', 'en', 'Western Sahara'),
-(233, 'YE', 'en', 'Yemen'),
-(234, 'ZR', 'en', 'Zaire'),
-(235, 'ZM', 'en', 'Zambia'),
-(236, 'ZW', 'en', 'Zimbabwe');
+(193, 'GS', 'en', 'South Georgia and the South Sandwich Islands'),
+(194, 'SS', 'en', 'South Sudan'),
+(195, 'ES', 'en', 'Spain'),
+(196, 'LK', 'en', 'Sri Lanka'),
+(197, 'SH', 'en', 'St. Helena'),
+(198, 'KN', 'en', 'St. Kitts and Nevis'),
+(199, 'PM', 'en', 'St. Pierre and Miquelon'),
+(200, 'VC', 'en', 'St. Vincent and the Grenadines'),
+(201, 'SD', 'en', 'Sudan'),
+(202, 'SR', 'en', 'Suriname'),
+(203, 'SJ', 'en', 'Svalbard and Jan Mayen Islands'),
+(204, 'SZ', 'en', 'Swaziland'),
+(205, 'SE', 'en', 'Sweden'),
+(206, 'CH', 'en', 'Switzerland'),
+(207, 'SY', 'en', 'Syrian Arab Republic'),
+(208, 'TW', 'en', 'Taiwan'),
+(209, 'TJ', 'en', 'Tajikistan'),
+(210, 'TZ', 'en', 'Tanzania, United Republic of'),
+(211, 'TH', 'en', 'Thailand'),
+(212, 'TG', 'en', 'Togo'),
+(213, 'TK', 'en', 'Tokelau'),
+(214, 'TO', 'en', 'Tonga'),
+(215, 'TT', 'en', 'Trinidad and Tobago'),
+(216, 'TN', 'en', 'Tunisia'),
+(217, 'TR', 'en', 'Turkey'),
+(218, 'TM', 'en', 'Turkmenistan'),
+(219, 'TC', 'en', 'Turks and Caicos Islands'),
+(220, 'TV', 'en', 'Tuvalu'),
+(221, 'UG', 'en', 'Uganda'),
+(222, 'UA', 'en', 'Ukraine'),
+(223, 'AE', 'en', 'United Arab Emirates'),
+(224, 'GB', 'en', 'United Kingdom (GB)'),
+(225, 'US', 'en', 'United States'),
+(226, 'VI', 'en', 'United States Virgin Islands'),
+(227, 'UY', 'en', 'Uruguay'),
+(228, 'UZ', 'en', 'Uzbekistan'),
+(229, 'VU', 'en', 'Vanuatu'),
+(230, 'VA', 'en', 'Vatican City State'),
+(231, 'VE', 'en', 'Venezuela'),
+(232, 'VN', 'en', 'Vietnam'),
+(233, 'WF', 'en', 'Wallis and Futuna Islands'),
+(234, 'EH', 'en', 'Western Sahara'),
+(235, 'YE', 'en', 'Yemen'),
+(236, 'ZR', 'en', 'Zaire'),
+(237, 'ZM', 'en', 'Zambia'),
+(238, 'ZW', 'en', 'Zimbabwe');
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>states`;
@@ -1366,7 +1371,7 @@ INSERT INTO `<DB_PREFIX>payment_providers` (`id`, `code`, `name`, `description`,
 (1, 'online_order', 'Online Order', '''Online Order'' is designed to allow the customer to make an order on the site without any advance payment. It may be used like POA - "Pay on Arrival" order for hotel bookings, car rental etc. The administrator receives a notification about placing the order and can complete the order by himself.', '', '', '', '', '', 'global', 1, 0, 1, 1),
 (2, 'online_credit_card', 'Online Credit Card', '''Online Credit Card'' is designed to allow the customer to make an order on the site with payment by credit card. The administrator receives a credit card info and can complete the order by himself (in case he''s allowed to do Offline Credit Card Processing).', '', '', '', '', '', 'global', 1, 1, 0, 1),
 (3, 'wire_transfer', 'Wire Transfer', '''Wire Transfer'' is designed to allow the customer to perform a purchase on the site without any advance payment. The administrator receives a notification about placing this reservation and can complete it after the customer will pay a required sum to the provided bank account. After the customer send a payment with wire transfer and it successfully received, the status of purchase may be changes to ''paid''.', 'Bank name: {BANK NAME HERE}<br>Swift code: {CODE HERE}<br>Routing in Transit# or ABA#: {ROUTING HERE}<br>Account number *: {ACCOUNT NUMBER HERE}<br><br>*The account number must be in the IBAN format which may be obtained from the branch handling the customer''''s account or may be seen at the top the customer''''s bank statement', '', '', '', '', 'global', 1, 2, 0, 1),
-(4, 'paypal', 'PayPal', 'To make PayPal processing system works on your site you have to perform the following steps:<br><br>Create an account on PayPal: https://www.paypal.com<br>After account is created, log into and select from the top menu: My Account -> Profile<br>On Profile Summary page select from the Selling Preferences column: Instant Payment Notification (IPN) Preferences.<br>Turn ''On'' IPN by selecting Receive IPN messages (Enabled) and write into Notification URL: {site}/paymentProviders/handlePayment/paypal/orders, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/paymentProviders/handlePayment/paypal/orders or<br>http://your_domain.com/site_directory/paymentProviders/handlePayment/paypal/orders<br>Then go to My Account -> Profile -> Website Payment Preferences, turn Auto Return ''On'' and write into Return URL: {site}/paymentProviders/successPayment, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/paymentProviders/successPayment', '', 'merchant_id', 'sales@test.com', '', '', 'global', 1, 3, 0, 1);
+(4, 'paypal', 'PayPal', 'To make PayPal processing system works on your site you have to perform the following steps:<br><br>Create an account on PayPal: https://www.paypal.com<br>After account is created, log into and select from the top menu: My Account -> Profile<br>On Profile Summary page select from the Selling Preferences column: Instant Payment Notification (IPN) Preferences.<br>Turn ''On'' IPN by selecting Receive IPN messages (Enabled) and write into Notification URL: {site}/paymentProviders/handlePayment/paypal/orders, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/paymentProviders/handlePayment/paypal/orders or<br>http://your_domain.com/site_directory/paymentProviders/handlePayment/paypal/orders<br>Then go to My Account -> Profile -> Website Payment Preferences, turn Auto Return ''On'' and write into Return URL: {site}/paymentProviders/successPayment, where {site} is a full URL to your site.<br><br>For example: http://your_domain.com/paymentProviders/successPayment', '', 'merchant_id', 'sales@example.com', '', '', 'global', 1, 3, 0, 1);
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>social_networks`;
@@ -1383,7 +1388,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>social_networks` (
 
 INSERT INTO `<DB_PREFIX>social_networks` (`id`, `code`, `icon`, `name`, `link`, `sort_order`, `is_active`) VALUES
 (1, 'facebook', 'facebook.png', 'Facebook', 'http://facebook.com/', 1, 1),
-(2, 'google-plus', 'google-plus.png', 'Google+', 'https://plus.google.com/', 2, 1),
+--(2, 'google-plus', 'google-plus.png', 'Google+', 'https://plus.google.com/', 2, 1),
 (3, 'twitter', 'twitter.png', 'Twitter', 'http://twitter.com/', 3, 1),
 (4, 'youtube', 'youtube.png', 'YouTube', 'http://youtube.com/', 4, 1),
 (5, 'skype', 'skype.png', 'Skype', 'http://web.skype.com/', 5, 0),
@@ -1406,5 +1411,5 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>social_networks_login` (
 
 INSERT INTO `<DB_PREFIX>social_networks_login` (`id`, `name`, `type`, `application_id`, `application_secret`, `sort_order`, `is_active`) VALUES
 (1, 'Facebook', 'facebook', '', '', 1, 0),
-(2, 'Google+', 'google', '', '', 2, 0),
+-- (2, 'Google+', 'google', '', '', 2, 0),
 (3, 'Twitter', 'twitter', '', '', 3, 0);

@@ -33,6 +33,7 @@
             ),
             'requiredFieldsAlert' => true,
             'fields'         => array(
+                'duration'       => array('type'=>'select',   'title'=>A::t('appointments', 'Duration'),       'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys($durations)), 'data'=>$durations, 'emptyOption'=>true, 'emptyValue'=>'- '.A::t('appointments', 'select').' -', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('class'=>'chosen-select-filter')),
                 'price'          => array('type'=>'textbox',  'title'=>A::t('appointments', 'Price'),          'default'=>0,     'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'float', 'minValue'=>'0.00', 'maxValue'=>'', 'format'=>$typeFormat), 'htmlOptions'=>array('maxLength'=>11, 'class'=>'small'), 'prependCode'=>$pricePrependCode.' ', 'appendCode'=>$priceAppendCode),
                 'is_default'     => array('type'=>'checkbox', 'title'=>A::t('appointments', 'Default'),        'default'=>false, 'tooltip'=>'', 'validation'=>array('type'=>'set', 'source'=>array(0,1)), 'viewType'=>'custom','htmlOptions'=>array()),
                 'is_active'      => array('type'=>'checkbox', 'title'=>A::t('appointments', 'Active'),         'default'=>true,  'tooltip'=>'', 'validation'=>array('type'=>'set', 'source'=>array(0,1)), 'viewType'=>'custom', 'htmlOptions'=>array()),

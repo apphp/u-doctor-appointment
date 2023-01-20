@@ -9,8 +9,8 @@ INSERT INTO `<DB_PREFIX>module_settings` (`id`, `module_code`, `property_group`,
 (NULL, 'webforms', '', 'shortcode', '{module:webforms}', 'Shortcode', 'This shortcode allows you to display web forms on the site pages', 'label', '', '', '', '', 0),
 (NULL, 'webforms', 'Form Fields', 'field_name', 'show-required', 'Name Field', 'Defines whether to display a Name field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
 (NULL, 'webforms', 'Form Fields', 'field_email', 'show-required', 'Email Field', 'Defines whether to display an Email field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
-(NULL, 'webforms', 'Form Fields', 'field_phone', 'show-required', 'Phone Field', 'Defines whether to display a Phone field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
-(NULL, 'webforms', 'Form Fields', 'field_company', 'show-required', 'Company Name Field', 'Defines whether to display a Company Name field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
+(NULL, 'webforms', 'Form Fields', 'field_phone', 'show-optional', 'Phone Field', 'Defines whether to display a Phone field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
+(NULL, 'webforms', 'Form Fields', 'field_company', 'show-optional', 'Company Name Field', 'Defines whether to display a Company Name field on the form', 'enum', 'show-required,show-optional,hide', '', '', '', 0),
 (NULL, 'webforms', 'Form Fields', 'field_message', 'show-required', 'Message Field', 'Defines whether to display a Message field on the form', 'enum', 'show-required,show-optional', '', '', '', 0),
 (NULL, 'webforms', 'Form Fields', 'field_captcha', 'show', 'Captcha Validation', 'Defines whether to display a Captcha on the form', 'enum', 'show,hide', '', '', '', 0);
 

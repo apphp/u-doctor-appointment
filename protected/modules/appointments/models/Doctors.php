@@ -67,6 +67,7 @@ class Doctors extends CActiveRecord
     private $_sendActivationEmail = false;
     /** @var bool */
     private $_sendPasswordChangedEmail = false;
+    private $_oldMembershipPlanId = 0;
 
     public function __construct()
     {
@@ -215,6 +216,14 @@ class Doctors extends CActiveRecord
         $lastName  = empty($lastName) && $this->isColumnExists('doctor_last_name') ? $this->doctor_last_name : $lastName;
         $username  = empty($username) && $this->isColumnExists('username') ? $this->username : $username;
         $email     = empty($email) && $this->isColumnExists('email') ? $this->email : $email;
+
+        if (in_array(CAuth::getLoggedRole(), array('mainadmin', 'admin'))) {
+            $doctor = new Doctors();
+            $doctor->findByPk($id);
+            if($doctor){
+                $this->_oldMembershipPlanId = $doctor->membership_plan_id;
+            }
+        }
 
         if($id > 0){
             $account = Accounts::model()->findByPk((int)$this->account_id);
@@ -410,6 +419,32 @@ class Doctors extends CActiveRecord
 				$this->save();
 			}
 		}
+
+        if (in_array(CAuth::getLoggedRole(), array('mainadmin', 'admin')) && !empty($this->_oldMembershipPlanId) && $this->_oldMembershipPlanId !== $this->membership_plan_id) {
+            $membershipPlan = Memberships::model()->findByPk($this->membership_plan_id);
+            if($membershipPlan){
+                $this->membership_plan_id = $membershipPlan->id;
+                $this->membership_images_count = $membershipPlan->images_count;
+                $this->membership_clinics_count = $membershipPlan->clinics_count;
+                $this->membership_schedules_count = $membershipPlan->schedules_count;
+                $this->membership_specialties_count = $membershipPlan->specialties_count;
+                $this->membership_show_in_search = $membershipPlan->show_in_search;
+                $this->membership_enable_reviews = $membershipPlan->enable_reviews;
+                if(CAuth::isLoggedInAsAdmin() || $membershipPlan->price == 0){
+                    $dayInSec = 24*60*60;
+                    $membershipDuration = $membershipPlan->duration * $dayInSec;
+                    $currentDay = CLocale::date('Y-m-d');
+                    $dateExpires = strtotime($currentDay) + $membershipDuration;
+                    $this->membership_expires = CLocale::date('Y-m-d', $dateExpires, true);
+                }else{
+                    $this->membership_expires = CLocale::date('Y-m-d', strtotime("-1 days"), true);
+                }
+                $this->save();
+            }else{
+                $this->membership_plan_id = $this->_oldMembershipPlanId;
+                $this->save();
+            }
+        }
 	}
 
     /**

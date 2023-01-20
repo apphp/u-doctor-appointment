@@ -59,6 +59,7 @@ use \A,
     \CAuth,
     \CArray,
     \CDatabase,
+    \CCurrency,
     \CHtml,
     \CFile,
     \CImage,
@@ -121,12 +122,18 @@ class DoctorsController extends CController
 		$this->_view->dateTimeFormat = $settings->datetime_format;
 		$this->_view->numberFormat   = $settings->number_format;
 		$this->_view->currencySymbol = A::app()->getCurrency('symbol');
+        $this->_view->typeFormat     = $settings->number_format;
 
 		$this->_view->labelStatusAppointments = array(
 			'0'=>'<span class="label-yellow label-square">'.A::t('appointments', 'Reserved').'</span>',
 			'1'=>'<span class="label-green label-square">'.A::t('appointments', 'Verified').'</span>',
 			'2'=>'<span class="label-red label-square">'.A::t('appointments', 'Canceled').'</span>',
 		);
+
+        $this->_view->labelPatientArrivalStatus = array(
+            '0'=>'<span class="label-red label-square">'.A::t('appointments', 'No').'</span>',
+            '1'=>'<span class="label-green label-square">'.A::t('appointments', 'Yes').'</span>',
+        );
 
         if(CAuth::isLoggedInAsAdmin()){
             // Set meta tags according to active doctors
@@ -175,6 +182,7 @@ class DoctorsController extends CController
         $this->_view->clinicCounters = $this->_prepareClinicCounters();
         $this->_view->arrImages = $this->_prepareImages();
         $this->_view->arrTimeoffs = $this->_prepareTimeoffs();
+        $this->_view->page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
         $this->_view->multiClinics = $multiClinics;
 
         $this->_view->render('doctors/manage');
@@ -227,6 +235,24 @@ class DoctorsController extends CController
         $doctor = $this->_checkDoctorAccess($id);
         $this->_prepareAccountFields();
 
+        if (CAuth::isLoggedInAsAdmin()) {
+            $arrMembershipPlans = array();
+            $membershipPlans = Memberships::model()->findAll('is_active = 1');
+
+            if (!empty($membershipPlans) && is_array($membershipPlans)) {
+                foreach ($membershipPlans as $membershipPlan) {
+                    $arrMembershipPlans[$membershipPlan['id']] = $membershipPlan['name'];
+                }
+            }
+
+            $this->_view->arrMembershipPlans             = $arrMembershipPlans;
+            $this->_view->page                           = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+            $this->_view->arrMembershipImagesCount       = array(1=>1, 2=>2, 3=>3, 4=>4, 5=>5, 6=>6, 7=>7, 8=>8, 9=>9, 10=>10);
+            $this->_view->arrMembershipClinicsCount      = array(1=>1, 2=>2, 3=>3, 4=>4, 5=>5,);
+            $this->_view->arrMembershipSchedulesCount    = array(1=>1, 2=>2, 3=>3, 4=>4, 5=>5,);
+            $this->_view->arrMembershipSpecialtiesCount  = array(1=>1, 2=>2, 3=>3, 4=>4, 5=>5,);
+        }
+
         $cRequest = A::app()->getRequest();
         if($cRequest->isPostRequest()){
             $this->_view->countryCode = $cRequest->getPost('country_code');
@@ -271,6 +297,8 @@ class DoctorsController extends CController
             $this->_view->actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
         }
 
+        $this->_view->page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+
         $this->_view->render('doctors/edit');
     }
 
@@ -290,6 +318,8 @@ class DoctorsController extends CController
         $alert = '';
         $alertType = '';
 
+        $page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+
         if($doctor->delete()){
             $alert = A::t('appointments', 'Doctors deleted successfully');
             $alertType = 'success';
@@ -308,7 +338,7 @@ class DoctorsController extends CController
             A::app()->getSession()->setFlash('alertType', $alertType);            
         }
 
-        $this->redirect('doctors/manage');
+        $this->redirect('doctors/manage'.(!empty($page) ? '?page='.(int)$page : 1));
     }
 
     /**
@@ -373,10 +403,10 @@ class DoctorsController extends CController
             // --------------------------------------------------
             if(!CAuth::isLoggedIn()){
                 if($this->_view->allowRememberMe){
-                    parse_str(A::app()->getCookie()->get('doctorAuth'));
-                    if(!empty($usr) && !empty($hash)){
-                        $username = CHash::decrypt($usr, CConfig::get('password.hashKey'));
-                        $password = $hash;
+					parse_str(A::app()->getCookie()->get('doctorAuth'), $output);
+					if(!empty($output['usr']) && !empty($output['hash'])){
+						$username = CHash::decrypt($output['usr'], CConfig::get('password.hashKey'));
+						$password = $output['hash'];
 
                         // Check if access is blocked to this username
                         $usernameBanned = Website::checkBan('username', $username);
@@ -1332,6 +1362,7 @@ class DoctorsController extends CController
 
 		$alert = A::app()->getSession()->getFlash('alert');
 		$alertType = A::app()->getSession()->getFlash('alertType');
+        $condition = '';
 
 		if(!empty($alert)){
 			$this->_view->actionMessage = CWidget::create(
@@ -1340,12 +1371,23 @@ class DoctorsController extends CController
 		}
 
 		$doctorId = CAuth::getLoggedRoleId();
-		$this->_view->status = $status;
 		if(!empty($doctorId)){
 			$this->_view->doctorId = $doctorId;
 		}else{
 			$this->redirect('Home/index');
 		}
+
+        $tableName = CConfig::get('db.prefix').Appointments::model()->getTableName();
+        if($status == 'all'){
+            $condition	= $tableName.'.doctor_id = '.$doctorId.' AND ('.$tableName.'.status = 1 OR '.$tableName.'.status = 0)';
+        }elseif($status == 'future'){
+            $condition	= $tableName.'.doctor_id = '.$doctorId.' AND ('.$tableName.'.status = 1 OR '.$tableName.'.status = 0) AND ('.$tableName.".appointment_date > '".LocalTime::currentDateTime('Y-m-d')."'".' OR ('.$tableName.".appointment_date = '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableName.".appointment_time > '".LocalTime::currentDateTime('H:i:s')."'))";
+        }elseif($status == 'past'){
+            $condition	= $tableName.'.doctor_id = '.$doctorId.' AND ('.$tableName.'.status = 1 OR '.$tableName.'.status = 0) AND ('.$tableName.".appointment_date < '".LocalTime::currentDateTime('Y-m-d')."'".' OR ('.$tableName.".appointment_date = '".LocalTime::currentDateTime('Y-m-d')."'".' AND '.$tableName.".appointment_time < '".LocalTime::currentDateTime('H:i:s')."'))";
+        }
+
+        $this->_view->status = $status;
+        $this->_view->condition = $condition;
         $this->_view->checkAccessAccountUsingMembershipPlan = DoctorsComponent::checkAccessAccountUsingMembershipPlan(false);
         $this->_view->appointmentTimeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
         $this->_view->render('doctors/appointments');
@@ -1410,10 +1452,24 @@ class DoctorsController extends CController
             $forWhom = A::t('appointments', 'Me');
         }
 
+        $appendCode  = '';
+        $prependCode = '';
+        $symbol      = A::app()->getCurrency('symbol');
+        $symbolPlace = A::app()->getCurrency('symbol_place');
+
+        if($symbolPlace == 'before'){
+            $prependCode = $symbol;
+        }else{
+            $appendCode = $symbol;
+        }
+
+        $this->_view->pricePrependCode = $prependCode;
+        $this->_view->priceAppendCode  = $appendCode;
         $this->_view->forWhom = $forWhom;
         $this->_view->visitReason = $visitReason;
 		$this->_view->id = $id;
 		$this->_view->status = $status;
+        $this->_view->editPatientArrivalStatus = array('0'=>A::t('appointments', 'Not Arrived'), '1'=>A::t('appointments', 'Arrived'));
         $this->_view->appointmentTimeFormat = ModulesSettings::model()->param('appointments', 'time_format_appointment_time');
         $this->_view->render('doctors/editAppointment');
 	}
@@ -1506,6 +1562,181 @@ class DoctorsController extends CController
         }
         $this->redirect('doctors/appointments'.(!empty($status) ? '/status/'.$status : ''));
     }
+
+    /**
+     * Show page Patients for doctor
+     * @return void
+     */
+    public function patientsAction()
+    {
+        // block access to this controller for not-logged doctors
+        CAuth::handleLogin('doctors/login', 'doctor');
+        // set meta tags according to active language
+        Website::setMetaTags(array('title'=>A::t('appointments', 'Patients')));
+        // set frontend settings
+        Website::setFrontend();
+
+        $alert = A::app()->getSession()->getFlash('alert');
+        $alertType = A::app()->getSession()->getFlash('alertType');
+
+        if(!empty($alert)){
+            $this->_view->actionMessage = CWidget::create(
+                'CMessage', array($alertType, $alert, array('button'=>true))
+            );
+        }
+
+        $doctorId = CAuth::getLoggedRoleId();
+        if(!empty($doctorId)){
+            $this->_view->doctorId = $doctorId;
+        }else{
+            $this->redirect('Home/index');
+        }
+
+        $this->_view->render('doctors/patients');
+    }
+
+    /**
+     * Add new action handler
+     * @return void
+     */
+    public function addPatientAction()
+    {
+        // block access to this controller for not-logged doctors
+        CAuth::handleLogin('doctors/login', 'doctor');
+        // set frontend mode
+        Website::setFrontend();
+
+        $this->_prepareAccountFields();
+
+        $cRequest = A::app()->getRequest();
+        if($cRequest->isPostRequest()){
+            $this->_view->countryCode = $cRequest->getPost('country_code');
+            $this->_view->stateCode = $cRequest->getPost('state');
+        }else{
+            $this->_view->countryCode = $this->_view->defaultCountryCode;
+            $this->_view->stateCode = '';
+        }
+
+        // prepare salt
+        $this->_view->salt = '';
+        if(A::app()->getRequest()->getPost('password') != ''){
+            $this->_view->salt = CConfig::get('password.encryptSalt') ? CHash::salt() : '';
+        }
+
+        $this->_view->render('doctors/addPatient');
+    }
+
+    /**
+     * Edit patients action handler
+     * @param int $id
+     * @return void
+     */
+    public function editPatientAction($id = 0)
+    {
+        // block access to this controller for not-logged doctors
+        CAuth::handleLogin('doctors/login', 'doctor');
+        // set frontend mode
+        Website::setFrontend();
+        $patient = $this->_checkPatientAccess($id);
+        $this->_prepareAccountFields();
+
+        $alert = '';
+        $alertType = '';
+
+        $cRequest = A::app()->getRequest();
+        if($cRequest->isPostRequest()){
+            $this->_view->countryCode = $cRequest->getPost('country_code');
+            $this->_view->stateCode = $cRequest->getPost('state');
+        }else{
+            $this->_view->countryCode = $patient->country_code;
+            $this->_view->stateCode = $patient->state;
+        }
+
+        $this->_view->id = $patient->id;
+        // fetch datetime format from settings table
+        $this->_view->dateTimeFormat = Bootstrap::init()->getSettings('datetime_format');
+
+        // prepare salt
+        $this->_view->salt = '';
+        if(A::app()->getRequest()->getPost('password') != ''){
+            $this->_view->salt = CConfig::get('password.encryptSalt') ? CHash::salt() : '';
+            A::app()->getRequest()->setPost('salt', $this->_view->salt);
+        }
+
+        if(!empty($alert)){
+            $this->_view->actionMessage = CWidget::create('CMessage', array($alertType, $alert, array('button'=>true)));
+        }
+
+        $this->_view->render('doctors/editPatient');
+    }
+
+    /**
+     * Displays a calendar with all appointments.
+     */
+    public function calendarAction()
+    {
+
+        // block access to this controller for not-logged doctors
+        CAuth::handleLogin('doctors/login', 'doctor');
+        // set meta tags according to active language
+        Website::setMetaTags(array('title'=>A::t('appointments', 'Calendar')));
+        // set frontend settings
+        Website::setFrontend();
+
+        $doctorId = CAuth::getLoggedRoleId();
+        $doctor = $this->_checkDoctorAccess($doctorId);
+        $appointments = Appointments::model()->findAll('doctor_id = '.$doctor->id);
+
+        $drawCalendar = AppointmentsComponent::drawCalendar($doctor->id);
+        $actionMessage = '';
+
+        if (!$drawCalendar) {
+            $actionMessage = CWidget::create('CMessage', array('info', A::t('app', 'No records found!'), array('button'=>false)));
+        }
+
+        $this->_view->doctorFullName = $doctor->getFullName();
+        $this->_view->actionMessage = $actionMessage;
+        $this->_view->page = !empty(A::app()->getRequest()->get('page')) ? A::app()->getRequest()->get('page') : 1;
+        $this->_view->render('doctors/calendar');
+    }
+
+    /**
+     * Delete action handler
+     * @param int $id
+     * @return void
+     */
+    // public function deletePatientAction($id = 0)
+    // {
+    //     // block access to this controller for not-logged doctors
+    //     CAuth::handleLogin('doctors/login', 'doctor');
+    //     // set frontend mode
+    //     Website::setFrontend();
+    //     $patient = $this->_checkPatientAccess($id);
+    //     $this->_prepareAccountFields();
+    //
+    //     $alert = '';
+    //     $alertType = '';
+    //
+    //     if($patient->delete()){
+    //         $alert = A::t('appointments', 'Patients deleted successfully');
+    //         $alertType = 'success';
+    //     }else{
+    //         if(APPHP_MODE == 'demo'){
+    //             $alert = CDatabase::init()->getErrorMessage();
+    //             $alertType = 'warning';
+    //         }else{
+    //             $alert = A::t('appointments', 'Patients deleting error');
+    //             $alertType = 'error';
+    //         }
+    //     }
+    //
+    //     if(!empty($alert)){
+    //         A::app()->getSession()->setFlash('alert', $alert);
+    //         A::app()->getSession()->setFlash('alertType', $alertType);
+    //     }
+    //
+    //     $this->redirect('patients/manage');
+    // }
 
 
     /**

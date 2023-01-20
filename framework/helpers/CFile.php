@@ -27,6 +27,7 @@
  * findFiles
  * deleteFile
  * getFileSize
+ * getFileTime
  * getImageDimensions
  * createShortenName
  * getFileContent
@@ -47,12 +48,12 @@ class CFile
 	public static function isWritable($file)
 	{
 		// Check if we're on a Unix server with safe_mode "off", in this case we call is_writable
-		if (DIRECTORY_SEPARATOR === '/' && (substr(phpversion(), 0, 3) == '5.4' || !ini_get('safe_mode'))){
+		if(DIRECTORY_SEPARATOR === '/' && (substr(phpversion(), 0, 3) == '5.4' || !ini_get('safe_mode'))){
 			return is_writable($file);
 		}
 
 		// For Windows servers and safe_mode "on" we'll actually write a file and then read it.
-		if (is_dir($file)){
+		if(is_dir($file)){
 			$file = rtrim($file, '/').'/'.md5(mt_rand());
 			if(($fp = @fopen($file, 'ab')) === false){
 				return false;
@@ -479,13 +480,33 @@ class CFile
 				$result = number_format($filesSize, 2, '.', ',');
 				break;
 		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Returns last date of the given file modification
+	 * @param string $file
+	 * @param string $timeFormat
+	 * @return bool|string
+	 */
+	public static function getFileTime($file, $timeFormat = 'Y-m-d H:i:s')
+	{
+		$result = false;
+		
+		if(!$file || !is_file($file)) return $result;
+		
+		if(file_exists($file)){
+			$result = date($timeFormat, filemtime($file));
+		}
+		
 		return $result;
 	}
 	
 	/**
 	 * Returns dimensions of the given file
 	 * @param string $image
-	 * @return array
+	 * @return int|array
 	 */
 	public static function getImageDimensions($image)
 	{

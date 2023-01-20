@@ -5823,7 +5823,7 @@ textarea {padding:8px 10px;}
 }
 
 .tp-bannershadow.tp-shadow2 {
-	background-image:url(../images/img/shadow_2.png) !important;
+	/*background-image:url(../images/img/shadow_2.png) !important;*/
     background-attachment:scroll !important;
     background-clip:border-box !important;
     background-color:transparent;
@@ -6103,6 +6103,20 @@ textarea {padding:8px 10px;}
 	color: #2CBFD9;
 }
 
+
+/*@media (min-width:1367px) {*/
+	/*.doctor_details #patient_name{*/
+		/*width: 43%;*/
+		/*margin-right: 5px;*/
+	/*}*/
+/*}*/
+
+/*@media (max-width:1366px) {*/
+	/*.doctor_details #patient_name{*/
+		/*margin-right: 5px;*/
+	/*}*/
+/*}*/
+
 .frmAppointments label{
 	width: 160px;
 	margin: 10px 0;
@@ -6169,40 +6183,6 @@ hr.hr-style {
 
 @media (max-width:1439px) {
 	.frmFilter { height: 110px}
-}
-
-#prev_page{
-	margin-top: 20px;
-	float: left;
-	border-style: solid;
-	border-width: 7px 7px 7px 0;
-	border-color: transparent #2CBFD9 transparent transparent;
-}
-
-#prev_page:hover{
-	border-color: transparent #aaaaaa transparent transparent;
-}
-
-#prev_page.no_active_pagination_appointment{
-	border-color: transparent #aaaaaa transparent transparent;
-	cursor: default;
-}
-
-#next_page{
-	margin-top: 20px;
-	float: right;
-	border-style: solid;
-	border-width: 7px 0 7px 7px;
-	border-color: transparent transparent transparent #2cbfd9;
-}
-
-#next_page:hover{
-	border-color: transparent transparent transparent #aaaaaa;
-}
-
-#next_page.no_active_pagination_appointment{
-	border-color: transparent transparent transparent #aaaaaa;
-	cursor: default;
 }
 
 .margin-left-30-percent{
@@ -6295,3 +6275,19 @@ input[type=text]::-moz-placeholder {
 	-o-transition:all .3s ease-in-out;
 	transition:all .3s ease-in-out;
 }
+
+span.hide-footer{
+	display: none;
+}
+
+@media (max-width:1024px) {
+	.hide-footer{
+		display: none;
+	}
+
+	span.hide-footer{
+		display: block;
+	}
+}
+
+.old-events{ opacity: 0.5; }

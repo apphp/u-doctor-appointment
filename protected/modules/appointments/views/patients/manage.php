@@ -29,7 +29,7 @@
         $tablePatientsName = CConfig::get('db.prefix').Patients::model()->getTableName();
         $filterFields['id']         = array('title'=>'', 'visible'=>false, 'table'=>$tablePatientsName, 'type'=>'textbox', 'operator'=>'=', 'width'=>'100px', 'maxLength'=>'32');
         $filterFields['patient_first_name,patient_last_name'] = array('title'=>A::t('appointments', 'Patient Name'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'32');
-        $filterFields['username']   = array('title'=>A::t('appointments', 'Username'), 'type'=>'textbox', 'operator'=>'like%', 'default'=>'', 'width'=>'100px', 'maxLength'=>'25');
+        $filterFields['username']   = array('title'=>A::t('appointments', 'Username'), 'type'=>'textbox', 'operator'=>'like%', 'default'=>'', 'width'=>'100px', 'maxLength'=>'32');
         $filterFields['email']      = array('title'=>A::t('appointments', 'Email'), 'type'=>'textbox', 'operator'=>'like%', 'width'=>'100px', 'maxLength'=>'100');
         $filterFields['is_active']  = array('title'=>A::t('appointments', 'Active'), 'type'=>'enum', 'operator'=>'=', 'width'=>'60px', 'source'=>array(''=>'', '0'=>A::t('appointments', 'No'), '1'=>A::t('appointments', 'Yes')), 'emptyOption'=>true, 'emptyValue'=>'');
 
@@ -49,11 +49,13 @@
             'sorting'=>true,
             'filters'=>$filterFields,
             'fields'=>array(
-                'patient_last_name' => array('title'=>A::t('appointments', 'Last Name'), 'type'=>'label', 'align'=>'', 'width'=>'110px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-                'patient_first_name' => array('title'=>A::t('appointments', 'First Name'), 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-                'username' => array('title'=>A::t('appointments', 'Username'), 'type'=>'label', 'align'=>'', 'width'=>'80px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-                'email' => array('title'=>A::t('appointments', 'Email'), 'type'=>'label', 'align'=>'', 'width'=>'150px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'patient_last_name' => array('title'=>A::t('appointments', 'Last Name'), 'type'=>'label', 'align'=>'', 'width'=>'130px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'patient_first_name' => array('title'=>A::t('appointments', 'First Name'), 'type'=>'label', 'align'=>'', 'width'=>'130px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
                 'phone' => array('title'=>A::t('appointments', 'Phone'), 'type'=>'label', 'align'=>'', 'width'=>'130px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'email' => array('title'=>A::t('appointments', 'Email'), 'type'=>'label', 'align'=>'', 'width'=>'210px', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'username' => array('title'=>A::t('appointments', 'Username'), 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'appt_link'       => array('title'=>'', 'type'=>'link', 'width'=>'100px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'appointments/manage?patient_id={id}&but_filter=Filter', 'linkText'=>A::t('appointments', 'Appointments'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
+                'orders_link'     => array('title'=>'', 'type'=>'link', 'width'=>'130px', 'class'=>'center', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'patients/medicalCard/patientId/{id}', 'linkText'=>A::t('appointments', 'Medical Card'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
                 'is_active' => $isActive,
             ),
             'actions'=>array(

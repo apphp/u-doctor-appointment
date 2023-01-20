@@ -15,7 +15,7 @@
 		'country'		=> 'us',
 		'first_name'	=> 'John',
 		'last_name'		=> 'Smith',
-		'email'			=> 'j.smith@email.me',
+		'email'			=> 'j.smith@example.com',
 		'phone'			=> '12345678',
 	);
 	
@@ -70,7 +70,7 @@
 					'custom'		=> $product['order_id'],	// order ID
 					'lc'			=> '', 		// country's language  
 					'cn'			=> '', 		// If this variable is omitted, the default label above the note field is "Add special instructions to merchant."
-					'rm'			=> '', 		// Return method. 0 – all shopping cart payments use the GET method, 1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
+					'rm'			=> '', 		// Return method. 0 ï¿½ all shopping cart payments use the GET method, 1 ï¿½ the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 ï¿½ the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
 												// The rm variable takes effect only if the return variable is set.
 					'currency_code'	=> $product['currency_code'], 	// The currency of the payment. The default is USD.
 					'no_shipping'	=> '', 		// Do not prompt buyers for a shipping address.
@@ -103,7 +103,7 @@
 					'custom'		=> $product['order_id'],	// order ID
 					'lc'			=> '', 		// country's language  
 					'cn'			=> '', 		// If this variable is omitted, the default label above the note field is "Add special instructions to merchant."
-					'rm'			=> '', 		// Return method. 0 – all shopping cart payments use the GET method, 1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
+					'rm'			=> '', 		// Return method. 0 ï¿½ all shopping cart payments use the GET method, 1 ï¿½ the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 ï¿½ the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
 												// The rm variable takes effect only if the return variable is set.
 					'currency_code'	=> $product['currency_code'], 	// The currency of the payment. The default is USD.
 					'no_shipping'	=> '', 		// Do not prompt buyers for a shipping address.
@@ -136,7 +136,7 @@
 					'custom'		=> $product['order_id'],	// order ID
 					'lc'			=> '', 		// country's language  
 					'cn'			=> '', 		// If this variable is omitted, the default label above the note field is "Add special instructions to merchant."
-					'rm'			=> '', 		// Return method. 0 – all shopping cart payments use the GET method, 1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
+					'rm'			=> '', 		// Return method. 0 ï¿½ all shopping cart payments use the GET method, 1 ï¿½ the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 ï¿½ the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
 												// The rm variable takes effect only if the return variable is set.
 					'currency_code'	=> $product['currency_code'], 	// The currency of the payment. The default is USD.
 					'no_shipping'	=> '', 		// Do not prompt buyers for a shipping address.
@@ -169,7 +169,7 @@
 					'custom'		=> $product['order_id'],	// order ID
 					'lc'			=> '', 		// country's language  
 					'cn'			=> '', 		// If this variable is omitted, the default label above the note field is "Add special instructions to merchant."
-					'rm'			=> '', 		// Return method. 0 – all shopping cart payments use the GET method, 1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
+					'rm'			=> '', 		// Return method. 0 ï¿½ all shopping cart payments use the GET method, 1 ï¿½ the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included, 2 ï¿½ the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included
 												// The rm variable takes effect only if the return variable is set.
 					'currency_code'	=> $product['currency_code'], 	// The currency of the payment. The default is USD.
 					'no_shipping'	=> '', 		// Do not prompt buyers for a shipping address.

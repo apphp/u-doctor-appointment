@@ -15,7 +15,7 @@
  * prepareBackendAction
  * prepareLinkByFormat
  * checkBan
- * getRefererPage
+ * getReferrerPage
  * getCurrentPage
  * getDefaultPage
  * isDefaultPage
@@ -340,12 +340,12 @@ class Website extends CComponent
 	}
 
 	/**
-	 * Gets referer URL
+	 * Gets referrer URL
 	 * @return string
 	 */
-	public static function getRefererPage()
+	public static function getReferrerPage()
 	{
-		return A::app()->getRequest()->getUrlReferer();
+		return A::app()->getRequest()->getUrlReferrer();
 	}
 
 	/**

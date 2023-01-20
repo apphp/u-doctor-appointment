@@ -33,6 +33,7 @@
             'filters'=>array(
                 'order_number' => array('title'=>A::t('appointments', 'Order Number'), 'type'=>'textbox', 'operator'=>'=', 'width'=>'100px', 'maxLength'=>''),
                 'created_date' => array('title'=>A::t('appointments', 'Date'), 'type'=>'datetime', 'operator'=>'like%', 'width'=>'80px', 'maxLength'=>'', 'format'=>''),
+                'doctor_id'    => array('title'=>A::t('appointments', 'Doctor'), 'type'=>'enum', 'table'=>$tableNameOrders, 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>$filterDoctors, 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
                 'status'       => array('title'=>A::t('appointments', 'Status'), 'type'=>'enum', 'operator'=>'=', 'width'=>'100px', 'emptyOption'=>true, 'emptyValue'=>'--', 'source'=>$allStatus, 'emptyOption'=>true),
             ),
             'fields'=>array(

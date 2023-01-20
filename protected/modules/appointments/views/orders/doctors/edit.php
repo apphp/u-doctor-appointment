@@ -105,7 +105,7 @@
                 <td><?= A::t('appointments', 'Membership Plan'); ?>: </td><td><a href="memberships/manage?id=<?= $order->membership_plan_id; ?>&but_filter=Filter" target="_blank" rel="noopener noreferrer"><?= $planName; ?></a></td>
             </tr>
             <tr>
-                <td width="30%"><?= A::t('appointments', 'Order Number'); ?>: </td><td><?= $order->order_number; ?></td>
+                <td width="30%"><?= A::t('appointments', 'Order Number'); ?>: </td><td><?= ($order->order_number ? $order->order_number : A::t('appointments', 'Unknown')); ?></td>
             </tr>
             <tr>
                 <td><?= A::t('appointments', 'Status'); ?>: </td><td><?= isset($allStatus[$order->status]) ? $allStatus[$order->status] : A::t('appointments', 'Unknown'); ?></td>
@@ -114,7 +114,7 @@
                 <td><?= A::t('appointments', 'Date Created'); ?>: </td><td><?= CLocale::date($dateTimeFormat, $order->created_date); ?></td>
             </tr>
             <tr>
-                <td><b><?= A::t('appointments', 'Subtotal'); ?>: </b></td><td><b><?= $beforePrice.CNumber::format($order->order_price + $order->shipping_fee, $numberFormat, array('decimalPoints'=>2)).$afterPrice; ?></b></td>
+                <td><b><?= A::t('appointments', 'Subtotal'); ?>: </b></td><td><b><?= $beforePrice.CNumber::format($order->order_price, $numberFormat, array('decimalPoints'=>2)).$afterPrice; ?></b></td>
             </tr>
             <tr>
                 <td><b><?= A::t('appointments', 'Grand Total'); ?>: </b></td><td><b><?= $beforePrice.CNumber::format($order->total_price, $numberFormat, array('decimalPoints'=>2)).$afterPrice; ?></b></td>
@@ -127,25 +127,25 @@
                     <td class="title" colspan="2"><?= A::t('appointments', 'Doctor'); ?>:</td>
                 </tr>
                 <tr>
-                    <td width="30%"><?= A::t('appointments', 'First Name'); ?>: </td><td><?= $doctor->doctor_first_name; ?></td>
+                    <td width="30%"><?= A::t('appointments', 'First Name'); ?>: </td><td><?= ($doctor->doctor_first_name ? $doctor->doctor_first_name : A::t('appointments', 'Unknown')); ?></td>
                 </tr>
                 <tr>
-                    <td><?= A::t('appointments', 'Last Name'); ?>: </td><td><?= $doctor->doctor_last_name; ?></td>
+                    <td><?= A::t('appointments', 'Last Name'); ?>: </td><td><?= ($doctor->doctor_last_name ? $doctor->doctor_last_name : A::t('appointments', 'Unknown')); ?></td>
                 </tr>
                 <tr>
-                    <td><?= A::t('appointments', 'Email'); ?>: </td><td><?= $doctor->email; ?></td>
+                    <td><?= A::t('appointments', 'Email'); ?>: </td><td><?= ($doctor->email ? $doctor->email : A::t('appointments', 'Unknown')); ?></td>
                 </tr>
                 <tr>
                     <td><?= A::t('appointments', 'Phone'); ?>: </td><td><?= ($doctor->phone ? $doctor->phone : A::t('appointments', 'Unknown')); ?></td>
                 </tr>
                 <tr>
-                    <td><?= A::t('appointments', 'Address'); ?>: </td><td><?= $doctor->address; ?></td>
+                    <td><?= A::t('appointments', 'Address'); ?>: </td><td><?= ($doctor->address ? $doctor->address : A::t('appointments', 'Unknown')); ?></td>
                 </tr>
                 <tr>
-                    <td><?= A::t('appointments', 'City'); ?>: </td><td><?= ($doctor->city ? $doctor->city : ''); ?></td>
+                    <td><?= A::t('appointments', 'City'); ?>: </td><td><?= ($doctor->city ? $doctor->city : '--'); ?></td>
                 </tr>
                 <tr>
-                    <td><?= A::t('appointments', 'Zip Code'); ?>: </td><td><?= ($doctor->zip_code ? $doctor->zip_code : ''); ?></td>
+                    <td><?= A::t('appointments', 'Zip Code'); ?>: </td><td><?= ($doctor->zip_code ? $doctor->zip_code : '--'); ?></td>
                 </tr>
                 <tr>
                     <td><?= A::t('appointments', 'State/Province'); ?>: </td><td><?= (isset($arrStateNames[$doctor->state]) ? $doctor->state.' ('.$arrStateNames[$doctor->state].')' : $doctor->state); ?></td>

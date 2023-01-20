@@ -7,6 +7,8 @@
         array('label'=> A::t('appointments' , 'Book Appointment'), 'url'=>'appointments/appointments'),
         array('label' => A::t('appointments', 'Appointment Details'))
     );
+
+    A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
 ?>
 <section id="content" role="main">
     <div class="entry">
@@ -72,7 +74,7 @@
                         <li id="tab_appointment_complete" class=""><a href="javascript:void(0);" data-type-tab="deactivate"><span><?= A::t('appointments', '3. Completed!'); ?></span></a></li>
                     </ul>
                     <div class="tab_content">
-                        <div id="appointment_details" class="tabs_tab" style="display: block;">
+                        <div id="appointment_details" class="tabs_tab doctor_details" style="display: block;">
                             <div class="one_first">
                                 <?php
                                 echo CWidget::create('CFormView', array(
@@ -86,15 +88,15 @@
                                     'fieldSets' 	=> array('type'=>'tabs', 'frameset'=>true),
                                     'fieldWrapper'  => array('tag'=>'div', 'class'=>'row'),
                                     'fields'		=> array(
-                                        'patient_id:'           => array('type'=>'hidden', 'value'=>'', 'htmlOptions'=>array('id'=>'patient_id')),
-                                        'patient_name:'         => array('type'=>'textbox', 'title'=>A::t('appointments', 'Patient'), 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'mandatoryStar'=>true, 'htmlOptions'=>array('id'=>'patient_name')),
-                                        'specialty:'            =>array('type'=>'select', 'title'=>A::t('appointments', 'Doctor\'s Specialty'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$arrDoctorSpecialties, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'specialty')),
-                                        'visited_before:'       =>array('type'=>'select', 'title'=>A::t('appointments', 'Have you visited this doctor before?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>0, 'data'=>$visitedBefore, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'visited_before')),
-                                        'insurance:'            =>array('type'=>'select', 'title'=>A::t('appointments', 'Will you use insurance?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$insurance, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'insurance')),
-                                        'reasons:'              =>array('type'=>'select', 'title'=>A::t('appointments', 'Visit Reasons'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$visitReasons, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'reasons')),
-										'other_reasons:'        => array('type'=>'textbox', 'title'=>false, 'tooltip'=>'', 'validation'=>array('required'=>false, 'maxLength'=>50, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>50, 'id'=>'other_reasons', 'placeholder'=>A::t('appointments', 'Enter Visit Reason'),  'style'=>'display:none;')),
-										'appointment_for_whom:' =>array('type'=>'select', 'title'=>A::t('appointments', 'Who is this appointment for?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$appointmentForWhom, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'appointment_for_whom')),
-										'for_whom_someone_else:'=> array('type'=>'textbox', 'title'=>false, 'tooltip'=>'', 'validation'=>array('required'=>false, 'maxLength'=>50, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>50, 'id'=>'for_whom_someone_else', 'placeholder'=>A::t('appointments', 'Enter whom this appointment is?'),  'style'=>'display:none;')),
+                                        'patient_id'           => array('type'=>'hidden', 'value'=>'', 'htmlOptions'=>array('id'=>'patient_id')),
+                                        'patient_name'         => array('type'=>'textbox', 'title'=>A::t('appointments', 'Patient'), 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'text'), 'mandatoryStar'=>true, 'appendCode'=>'<a id="create-patient" class="button_small" href="javascript:void(0);">'.A::t('appointments', 'Create New Patient').'</a>', 'htmlOptions'=>array('id'=>'patient_name')),
+                                        'specialty'            => array('type'=>'select', 'title'=>A::t('appointments', 'Doctor\'s Specialty'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$arrDoctorSpecialties, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'specialty')),
+                                        'visited_before'       => array('type'=>'select', 'title'=>A::t('appointments', 'Have you visited this doctor before?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>0, 'data'=>$visitedBefore, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'visited_before')),
+                                        'insurance'            => array('type'=>'select', 'title'=>A::t('appointments', 'Will you use insurance?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$insurance, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'insurance')),
+                                        'reasons'              => array('type'=>'select', 'title'=>A::t('appointments', 'Visit Reasons'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$visitReasons, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'reasons')),
+										'other_reasons'        => array('type'=>'textbox', 'title'=>false, 'tooltip'=>'', 'validation'=>array('required'=>false, 'maxLength'=>50, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>50, 'id'=>'other_reasons', 'placeholder'=>A::t('appointments', 'Enter Visit Reason'),  'style'=>'display:none;')),
+										'appointment_for_whom' => array('type'=>'select', 'title'=>A::t('appointments', 'Who is this appointment for?'), 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>$appointmentForWhom, 'emptyOption'=>true, 'emptyValue'=>'-- '.A::t('appointments', 'select').' --', 'viewType'=>'dropdownlist', 'multiple'=>false, 'htmlOptions'=>array('id'=>'appointment_for_whom')),
+										'for_whom_someone_else'=> array('type'=>'textbox', 'title'=>false, 'tooltip'=>'', 'validation'=>array('required'=>false, 'maxLength'=>50, 'type'=>'text'), 'htmlOptions'=>array('maxLength'=>50, 'id'=>'for_whom_someone_else', 'placeholder'=>A::t('appointments', 'Enter whom this appointment is?'),  'style'=>'display:none;')),
                                     ),
                                     'buttons'=>array(
                                         'custom'=>array('type'=>'button', 'value'=>A::t('appointments', 'Book Now'), 'htmlOptions'=>array('id'=>'book_now', 'class'=>'button_small', 'onclick'=>'appointmentVerify(this);', 'data-type-account'=>'doctor', 'data-date-time'=>$appointmnetnDate, 'data-doctor-id'=>$profileDoctor->id)),
@@ -145,6 +147,7 @@
         </div>
     </div>
 </section>
+<?= $createPatientPopup; ?>
 
 <?php
 A::app()->getClientScript()->registerScript(

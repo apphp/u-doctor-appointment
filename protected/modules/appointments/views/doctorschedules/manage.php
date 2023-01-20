@@ -47,10 +47,10 @@
             'sorting'=>true,
             'fields'=>array(
                 'name'          => array('title'=>A::t('appointments', 'Name'), 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-                'schedule_link' => array('title'=>A::t('appointments', ''), 'type'=>'link', 'width'=>'80px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'doctorSchedules/manageTimeBlocks/doctorId/{doctor_id}/scheduleId/{id}', 'linkText'=>A::t('appointments', 'Time Slots'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
-                'schedule_id'   => array('title'=>'', 'sourceField'=>'id', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'30px', 'source'=>$timeBlockCounters, 'definedValues'=>array(''=>'<span class="label-zerogray">0</span>'), 'isSortable'=>true, 'class'=>'left', 'prependCode'=>'<span class="label-lightgray">', 'appendCode'=>'</span>'),
-                'date_from'     => array('title'=>A::t('appointments', 'Valid From Date'), 'type'=>'label', 'align'=>'', 'width'=>'120px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>$dateFormat),
-                'date_to'       => array('title'=>A::t('appointments', 'Valid To Date'), 'type'=>'label', 'align'=>'', 'width'=>'120px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>$dateFormat),
+                'schedule_link' => array('title'=>A::t('appointments', ''), 'type'=>'link', 'width'=>'110px', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>false, 'linkUrl'=>'doctorSchedules/manageTimeBlocks/doctorId/{doctor_id}/scheduleId/{id}', 'linkText'=>A::t('appointments', 'Time Slots'), 'prependCode'=>'[ ', 'appendCode'=>' ]'),
+                'schedule_id'   => array('title'=>'', 'sourceField'=>'id', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'50px', 'source'=>$timeBlockCounters, 'definedValues'=>array(''=>'<span class="label-zerogray">0</span>'), 'isSortable'=>true, 'class'=>'left', 'prependCode'=>'<span class="label-lightgray">', 'appendCode'=>'</span>'),
+                'date_from'     => array('title'=>A::t('appointments', 'Valid From Date'), 'type'=>'label', 'align'=>'', 'width'=>'130px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>$dateFormat),
+                'date_to'       => array('title'=>A::t('appointments', 'Valid To Date'), 'type'=>'label', 'align'=>'', 'width'=>'130px', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>$dateFormat),
                 'is_active'     => $isActive,
             ),
             'actions'=>array(

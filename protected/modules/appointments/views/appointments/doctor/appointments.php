@@ -31,7 +31,7 @@ $this->_breadCrumbs = array(
                         </div>
                         <div class="cmsms_features_item padding-5-0">
                             <span class="cmsms_features_item_title"><?= A::t('appointments', 'Gender'); ?></span>
-                            <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? 'Male' : 'Famale' : '--'; ?></span>
+                            <span class="cmsms_features_item_desc"><?= $profileDoctor->gender ? ($profileDoctor->gender == 'm') ? 'Male' : 'Female' : '--'; ?></span>
                         </div>
                         <div class="cmsms_features_item padding-5-0">
                             <span class="cmsms_features_item_title"><?= A::t('appointments', 'Degree'); ?></span>
@@ -89,17 +89,3 @@ $this->_breadCrumbs = array(
         </div>
     </div>
 </section>
-
-<?php
-A::app()->getClientScript()->registerScript(
-    'banned-appointment',
-    'function onBannedAppointment(el){return confirm("'.A::t('appointments', 'You have reached a maximum allowed number of the appointments: {number}', array('{number}'=>$maxAppointmentPerPatient)).'");}',
-    2
-);
-
-A::app()->getClientScript()->registerScript(
-    'banned-appointment-to-specialist',
-    'function onBannedAppointmentToSpecialist(el){return confirm("'.A::t('appointments', 'You have reached a maximum allowed number of the appointments to this specialist: {number}', array('{number}'=>$maxAppointmentToSpecialist)).'");}',
-    2
-);
-?>
